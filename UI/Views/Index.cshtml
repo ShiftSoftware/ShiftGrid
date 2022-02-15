@@ -1,0 +1,26 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+
+    <script type="module" src="/js/ShiftGrid.js"></script>
+</head>
+<body>
+    
+    <shift-grid longitude='85.8245' latitude='20.296' theme="/css/basic-theme.css" template-engine="">
+        <grid-column field="Type" visible="false">
+            <div>
+                <span class="label label-danger">{{Field.Text}}</span>
+            </div>
+        </grid-column>
+    </shift-grid>
+
+</body>
+</html>
