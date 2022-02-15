@@ -19,5 +19,13 @@ namespace ShiftGrid.Test.NET
             GlobalConfiguration.Configure(WebApiConfig.Register);
             RouteConfig.RegisterRoutes(RouteTable.Routes);            
         }
+
+        protected void Application_BeginRequest()
+        {
+            if (HttpContext.Current.Request.HttpMethod == "OPTIONS")
+                HttpContext.Current.Response.End();
+        }
+
+
     }
 }
