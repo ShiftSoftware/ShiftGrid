@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Web;
-using ShiftGrid.Core;
+using ShiftSoftware.ShiftGrid.Core;
 
 namespace ShiftGrid.Test.NET.Models
 {
     public class TestItem
     {
-        [GridColumn(Field = "ID", HeaderText = "Identification", Order = 1)]
         public long ID { get; set; }
         public string Code { get; set; }
         public string Title { get; set; }
@@ -25,7 +24,6 @@ namespace ShiftGrid.Test.NET.Models
         [ForeignKey("TypeId")]
         public virtual Type Type { get; set; }
 
-        [Newtonsoft.Json.JsonIgnore]
         [InverseProperty("ParentTestItem")]
         public virtual ICollection<TestItem> ChildTestItems { get; set; }
     }

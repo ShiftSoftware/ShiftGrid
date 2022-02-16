@@ -1,63 +1,59 @@
 ﻿using System;
 using System.Linq;
-using System.Reflection;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
 
-namespace ShiftGrid.Core
+namespace ShiftSoftware.ShiftGrid.Core
 {
     public static class Extensions
     {
-        public static Grid<T> ToShiftGrid<T>(this IQueryable<T> select, Grid<T> grid = null)
+        public static Grid<T> ToShiftGrid<T>(this IQueryable<T> select, GridConfig config = null)
         {
-            //If no grid is passed. Initialize a new grid with default PageSize = 20. And sort by the first colum ascending
-            if (grid == null)
+            return new Grid<T>
             {
-                grid = new Grid<T>();
-            }
-
-            if(grid.Sort.Count == 0)
-            {
-                grid.Sort = new System.Collections.ObjectModel.ObservableCollection<GridSort> {
-                    new GridSort {
-                        Field = typeof(T).GetProperties().Where(x=> x.MemberType == MemberTypes.Property).First().Name,
-                        SortDirection = SortDirection.Ascending
-                    }
-                };
-            }
-
-            if (grid.DataPageSize == 0)
-                grid.DataPageSize = 20;
-
-            grid.ShiftQL = select;
-            grid.ShiftQLInitialized = true;
-
-            grid.Init();
-
-            return grid;
+                Select = select
+            }.Init(config);
         }
 
-        public static T ToType<T>(this object obj)
+        public static async Task<Grid<T>> ToShiftGridAsync<T>(this IQueryable<T> select, GridConfig config = null)
         {
-
-            //create instance of T type object:
-            var tmp = Activator.CreateInstance(typeof(T));
-
-            //loop through the properties of the object you want to covert:          
-            foreach (PropertyInfo pi in obj.GetType().GetProperties())
+            return await new Grid<T>
             {
-                try
-                {
+                Select = select
+            }.InitAsync(config);
+        }
 
-                    //get the value of property and try 
-                    //to assign it to the property of T type object:
-                    tmp.GetType().GetProperty(pi.Name).SetValue(tmp,
-                                              pi.GetValue(obj, null), null);
-                }
-                catch { }
-            }
+        public static Grid<T> ToShiftGrid<T>(this SelectAndSummarySelectCombo<T> summarySelectCombo, GridConfig config = null)
+        {
+            return new Grid<T>()
+            {
+                Select = summarySelectCombo.Select,
+                SummarySelect = summarySelectCombo.SummarySelect,
+            }.Init(config);
+        }
 
-            //return the T type object:         
-            return (T)tmp;
+        public static async Task<Grid<T>> ToShiftGridAsync<T>(this SelectAndSummarySelectCombo<T> summarySelectCombo, GridConfig config = null)
+        {
+            return await new Grid<T>()
+            {
+                Select = summarySelectCombo.Select,
+                SummarySelect = summarySelectCombo.SummarySelect,
+            }.InitAsync(config);
+        }
 
+        public class SelectAndSummarySelectCombo<T>
+        {
+            public IQueryable<T> Select { get; set; }
+            public Expression<Func<IGrouping<int, T>, object>> SummarySelect { get; set; }
+        }
+
+        public static SelectAndSummarySelectCombo<T> SelectSummary<T>(this IQueryable<T> select, Expression<Func<IGrouping<int, T>, object>> summarySelect)
+        {
+            return new SelectAndSummarySelectCombo<T>
+            {
+                Select = select,
+                SummarySelect = summarySelect
+            };
         }
     }
 }

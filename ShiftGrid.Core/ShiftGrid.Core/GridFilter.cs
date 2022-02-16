@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ShiftGrid.Core
+namespace ShiftSoftware.ShiftGrid.Core
 {
     public class GridFilter
     {

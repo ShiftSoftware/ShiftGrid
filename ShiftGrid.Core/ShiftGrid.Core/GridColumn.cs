@@ -1,4 +1,4 @@
-﻿namespace ShiftGrid.Core
+﻿namespace ShiftSoftware.ShiftGrid.Core
 {
     [Newtonsoft.Json.JsonObject(Newtonsoft.Json.MemberSerialization.OptIn)]
     public  class GridColumn : System.Attribute

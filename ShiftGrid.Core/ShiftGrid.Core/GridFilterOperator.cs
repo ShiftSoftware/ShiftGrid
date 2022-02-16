@@ -1,8 +1,8 @@
-﻿namespace ShiftGrid.Core
+﻿namespace ShiftSoftware.ShiftGrid.Core
 {
     public class GridFilterOperator
     {
-        public const string Equals = "Equals";
+        public new const string Equals = "Equals";
         public const string NotEquals = "NotEquals";
         public const string GreaterThan = "GreaterThan";
         public const string GreaterThanOrEquals = "GreaterThanOrEquals";

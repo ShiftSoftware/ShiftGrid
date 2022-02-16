@@ -1,4 +1,4 @@
-﻿namespace ShiftGrid.Core
+﻿namespace ShiftSoftware.ShiftGrid.Core
 {
     public class GridSort
     {

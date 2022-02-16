@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.32002.185
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShiftGrid.Core", "ShiftGrid.Core\ShiftGrid.Core.csproj", "{81885B78-41DB-4646-A485-22A2D60A949D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "ShiftGrid.Core\Core.csproj", "{81885B78-41DB-4646-A485-22A2D60A949D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShiftGrid.Test.NET", "..\ShiftGrid.Test.NET\ShiftGrid.Test.NET.csproj", "{3C1D2A92-6847-4655-A617-3A76D12E9C16}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.NET", "..\ShiftGrid.Test.NET\Test.NET.csproj", "{3C1D2A92-6847-4655-A617-3A76D12E9C16}"
 	ProjectSection(ProjectDependencies) = postProject
 		{81885B78-41DB-4646-A485-22A2D60A949D} = {81885B78-41DB-4646-A485-22A2D60A949D}
 	EndProjectSection

@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
-using ShiftGrid.Core;
+using ShiftSoftware.ShiftGrid.Core;
 
 namespace ShiftGrid.Test.NET.Controllers
 {
@@ -13,7 +10,7 @@ namespace ShiftGrid.Test.NET.Controllers
     public class DataController : ApiController
     {
         [HttpPost, Route("list-test-items")]
-        public async Task<IHttpActionResult> ListItems(ShiftGrid.Core.Grid<Models.TestItemView> shiftGrid)
+        public async Task<IHttpActionResult> ListItems(GridConfig payload)
         {
             var db = Utils.GetDBContext();
 
@@ -21,20 +18,45 @@ namespace ShiftGrid.Test.NET.Controllers
 
             db.Database.Log = (s) => logs.Add(s);
 
-            var grid =
-                db.TestItems.Select(x => new Models.TestItemView
+            //var grid = await db.TestItems
+            //    .Select(x => new Models.TestItemView
+            //    {
+            //        ID = x.ID,
+            //        CalculatedPrice = x.Price * 100,
+            //        Title = x.Title,
+            //        TypeId = x.TypeId,
+            //        Type = x.Type.Name,
+            //        Items = x.ChildTestItems.Select(y => new Models.SubTestItemView
+            //        {
+            //            Title = y.Title
+            //        })
+            //    })
+            //    .SelectSummary(x => new SummaryModel
+            //    {
+            //        DataCount = x.Count(),
+            //        TotalID = x.Sum(y => y.ID),
+            //        TotalPrice = x.Sum(y => y.CalculatedPrice)
+            //    })
+            //    .ToShiftGridAsync(payload);
+
+            var grid = db.TestItems
+                .Select(x => new
                 {
                     ID = x.ID,
-                    Title = x.Title,
-                    TypeId = x.TypeId,
-                    Type = x.Type.Name
+                    Price = x.Price * 100,
                 })
-                .ToShiftGrid(shiftGrid);
+                .SelectSummary(x => new
+                {
+                    Count = x.Count(),
+                    TotalID = x.Sum(y => y.ID),
+                    TotalPrice = x.Sum(y => y.Price)
+                })
+                .ToShiftGrid(payload);
 
-            return Ok(new
+            return Json(new
             {
-                //logs,
-                shiftGrid
+                grid,
+                logs = logs.Select(x=> x.ToString().Replace("\r", "").Replace("\n", ""))
             });
         }
     }

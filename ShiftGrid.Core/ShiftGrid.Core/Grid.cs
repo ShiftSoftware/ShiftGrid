@@ -1,117 +1,130 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using NJsonSchema.Infrastructure;
+﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using System.Threading.Tasks;
+using System.Linq.Expressions;
 
-namespace ShiftGrid.Core
+namespace ShiftSoftware.ShiftGrid.Core
 {
     public class Grid<T>
     {
-        Dictionary<string, string> OperatorMapping = new Dictionary<string, string>
-        {
-            { GridFilterOperator.Equals, "=" },
-            { GridFilterOperator.NotEquals, "!=" },
-            { GridFilterOperator.GreaterThan, ">" },
-            { GridFilterOperator.GreaterThanOrEquals, ">=" },
-            { GridFilterOperator.LessThan, "<" },
-            { GridFilterOperator.LessThanOrEquals, "<=" },
-            { GridFilterOperator.Contains, ".Contains" },
-            { GridFilterOperator.In, ".Contains" },
-            { GridFilterOperator.StartsWith, ".StartsWith" },
-            { GridFilterOperator.EndsWith, ".EndsWith" },
-        };
+        #region Public Props
 
-        Dictionary<string, string> OperatorValuePrefix = new Dictionary<string, string>
-        {
-            { GridFilterOperator.Contains, "(" },
-            { GridFilterOperator.In, "(" },
-            { GridFilterOperator.StartsWith, "(" },
-            { GridFilterOperator.EndsWith, "(" },
-        };
-
-        Dictionary<string, string> OperatorValuePostfix = new Dictionary<string, string>
-        {
-            { GridFilterOperator.Contains, ")" },
-            { GridFilterOperator.In, ")" },
-            { GridFilterOperator.StartsWith, ")" },
-            { GridFilterOperator.EndsWith, ")" },
-        };
-
-        [JsonIgnore]
-        public JsonSerializerSettings JsonSerializerSettings { get; set; }
-
-        public GridPagination Pagination { get; set; }
-
-        [Newtonsoft.Json.JsonIgnore]
-        internal IQueryable<T> ShiftQL { get; set; }
-
-        [Newtonsoft.Json.JsonIgnore]
-        internal bool ShiftQLInitialized { get; set; }
-
-        [Newtonsoft.Json.JsonIgnore]
-        private System.Linq.Expressions.Expression<Func<IGrouping<int, T>, GridSummary>> SummarySelect { get; set; }
-
-        [Newtonsoft.Json.JsonIgnore]
-        private IQueryable ProccessedSelect { get; set; }
-
-        [Newtonsoft.Json.JsonIgnore]
-        private IQueryable<T> SummaryProcessedSelect { get; set; }
-
-        public GridSummary Summary { get; set; }
         public int DataPageIndex { get; set; }
         public int DataPageSize { get; set; }
-
-        private bool FromPayload { get; set; }
-
-        public List<T> Data { get; set; }
-
-        public ObservableCollection<GridFilter> Filters { get; set; }
-
-        public ObservableCollection<GridSort> Sort { get; set; }
-
+        public List<object> Data { get; set; }
+        public Dictionary<string, object> Summary { get; set; }
+        public object ObjectSummary { get; set; }
+        public List<GridSort> Sort { get; set; }
+        public List<GridFilter> Filters { get; set; }
         public List<GridColumn> Columns { get; set; }
+        public GridPagination Pagination { get; set; }
 
-        private List<GridColumn> TypeColumns { get; set; }
+        #endregion
 
+        #region Public Methods
         public Grid()
         {
-            this.Filters = new ObservableCollection<GridFilter>();
-            this.Sort = new ObservableCollection<GridSort>();
-
-            this.Filters.CollectionChanged += Filters_CollectionChanged;
-            this.Sort.CollectionChanged += Sort_CollectionChanged;
+            this.Filters = new List<GridFilter> { };
+            this.Sort = new List<GridSort> { };
+            this.Columns = new List<GridColumn> { };
+            this.DataPageSize = 20;
+            this.Data = new List<object>();
+            this.Pagination = new GridPagination() { PageSize = 10 };
         }
 
-        private void Sort_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        public string ToCSV()
         {
-            ObservablesChanged("Sorting");
+            var stream = new MemoryStream();
+
+            var engine = new FileHelpers.FileHelperEngine(typeof(T));
+
+            var excludedFields = this.TypeColumns.Where(x => !this.Columns.Any(y => y.Field == x.Field));
+
+            foreach (var excluded in excludedFields)
+                engine.Options.RemoveField(excluded.Field);
+
+            engine.HeaderText = engine.GetFileHeader();
+
+            return engine.WriteString(this.Data.Cast<object>());
+        }
+        #endregion
+
+        #region Private & Internal Props
+
+        internal IQueryable<T> Select { get; set; }
+        internal Expression<Func<IGrouping<int, T>, object>> SummarySelect { get; set; }
+        private IQueryable ProccessedSelect { get; set; }
+        private IQueryable<T> SummaryProcessedSelect { get; set; }
+        private List<GridColumn> TypeColumns { get; set; }
+
+        #endregion
+
+        #region Private & Internal Methods
+        internal Grid<T> Init(GridConfig payload = null)
+        {
+            this.Prepare(payload);
+            this.GenerateQuery();
+            var data = this.GetPaginatedQuery().ToDynamicList();
+            this.Data.AddRange(data);
+            this.GenerateColumns();
+            this.LoadSummary();
+            this.EnsureSummary();
+            this.ProcessPagination();
+
+            return this;
+        }
+        internal async Task<Grid<T>> InitAsync(GridConfig payload = null)
+        {
+            this.Prepare(payload);
+            this.GenerateQuery();
+            var data = await this.GetPaginatedQuery().ToDynamicListAsync();
+            this.Data.AddRange(data);
+            this.GenerateColumns();
+            await this.LoadSummaryAsync();
+            this.EnsureSummary();
+            this.ProcessPagination();
+
+            return this;
         }
 
-        private void Filters_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        private void Prepare(GridConfig payload = null)
         {
-            ObservablesChanged("Filters");
-        }
-
-        private void ObservablesChanged(string Type)
-        {
-            if (this.FromPayload)
-                throw new Exception($"{Type} Can Not be Modified from Code. Because they're provided in the request payload.");
-            else
+            if (payload != null)
             {
-                if (this.ShiftQLInitialized)
-                    throw new Exception($"{Type} can not be Modified after {nameof(Extensions.ToShiftGrid)} is invoked.");
+                if (payload.Sort != null)
+                    this.Sort = payload.Sort;
+
+                if (payload.Filters != null)
+                    this.Filters = payload.Filters;
+
+                if (payload.Pagination != null)
+                    this.Pagination.PageSize = payload.Pagination.PageSize;
+
+                this.DataPageIndex = payload.DataPageIndex;
+
+                if (payload.DataPageSize != 0)
+                    this.DataPageSize = payload.DataPageSize;
+
+                this.Columns = payload.Columns;
+            }
+
+            if (this.Sort.Count == 0)
+            {
+                this.Sort.Add(new GridSort
+                {
+                    Field = typeof(T).GetProperties().Where(x => x.MemberType == System.Reflection.MemberTypes.Property).First().Name,
+                    SortDirection = SortDirection.Ascending
+                });
             }
         }
-
         private void GenerateQuery()
         {
-            var select = this.ShiftQL.Where("1=1");
+            var select = this.Select.Where("1=1");
 
             foreach (var filter in this.Filters)
             {
@@ -128,8 +141,8 @@ namespace ShiftGrid.Core
                 var index = 0;
                 foreach (var theFilter in filterGroups)
                 {
-                    var valuePrefix = OperatorValuePrefix.Keys.Contains(theFilter.Operator) ? OperatorValuePrefix[theFilter.Operator] : "";
-                    var valuePostfix = OperatorValuePostfix.Keys.Contains(theFilter.Operator) ? OperatorValuePostfix[theFilter.Operator] : "";
+                    var valuePrefix = Mappings.OperatorValuePrefix.Keys.Contains(theFilter.Operator) ? Mappings.OperatorValuePrefix[theFilter.Operator] : "";
+                    var valuePostfix = Mappings.OperatorValuePostfix.Keys.Contains(theFilter.Operator) ? Mappings.OperatorValuePostfix[theFilter.Operator] : "";
 
                     var value = $"@{index}";
                     var field = theFilter.Field;
@@ -139,15 +152,17 @@ namespace ShiftGrid.Core
                         value = $"{theFilter.Field}";
                         field = $"@{index}";
 
-                        var dataType = (typeof(T)).GetProperties().First(x => x.Name == theFilter.Field).PropertyType;
+                        Type elementType = select.ElementType;
+
+                        var dataType = elementType.GetProperties().First(x => x.Name == theFilter.Field).PropertyType;
                         Type listType = typeof(List<>).MakeGenericType(dataType);
 
                         //Provided by Client from a Jobject
-                        if (theFilter.Value.GetType() == typeof(Newtonsoft.Json.Linq.JArray))
+                        if (theFilter.Value.GetType() == typeof(JArray))
                         {
                             var valueList = (IList)Activator.CreateInstance(listType);
 
-                            foreach (var item in (theFilter.Value as Newtonsoft.Json.Linq.JArray).Select(x => x.ToObject(dataType)))
+                            foreach (var item in (theFilter.Value as JArray).Select(x => x.ToObject(dataType)))
                                 valueList.Add(item);
 
                             theFilter.Value = valueList;
@@ -164,7 +179,7 @@ namespace ShiftGrid.Core
                     else
                         values.Add(theFilter.Value);
 
-                    var theOperator = OperatorMapping[theFilter.Operator];
+                    var theOperator = Mappings.OperatorMapping[theFilter.Operator];
 
                     var theExpression = $"{field}{theOperator}{valuePrefix}{value}{valuePostfix}";
 
@@ -175,8 +190,6 @@ namespace ShiftGrid.Core
 
                 var expression = string.Join(" || ", expressions);
 
-                //throw new Exception(expression);
-
                 select = select.Where(expression, values.ToArray());
             }
 
@@ -184,7 +197,7 @@ namespace ShiftGrid.Core
 
             IQueryable newSelect;
 
-            if (this.TypeColumns.Count != this.Columns.Count)
+            if (this.Columns != null && this.Columns.Count > 0)
             {
                 var fields = string.Join(", ", this.Columns.Select(x => x.Field));
                 newSelect = select.Select($"new ({fields})");
@@ -194,30 +207,33 @@ namespace ShiftGrid.Core
 
             this.ProccessedSelect = newSelect;
         }
-
-        private void LoadSummary()
+        private IQueryable GetPaginatedQuery()
         {
-            if (this.SummarySelect != null)
-            {
-                var summarySelect = this.SummaryProcessedSelect.GroupBy(x => 0).Select(this.SummarySelect);
-                this.Summary = summarySelect.FirstOrDefault();
-            }
+            IQueryable sort = this.ProccessedSelect.OrderBy(string.Join(", ", this.Sort.Select(x => $"{x.Field} {(x.SortDirection == SortDirection.Descending ? "desc" : "")}")));
 
-            if (this.Summary == null)
-                this.Summary = new GenericGridSummary { };
+            this.Data = new List<object>();
 
-            this.Summary.DataCount = this.ProccessedSelect.Count();
+            IQueryable dataToIterate;
+
+            if (this.DataPageSize != -1)
+                dataToIterate = sort.Skip((DataPageIndex * DataPageSize)).Take(DataPageSize);
+            else
+                dataToIterate = sort;
+
+            return dataToIterate;
         }
-
         private void GenerateColumns()
         {
             var columns = new List<GridColumn>();
 
-            var props = typeof(T).GetProperties();
-
-            var jsonResolver = new PropertyRenameAndIgnoreSerializerContractResolver();
+            //var jsonResolver = new PropertyRenameAndIgnoreSerializerContractResolver();
 
             var order = 0;
+
+            var props = typeof(T).GetProperties().Where(x => x.MemberType == System.Reflection.MemberTypes.Property).ToList();
+
+            if (props.Count == 0)
+                props = this.Data.FirstOrDefault().GetType().GetProperties().Where(x => x.MemberType == System.Reflection.MemberTypes.Property).ToList();
 
             foreach (var col in props)
             {
@@ -240,49 +256,55 @@ namespace ShiftGrid.Core
                 this.Columns = columns;
             }
 
-            foreach (var ignoredCol in this.TypeColumns.Where(x => !this.Columns.Any(y => y.Field == x.Field)))
-                jsonResolver.IgnoreProperty(typeof(T), ignoredCol.Field);
+            this.Columns.ForEach((x) =>
+            {
+                x.HeaderText = columns.FirstOrDefault(y => y.Field == x.Field)?.HeaderText;
+            });
 
-            var serializerSettings = new JsonSerializerSettings();
-            serializerSettings.ContractResolver = jsonResolver;
+            //foreach (var ignoredCol in this.TypeColumns.Where(x => !this.Columns.Any(y => y.Field == x.Field)))
+            //    jsonResolver.IgnoreProperty(typeof(T), ignoredCol.Field);
 
-            this.JsonSerializerSettings = serializerSettings;
+            //var serializerSettings = new JsonSerializerSettings();
+            //serializerSettings.ContractResolver = jsonResolver;
+
+            //this.JsonSerializerSettings = serializerSettings;
         }
-
-        private void LoadData()
+        private void LoadSummary()
         {
-            IQueryable sort = this.ProccessedSelect.OrderBy(string.Join(", ", this.Sort.Select(x => $"{x.Field} {(x.SortDirection == SortDirection.Descending ? "desc" : "")}")));
+            if (this.SummarySelect != null)
+            {
+                var summary = this.GetGroupedSummary().ToDynamicList().FirstOrDefault();
+                
+                this.Summary = new Dictionary<string, object> { };
 
-            this.Data = new List<T>();
-
-            IQueryable dataToIterate;
-
-            if (this.DataPageSize != -1)
-                dataToIterate = sort.Skip((DataPageIndex * DataPageSize)).Take(DataPageSize);
-            else
-                dataToIterate = sort;
-
-            foreach (var item in dataToIterate)
-                this.Data.Add(item.ToType<T>());
-            //this.Data.Add((T) item);
+                foreach (var property in (summary as object).GetType().GetProperties().Where(x => x.MemberType == System.Reflection.MemberTypes.Property).ToList())
+                    this.Summary[property.Name] = property.GetValue(summary);
+            }
         }
+        private async Task LoadSummaryAsync()
+        {
+            if (this.SummarySelect != null)
+                this.Summary = (await this.GetGroupedSummary().ToDynamicListAsync()).FirstOrDefault();
+        }
+        private IQueryable<object> GetGroupedSummary()
+        {
+            return this.SummaryProcessedSelect.GroupBy(x => 0).Select(this.SummarySelect);
+        }
+        private void EnsureSummary()
+        {
+            if (this.Summary == null)
+            {
+                this.Summary = new Dictionary<string, object> { };
 
+                this.Summary["Count"] = this.ProccessedSelect.Count();
+            }
+
+            if (!this.Summary.Keys.Contains("Count"))
+                throw new Exception($"Count is not specified in Summary. \n The Count Property must be provided for ({Summary})");
+        }
         private void ProcessPagination()
         {
-            //if (this.Summary == null)
-            //    this.TotalDataCount = this.ProccessedSelect.Count();
-            //else
-
-            //Summary is Assigned on LoadSummar(). It will only be null if a summary SQL is provided and no data is returned
-            //if (this.Summary == null)
-            //    this.TotalDataCount = 0;
-            //else
-            
-            if (this.Pagination == null)
-            {
-                this.Pagination = new GridPagination();
-                this.Pagination.PageSize = 10;
-            }
+            var dataCount = (int) this.Summary["Count"];
 
             //Show All
             if (this.DataPageSize == -1)
@@ -293,7 +315,7 @@ namespace ShiftGrid.Core
             }
             else
             {
-                this.Pagination.Count = this.Summary.DataCount / this.DataPageSize + (this.Summary.DataCount % this.DataPageSize > 0 ? 1 : 0);
+                this.Pagination.Count = dataCount / this.DataPageSize + (dataCount % this.DataPageSize > 0 ? 1 : 0);
             }
 
             this.Pagination.PageIndex = this.DataPageIndex % this.Pagination.PageSize;
@@ -314,102 +336,18 @@ namespace ShiftGrid.Core
 
             this.Pagination.DataStart = (this.DataPageIndex * this.DataPageSize) + 1;
 
-            if (this.Summary.DataCount == 0)
+            if (dataCount == 0)
                 this.Pagination.DataStart = 0;
 
             this.Pagination.DataEnd = this.Pagination.DataStart + this.DataPageSize - 1;
 
-            if (this.Pagination.DataEnd > this.Summary.DataCount)
-                this.Pagination.DataEnd = this.Summary.DataCount;
+            if (this.Pagination.DataEnd > dataCount)
+                this.Pagination.DataEnd = dataCount;
 
             if (this.DataPageSize == -1)
-                this.Pagination.DataEnd = this.Summary.DataCount;
+                this.Pagination.DataEnd = dataCount;
         }
 
-        public void Init()
-        {
-            if (!this.ShiftQLInitialized)
-                throw new Exception($"{nameof(Init)} should be called after {nameof(Extensions.ToShiftGrid)} is invoked.");
-
-            if (this.Sort == null || this.Sort.Count == 0)
-                throw new Exception("Sorting is not specified. At least one item is required in DataGrid.Sort");
-
-            this.GenerateColumns();
-            this.GenerateQuery();
-            this.LoadData();
-            this.LoadSummary();
-            this.ProcessPagination();
-        }
-
-        public Grid<T> SetSummary(System.Linq.Expressions.Expression<Func<IGrouping<int, T>, GridSummary>> summarySelect)
-        {
-            this.SummarySelect = summarySelect;
-
-            return this;
-        }
-
-        public Grid<T> AddFilter(GridFilter filter)
-        {
-            this.Filters.Add(filter);
-            return this;
-        }
-
-        public static bool InitFromPayload(JToken payload, ref Grid<T> grid)
-        {
-            if (payload != null)
-            {
-                if (payload.ToObject<object>() != null && payload["Summary"] != null)
-                    payload["Summary"] = null;
-
-                grid = payload.ToObject<Grid<T>>();
-
-                if (grid == null)
-                    return false;
-
-                grid.FromPayload = true;
-
-                return true;
-            }
-
-            return false;
-        }
-
-        public Grid<T> SortBy(GridSort sort)
-        {
-            PreventInconsistency();
-            this.Sort.Add(sort);
-            return this;
-        }
-
-        public Grid<T> FilterBy(GridFilter filter)
-        {
-            PreventInconsistency();
-            this.Filters.Add(filter);
-            return this;
-        }
-
-        private void PreventInconsistency()
-        {
-            if (this.FromPayload)
-            {
-
-            }
-        }
-
-        public string ToCSV()
-        {
-            var stream = new MemoryStream();
-
-            var engine = new FileHelpers.FileHelperEngine(typeof(T));
-
-            var excludedFields = this.TypeColumns.Where(x => !this.Columns.Any(y => y.Field == x.Field));
-
-            foreach (var excluded in excludedFields)
-                engine.Options.RemoveField(excluded.Field);
-
-            engine.HeaderText = engine.GetFileHeader();
-
-            return engine.WriteString(this.Data.Cast<object>());
-        }
+        #endregion
     }
 }

@@ -2,6 +2,10 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+	  <RootNamespace>ShiftSoftware.ShiftGrid.Core</RootNamespace>
+	  <PackageId>ShiftSoftware.ShiftGrid.Core</PackageId>
+	  <Authors>Shift Software</Authors>
+	  <Product>ShiftGrid Core</Product>
   </PropertyGroup>
 
   <ItemGroup>
