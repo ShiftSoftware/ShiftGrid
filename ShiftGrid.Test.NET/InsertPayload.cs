@@ -19,7 +19,7 @@ namespace ShiftGrid.Test.NET
         public string Title { get; set; }
         public DateTime Date { get; set; }
         public decimal? Price { get; set; }
-        public long TypeId { get; set; }
+        public long? ParentTestItemId { get; set; }
     }
 
     public class Increments

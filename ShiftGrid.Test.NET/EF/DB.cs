@@ -14,5 +14,6 @@ namespace ShiftGrid.Test.NET.EF
         }
 
         public virtual DbSet<Models.TestItem> TestItems { get; set; }
+        public virtual DbSet<Models.Type> Types { get; set; }
     }
 }
