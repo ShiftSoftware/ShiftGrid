@@ -16,7 +16,18 @@ namespace ShiftGrid.Test.NET.Controllers
 
             var logs = new List<string>();
 
-            db.Database.Log = (s) => logs.Add(s);
+            db.Database.Log = System.Console.Write;
+
+            db.Database.Log = (s) =>
+            {
+                if (!(s.StartsWith("Opened connection") || s.StartsWith("Closed") || s.StartsWith("--")))
+                {
+                    if (!string.IsNullOrWhiteSpace(s))
+                        logs.Add(s.Replace("\r", "").Replace("\n", ""));
+
+                    System.Diagnostics.Debug.WriteLine(s);
+                }
+            };
 
             //var grid = await db.TestItems
             //    .Select(x => new Models.TestItemView
@@ -56,7 +67,7 @@ namespace ShiftGrid.Test.NET.Controllers
             return Json(new
             {
                 grid,
-                logs = logs.Select(x=> x.ToString().Replace("\r", "").Replace("\n", ""))
+                logs = logs
             });
         }
     }
