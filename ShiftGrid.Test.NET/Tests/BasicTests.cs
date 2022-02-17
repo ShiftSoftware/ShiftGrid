@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ShiftGrid.Test.NET.Models;
 using ShiftSoftware.ShiftGrid.Core;
+using System.Collections.Generic;
 
 namespace ShiftGrid.Test.NET.Tests
 {
@@ -25,9 +26,13 @@ namespace ShiftGrid.Test.NET.Tests
         [TestMethod]
         public async Task NoConfig()
         {
-            await Utils.DataInserter(100);
+            await Utils.DataInserter(100, 6);
 
             var db = Utils.GetDBContext();
+
+            var logs = new List<string>();
+
+            Controllers.DataController.SetupLogger(db, logs);
 
             var shiftGrid = db.TestItems.ToShiftGrid();
 
@@ -35,19 +40,23 @@ namespace ShiftGrid.Test.NET.Tests
 
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid, Newtonsoft.Json.Formatting.Indented));
 
+            Console.WriteLine(string.Join(Environment.NewLine + Environment.NewLine + Environment.NewLine, logs));
+            //Console.WriteLine($"Log Count is: {logs.Count}");
+
+
             Assert.IsTrue(
-                shiftGrid.Pagination.Count == 5 &&
+                shiftGrid.Pagination.Count == 6 &&
                 shiftGrid.Pagination.PageSize == 10 &&
                 shiftGrid.Pagination.PageStart == 0 &&
-                shiftGrid.Pagination.PageEnd == 4 &&
+                shiftGrid.Pagination.PageEnd == 5 &&
                 shiftGrid.Pagination.PageIndex == 0 &&
                 shiftGrid.Pagination.HasPreviousPage == false &&
                 shiftGrid.Pagination.HasNextPage == false &&
-                shiftGrid.Pagination.LastPageIndex == 4 &&
+                shiftGrid.Pagination.LastPageIndex == 5 &&
                 shiftGrid.Pagination.DataStart == 1 &&
                 shiftGrid.Pagination.DataEnd == 20 &&
 
-                shiftGrid.Summary["Count"].ToString() == "100" &&
+                shiftGrid.Summary["Count"].ToString() == "106" &&
 
                 shiftGrid.DataPageIndex == 0 &&
                 shiftGrid.DataPageSize == 20 &&
@@ -55,7 +64,14 @@ namespace ShiftGrid.Test.NET.Tests
                 shiftGrid.Sort.First().Field == "ID" &&
                 shiftGrid.Sort.First().SortDirection == SortDirection.Ascending &&
 
-                objectProps.FirstOrDefault(x=> x.Name == "Title").GetValue(shiftGrid.Data.FirstOrDefault()).ToString() == "Title - 1"
+                objectProps.FirstOrDefault(x=> x.Name == "Title").GetValue(shiftGrid.Data.FirstOrDefault()).ToString() == "Title - 1" &&
+
+                //1 for listing the table
+                //1 for counting
+                //2 for getting the Types (Type -1) and (Type - 2)
+                //20 for Checking sub items. For each of the 20 items that are listed.
+                //6 for getting each of the sub-items of the first item (ID = 1)
+                logs.Count == 30
             );
         }
 
@@ -65,6 +81,9 @@ namespace ShiftGrid.Test.NET.Tests
             await Utils.DataInserter(100);
 
             var db = Utils.GetDBContext();
+
+            var logs = new List<string>();
+            Controllers.DataController.SetupLogger(db, logs);
 
             var shiftGrid = db.TestItems.Select(x => new TestItemView
             {
@@ -98,7 +117,9 @@ namespace ShiftGrid.Test.NET.Tests
                 shiftGrid.Sort.First().SortDirection == SortDirection.Ascending &&
 
                 data.First().Title == "Title - 1" &&
-                data.Last().Title == "Title - 20"
+                data.Last().Title == "Title - 20" &&
+
+                logs.Count() == 2
             );
         }
     }

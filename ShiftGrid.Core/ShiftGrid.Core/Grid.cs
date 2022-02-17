@@ -18,7 +18,6 @@ namespace ShiftSoftware.ShiftGrid.Core
         public int DataPageSize { get; set; }
         public List<object> Data { get; set; }
         public Dictionary<string, object> Summary { get; set; }
-        public object ObjectSummary { get; set; }
         public List<GridSort> Sort { get; set; }
         public List<GridFilter> Filters { get; set; }
         public List<GridColumn> Columns { get; set; }
@@ -277,8 +276,12 @@ namespace ShiftSoftware.ShiftGrid.Core
                 
                 this.Summary = new Dictionary<string, object> { };
 
-                foreach (var property in (summary as object).GetType().GetProperties().Where(x => x.MemberType == System.Reflection.MemberTypes.Property).ToList())
-                    this.Summary[property.Name] = property.GetValue(summary);
+                foreach (var property in SummarySelect.Body.Type.GetProperties().Where(x => x.MemberType == System.Reflection.MemberTypes.Property).ToList())
+                {
+                    var summaryProperty = summary == null ? null : (summary as object).GetType().GetProperties().Where(x => x.MemberType == System.Reflection.MemberTypes.Property && x.Name == property.Name).FirstOrDefault();
+
+                    this.Summary[property.Name] = summaryProperty == null ? Activator.CreateInstance(property.PropertyType) : summaryProperty.GetValue(summary);
+                }
             }
         }
         private async Task LoadSummaryAsync()
@@ -293,14 +296,10 @@ namespace ShiftSoftware.ShiftGrid.Core
         private void EnsureSummary()
         {
             if (this.Summary == null)
-            {
                 this.Summary = new Dictionary<string, object> { };
 
-                this.Summary["Count"] = this.ProccessedSelect.Count();
-            }
-
             if (!this.Summary.Keys.Contains("Count"))
-                throw new Exception($"Count is not specified in Summary. \n The Count Property must be provided for ({Summary})");
+                this.Summary["Count"] = this.ProccessedSelect.Count();
         }
         private void ProcessPagination()
         {

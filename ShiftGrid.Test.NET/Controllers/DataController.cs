@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -16,18 +17,7 @@ namespace ShiftGrid.Test.NET.Controllers
 
             var logs = new List<string>();
 
-            db.Database.Log = System.Console.Write;
-
-            db.Database.Log = (s) =>
-            {
-                if (!(s.StartsWith("Opened connection") || s.StartsWith("Closed") || s.StartsWith("--")))
-                {
-                    if (!string.IsNullOrWhiteSpace(s))
-                        logs.Add(s.Replace("\r", "").Replace("\n", ""));
-
-                    System.Diagnostics.Debug.WriteLine(s);
-                }
-            };
+            SetupLogger(db, logs);
 
             //var grid = await db.TestItems
             //    .Select(x => new Models.TestItemView
@@ -69,6 +59,22 @@ namespace ShiftGrid.Test.NET.Controllers
                 grid,
                 logs = logs
             });
+        }
+
+        public static void SetupLogger(DbContext db, List<string> logs)
+        {
+            db.Database.Log = System.Console.Write;
+
+            db.Database.Log = (s) =>
+            {
+                if (!(s.StartsWith("Opened connection") || s.StartsWith("Closed") || s.StartsWith("--")))
+                {
+                    if (!string.IsNullOrWhiteSpace(s))
+                        logs.Add(s.Replace("\r", "").Replace("\n", ""));
+
+                    System.Diagnostics.Debug.WriteLine(s);
+                }
+            };
         }
     }
 }

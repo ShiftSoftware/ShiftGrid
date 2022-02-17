@@ -154,6 +154,7 @@
     <Compile Include="Tests\BasicTests.cs" />
     <Compile Include="Tests\Filters.cs" />
     <Compile Include="Tests\Pagination.cs" />
+    <Compile Include="Tests\Summary.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>

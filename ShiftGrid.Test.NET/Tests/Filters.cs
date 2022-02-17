@@ -396,6 +396,9 @@ namespace ShiftGrid.Test.NET.Tests
 
             var db = Utils.GetDBContext();
 
+            var logs = new List<string>();
+            Controllers.DataController.SetupLogger(db, logs);
+
             var shiftGrid = db.TestItems.Select(x => new
             {
                 ID = x.ID,
@@ -434,7 +437,8 @@ namespace ShiftGrid.Test.NET.Tests
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid, Newtonsoft.Json.Formatting.Indented));
 
             Assert.IsTrue(
-                shiftGrid.Data.Count() == 1
+                shiftGrid.Data.Count() == 1 &&
+                logs.Count == 2
                 //&& data.ElementAt(0).Title == "Title - 1"
             );
         }
