@@ -52,9 +52,9 @@ namespace ShiftGrid.Test.NET
                 });
             }
         }
-        public static DB GetDBContext()
+        public static MySQLDb GetDBContext()
         {
-            return new DB();
+            return new MySQLDb();
         }
     }
 }

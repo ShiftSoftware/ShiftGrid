@@ -6,9 +6,10 @@ using System.Web;
 
 namespace ShiftGrid.Test.NET.EF
 {
-    public class DB : DbContext
+    [DbConfigurationType(typeof(MySql.Data.EntityFramework.MySqlEFConfiguration))]
+    public class MySQLDb: DbContext
     {
-        public DB() : base("name=ShiftGrid_SQLServer")
+        public MySQLDb() : base("name=ShiftGrid_MySQL")
         {
 
         }

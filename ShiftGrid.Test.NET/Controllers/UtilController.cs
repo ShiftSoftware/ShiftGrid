@@ -32,8 +32,18 @@ namespace ShiftGrid.Test.NET.Controllers
 
             await db.SaveChangesAsync();
 
-            await db.Database.ExecuteSqlCommandAsync("DBCC CHECKIDENT (TestItems, RESEED, 0)");
-            await db.Database.ExecuteSqlCommandAsync("DBCC CHECKIDENT (Types, RESEED, 0)");
+            //SQL Server
+            if (db.GetType() == typeof(EF.DB))
+            {
+                await db.Database.ExecuteSqlCommandAsync("DBCC CHECKIDENT (TestItems, RESEED, 0)");
+                await db.Database.ExecuteSqlCommandAsync("DBCC CHECKIDENT (Types, RESEED, 0)");
+            }
+            //MySQL
+            else if(db.GetType() == typeof(EF.MySQLDb))
+            {
+                await db.Database.ExecuteSqlCommandAsync("ALTER TABLE TestItems AUTO_INCREMENT = 1");
+                await db.Database.ExecuteSqlCommandAsync("ALTER TABLE Types AUTO_INCREMENT = 1");
+            }
 
             return Ok();
         }
