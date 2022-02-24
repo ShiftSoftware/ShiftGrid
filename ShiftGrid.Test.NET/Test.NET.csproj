@@ -179,7 +179,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ShiftGrid.Core\ShiftGrid.Core\Core.csproj">
+    <ProjectReference Include="..\ShiftGrid.Core\Core.csproj">
       <Project>{81885b78-41db-4646-a485-22a2d60a949d}</Project>
       <Name>Core</Name>
     </ProjectReference>
