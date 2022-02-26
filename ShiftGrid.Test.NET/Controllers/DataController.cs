@@ -44,14 +44,14 @@ namespace ShiftGrid.Test.NET.Controllers
                 .Select(x => new
                 {
                     ID = x.ID,
-                    Price = x.Price * 100,
+                    Price = x.Price,
                 })
-                //.SelectSummary(x => new
-                //{
-                //    Count = x.Count(),
-                //    TotalID = x.Sum(y => y.ID),
-                //    TotalPrice = x.Sum(y => y.Price)
-                //})
+                .SelectSummary(x => new
+                {
+                    Count = x.Count(),
+                    TotalID = x.Sum(y => y.ID),
+                    TotalPrice = x.Sum(y => y.Price)
+                })
                 .ToShiftGrid(payload);
 
             return Json(new

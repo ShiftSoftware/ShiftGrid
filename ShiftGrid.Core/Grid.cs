@@ -291,9 +291,7 @@ namespace ShiftSoftware.ShiftGrid.Core
         }
         private IQueryable<object> GetGroupedSummary()
         {
-            return this.SummaryProcessedSelect.GroupBy(x=> 0).Select(this.SummarySelect);
-
-            //this.SummaryProcessedSelect.;
+            return this.SummaryProcessedSelect.GroupBy(x => Math.Abs(1)).Select(this.SummarySelect);
         }
         private void EnsureSummary()
         {

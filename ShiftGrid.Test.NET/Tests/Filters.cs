@@ -414,7 +414,8 @@ namespace ShiftGrid.Test.NET.Tests
                 Filters = new List<GridFilter> {
                    new GridFilter
                    {
-                       Field = "Items.FirstOrDefault().IncreasedPrice",
+                       //Field = "Items.FirstOrDefault().IncreasedPrice", //This statement fails on MySQL. Though It works if we use IncreasedPrice = y.Price. Without the multiplication
+                       Field = "Items.Min(IncreasedPrice)",
                        Operator = GridFilterOperator.Equals,
                        Value = 1000m
                    },
