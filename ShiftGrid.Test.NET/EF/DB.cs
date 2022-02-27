@@ -6,14 +6,11 @@ using System.Web;
 
 namespace ShiftGrid.Test.NET.EF
 {
-    public class DB : DbContext
+    public class DB : DBBase
     {
         public DB() : base("name=ShiftGrid_SQLServer")
         {
 
         }
-
-        public virtual DbSet<Models.TestItem> TestItems { get; set; }
-        public virtual DbSet<Models.Type> Types { get; set; }
     }
 }

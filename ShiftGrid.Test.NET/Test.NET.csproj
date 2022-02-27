@@ -178,6 +178,7 @@
     <Compile Include="Controllers\DataController.cs" />
     <Compile Include="Controllers\UtilController.cs" />
     <Compile Include="EF\DB.cs" />
+    <Compile Include="EF\DBBase.cs" />
     <Compile Include="EF\MySQLDb.cs" />
     <Compile Include="Migrations\202202151313156_addTypes.cs" />
     <Compile Include="Migrations\202202151313156_addTypes.designer.cs">
@@ -204,7 +205,15 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tests\BasicTests.cs" />
     <Compile Include="Tests\Filters.cs" />
+    <Compile Include="Tests\MySql\Filters.cs" />
+    <Compile Include="Tests\MySql\BasicTests.cs" />
+    <Compile Include="Tests\MySql\Pagination.cs" />
+    <Compile Include="Tests\MySql\Summary.cs" />
     <Compile Include="Tests\Pagination.cs" />
+    <Compile Include="Tests\SQLServer\Summary.cs" />
+    <Compile Include="Tests\SQLServer\Pagination.cs" />
+    <Compile Include="Tests\SQLServer\Filters.cs" />
+    <Compile Include="Tests\SQLServer\BasicTests.cs" />
     <Compile Include="Tests\Summary.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>

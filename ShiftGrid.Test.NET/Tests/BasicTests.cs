@@ -8,15 +8,20 @@ using System.Collections.Generic;
 
 namespace ShiftGrid.Test.NET.Tests
 {
-    [TestClass]
     public class BasicTests
     {
+        public System.Type DBType { get; set; }
+        public BasicTests(System.Type type)
+        {
+            this.DBType = type;
+        }
+
         [TestMethod]
         public async Task BasicInsertTest()
         {
-            await Utils.DataInserter(100);
+            await Utils.DataInserter(this.DBType, 100);
 
-            var db = Utils.GetDBContext();
+            var db = Utils.GetDBContext(this.DBType);
 
             var itemToTest = await db.TestItems.FindAsync(50);
 
@@ -26,9 +31,9 @@ namespace ShiftGrid.Test.NET.Tests
         [TestMethod]
         public async Task NoConfig()
         {
-            await Utils.DataInserter(100, 6);
+            await Utils.DataInserter(this.DBType, 100, 6);
 
-            var db = Utils.GetDBContext();
+            var db = Utils.GetDBContext(this.DBType);
 
             var logs = new List<string>();
 
@@ -78,9 +83,9 @@ namespace ShiftGrid.Test.NET.Tests
         [TestMethod]
         public async Task NoConfigWithModel()
         {
-            await Utils.DataInserter(100);
+            await Utils.DataInserter(this.DBType, 100);
 
-            var db = Utils.GetDBContext();
+            var db = Utils.GetDBContext(this.DBType);
 
             var logs = new List<string>();
             Controllers.DataController.SetupLogger(db, logs);

@@ -6,9 +6,9 @@ namespace ShiftGrid.Test.NET
 {
     public class Utils
     {
-        public static async Task DataInserter(int count, int? subCount = null)
+        public static async Task DataInserter(Type dbType, int count, int? subCount = null)
         {
-            var controller = new Controllers.UtilController();
+            var controller = new Controllers.UtilController(dbType);
 
             await controller.DeleteAll();
 
@@ -52,9 +52,15 @@ namespace ShiftGrid.Test.NET
                 });
             }
         }
-        public static MySQLDb GetDBContext()
+        public static DBBase GetDBContext(Type dbType)
         {
-            return new MySQLDb();
+            if (dbType == typeof(MySQLDb))
+                return new MySQLDb();
+
+            else if (dbType == typeof(DB))
+                return new DB();
+
+            return null;
         }
     }
 }

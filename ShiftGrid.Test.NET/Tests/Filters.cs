@@ -8,15 +8,20 @@ using System.Collections.Generic;
 
 namespace ShiftGrid.Test.NET.Tests
 {
-    [TestClass]
     public class Filters
     {
+        public System.Type DBType { get; set; }
+        public Filters(System.Type type)
+        {
+            this.DBType = type;
+        }
+
         [TestMethod]
         public async Task Filters_Equals()
         {
-            await Utils.DataInserter(100);
+            await Utils.DataInserter(DBType, 100);
 
-            var db = Utils.GetDBContext();
+            var db = Utils.GetDBContext(DBType);
 
             var shiftGrid = db.TestItems.Select(x => new TestItemView
             {
@@ -48,9 +53,9 @@ namespace ShiftGrid.Test.NET.Tests
         [TestMethod]
         public async Task Filters_In()
         {
-            await Utils.DataInserter(100);
+            await Utils.DataInserter(DBType, 100);
 
-            var db = Utils.GetDBContext();
+            var db = Utils.GetDBContext(DBType);
 
             var shiftGrid = db.TestItems.Select(x => new TestItemView
             {
@@ -84,9 +89,9 @@ namespace ShiftGrid.Test.NET.Tests
         [TestMethod]
         public async Task Filters_In_NoModel()
         {
-            await Utils.DataInserter(100);
+            await Utils.DataInserter(DBType, 100);
 
-            var db = Utils.GetDBContext();
+            var db = Utils.GetDBContext(DBType);
 
             var shiftGrid = db.TestItems.ToShiftGrid(new GridConfig
             {
@@ -117,9 +122,9 @@ namespace ShiftGrid.Test.NET.Tests
         [TestMethod]
         public async Task Filters_StartsWith()
         {
-            await Utils.DataInserter(100);
+            await Utils.DataInserter(DBType, 100);
 
-            var db = Utils.GetDBContext();
+            var db = Utils.GetDBContext(DBType);
 
             var shiftGrid = db.TestItems.Select(x => new TestItemView
             {
@@ -162,9 +167,9 @@ namespace ShiftGrid.Test.NET.Tests
         [TestMethod]
         public async Task Filters_EndsWith()
         {
-            await Utils.DataInserter(100);
+            await Utils.DataInserter(DBType, 100);
 
-            var db = Utils.GetDBContext();
+            var db = Utils.GetDBContext(DBType);
 
             var shiftGrid = db.TestItems.Select(x => new TestItemView
             {
@@ -205,9 +210,9 @@ namespace ShiftGrid.Test.NET.Tests
         [TestMethod]
         public async Task Filters_Or_Equals()
         {
-            await Utils.DataInserter(100);
+            await Utils.DataInserter(DBType, 100);
 
-            var db = Utils.GetDBContext();
+            var db = Utils.GetDBContext(DBType);
 
             var shiftGrid = db.TestItems.Select(x => new TestItemView
             {
@@ -255,9 +260,9 @@ namespace ShiftGrid.Test.NET.Tests
         [TestMethod]
         public async Task Filters_Or_InAndEquals()
         {
-            await Utils.DataInserter(100);
+            await Utils.DataInserter(DBType, 100);
 
-            var db = Utils.GetDBContext();
+            var db = Utils.GetDBContext(DBType);
 
             var shiftGrid = db.TestItems.Select(x => new TestItemView
             {
@@ -308,9 +313,9 @@ namespace ShiftGrid.Test.NET.Tests
         [TestMethod]
         public async Task Filters_SubItem()
         {
-            await Utils.DataInserter(100, 10);
+            await Utils.DataInserter(DBType, 100, 10);
 
-            var db = Utils.GetDBContext();
+            var db = Utils.GetDBContext(DBType);
 
             var shiftGrid = db.TestItems.Select(x => new TestItemView
             {
@@ -346,9 +351,9 @@ namespace ShiftGrid.Test.NET.Tests
         [TestMethod]
         public async Task Filters_OrAndSubItem()
         {
-            await Utils.DataInserter(100, 10);
+            await Utils.DataInserter(DBType, 100, 10);
 
-            var db = Utils.GetDBContext();
+            var db = Utils.GetDBContext(DBType);
 
             var shiftGrid = db.TestItems.Select(x => new TestItemView
             {
@@ -392,9 +397,9 @@ namespace ShiftGrid.Test.NET.Tests
         [TestMethod]
         public async Task Filters_NavigatedItems_SubItemAggregates()
         {
-            await Utils.DataInserter(100, 5);
+            await Utils.DataInserter(DBType, 100, 5);
 
-            var db = Utils.GetDBContext();
+            var db = Utils.GetDBContext(DBType);
 
             var logs = new List<string>();
             Controllers.DataController.SetupLogger(db, logs);
@@ -447,9 +452,9 @@ namespace ShiftGrid.Test.NET.Tests
         [TestMethod]
         public async Task Filters_NavigatedItems_SubItemAggregates_NoModel()
         {
-            await Utils.DataInserter(100, 5);
+            await Utils.DataInserter(DBType, 100, 5);
 
-            var db = Utils.GetDBContext();
+            var db = Utils.GetDBContext(DBType);
 
             var shiftGrid = db.TestItems
             .ToShiftGrid(new GridConfig

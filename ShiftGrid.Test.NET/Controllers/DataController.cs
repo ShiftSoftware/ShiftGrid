@@ -10,10 +10,23 @@ namespace ShiftGrid.Test.NET.Controllers
     [RoutePrefix("api")]
     public class DataController : ApiController
     {
+        public System.Type DBType { get; set; }
+
+        public DataController()
+        {
+            var db = System.Web.HttpContext.Current.Request.Headers["database"].ToString();
+
+            if (db == "SqlServer")
+                this.DBType = typeof(EF.DB);
+
+            else if (db == "MySql")
+                this.DBType = typeof(EF.MySQLDb);
+        }
+
         [HttpPost, Route("list-test-items")]
         public async Task<IHttpActionResult> ListItems(GridConfig payload)
         {
-            var db = Utils.GetDBContext();
+            var db = Utils.GetDBContext(this.DBType);
 
             var logs = new List<string>();
 

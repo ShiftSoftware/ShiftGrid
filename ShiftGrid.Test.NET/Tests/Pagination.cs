@@ -7,15 +7,20 @@ using System.Threading.Tasks;
 
 namespace ShiftGrid.Test.NET.Tests
 {
-    [TestClass]
     public class Pagination
     {
+        public System.Type DBType { get; set; }
+        public Pagination(System.Type type)
+        {
+            this.DBType = type;
+        }
+
         [TestMethod]
         public async Task Pagination1()
         {
-            await Utils.DataInserter(100);
+            await Utils.DataInserter(DBType, 100);
 
-            var db = Utils.GetDBContext();
+            var db = Utils.GetDBContext(DBType);
 
             var shiftGrid = db.TestItems.Select(x => new TestItemView
             {
@@ -64,9 +69,9 @@ namespace ShiftGrid.Test.NET.Tests
         [TestMethod]
         public async Task Pagination2()
         {
-            await Utils.DataInserter(100);
+            await Utils.DataInserter(DBType, 100);
 
-            var db = Utils.GetDBContext();
+            var db = Utils.GetDBContext(DBType);
 
             var shiftGrid = db.TestItems.Select(x => new TestItemView
             {
@@ -115,9 +120,9 @@ namespace ShiftGrid.Test.NET.Tests
         [TestMethod]
         public async Task Pagination3()
         {
-            await Utils.DataInserter(100);
+            await Utils.DataInserter(DBType, 100);
 
-            var db = Utils.GetDBContext();
+            var db = Utils.GetDBContext(DBType);
 
             var shiftGrid = db.TestItems.Select(x => new TestItemView
             {

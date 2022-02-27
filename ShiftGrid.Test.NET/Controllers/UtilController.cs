@@ -13,6 +13,24 @@ namespace ShiftGrid.Test.NET.Controllers
     [RoutePrefix("api")]
     public class UtilController : ApiController
     {
+        public Type DBType { get; set; }
+
+        public UtilController()
+        {
+            var db = System.Web.HttpContext.Current.Request.Headers["database"].ToString();
+
+            if (db == "SqlServer")
+                this.DBType = typeof(EF.DB);
+
+            else if (db == "MySql")
+                this.DBType = typeof(EF.MySQLDb);
+        }
+
+        public UtilController(Type dbType)
+        {
+            this.DBType = dbType;
+        }
+
         [HttpGet, Route("test")]
         public IHttpActionResult Test()
         {
@@ -22,7 +40,7 @@ namespace ShiftGrid.Test.NET.Controllers
         [HttpDelete, Route("delete-all")]
         public async Task<IHttpActionResult> DeleteAll()
         {
-            var db = Utils.GetDBContext();
+            var db = Utils.GetDBContext(this.DBType);
 
             foreach (var item in (await db.TestItems.ToListAsync()))
                 db.TestItems.Remove(item);
@@ -51,7 +69,10 @@ namespace ShiftGrid.Test.NET.Controllers
         [HttpPost, Route("insert-test-data")]
         public async Task<IHttpActionResult> InsertTestData(InsertPayload payload)
         {
-            var db = Utils.GetDBContext();
+            if (this.DBType == null)
+                this.DBType = null;
+
+            var db = Utils.GetDBContext(this.DBType);
 
             var typeIds = (await db.Types.Select(x => x.ID).ToListAsync()).Select(x => (long?)x).ToList();
 
@@ -79,7 +100,7 @@ namespace ShiftGrid.Test.NET.Controllers
         [HttpPost, Route("insert-types")]
         public async Task<IHttpActionResult> InsertTypes()
         {
-            var db = Utils.GetDBContext();
+            var db = Utils.GetDBContext(this.DBType);
 
             for (int i = 0; i < 2; i++)
             {

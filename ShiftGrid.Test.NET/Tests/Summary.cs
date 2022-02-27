@@ -8,15 +8,20 @@ using System.Collections.Generic;
 
 namespace ShiftGrid.Test.NET.Tests
 {
-    [TestClass]
     public class Summary
     {
+        public System.Type DBType { get; set; }
+        public Summary(System.Type type)
+        {
+            this.DBType = type;
+        }
+
         [TestMethod]
         public async Task Basic()
         {
-            await Utils.DataInserter(100);
+            await Utils.DataInserter(DBType, 100);
 
-            var db = Utils.GetDBContext();
+            var db = Utils.GetDBContext(DBType);
 
             var logs = new List<string>();
 
@@ -39,9 +44,9 @@ namespace ShiftGrid.Test.NET.Tests
         [TestMethod]
         public async Task CalculatedFields()
         {
-            await Utils.DataInserter(100);
+            await Utils.DataInserter(DBType, 100);
 
-            var db = Utils.GetDBContext();
+            var db = Utils.GetDBContext(DBType);
 
             var logs = new List<string>();
 
@@ -71,9 +76,9 @@ namespace ShiftGrid.Test.NET.Tests
         [TestMethod]
         public async Task CalculatedFields_FilteredWithResults()
         {
-            await Utils.DataInserter(100);
+            await Utils.DataInserter(DBType, 100);
 
-            var db = Utils.GetDBContext();
+            var db = Utils.GetDBContext(DBType);
 
             var logs = new List<string>();
             Controllers.DataController.SetupLogger(db, logs);
@@ -116,9 +121,9 @@ namespace ShiftGrid.Test.NET.Tests
         [TestMethod]
         public async Task CalculatedFields_FilteredWithNoResults_Nullable()
         {
-            await Utils.DataInserter(100);
+            await Utils.DataInserter(DBType, 100);
 
-            var db = Utils.GetDBContext();
+            var db = Utils.GetDBContext(DBType);
 
             var shiftGrid = db.TestItems
                 .Select(x => new
@@ -157,9 +162,9 @@ namespace ShiftGrid.Test.NET.Tests
         [TestMethod]
         public async Task CalculatedFields_FilteredWithNoResults_NotNullable()
         {
-            await Utils.DataInserter(100);
+            await Utils.DataInserter(DBType, 100);
 
-            var db = Utils.GetDBContext();
+            var db = Utils.GetDBContext(DBType);
 
             var shiftGrid = db.TestItems
                 .Select(x => new
@@ -198,9 +203,9 @@ namespace ShiftGrid.Test.NET.Tests
         [TestMethod]
         public async Task CalculatedFields_FilteredWithResults_WithoutCount()
         {
-            await Utils.DataInserter(100);
+            await Utils.DataInserter(DBType, 100);
 
-            var db = Utils.GetDBContext();
+            var db = Utils.GetDBContext(DBType);
 
             var logs = new List<string>();
             Controllers.DataController.SetupLogger(db, logs);
