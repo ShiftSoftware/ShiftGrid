@@ -313,21 +313,27 @@ namespace ShiftSoftware.ShiftGrid.Core
             if (this.SummarySelect != null)
             {
                 var summary = this.GetGroupedSummary().ToDynamicList().FirstOrDefault();
-                
-                this.Summary = new Dictionary<string, object> { };
-
-                foreach (var property in SummarySelect.Body.Type.GetProperties().Where(x => x.MemberType == System.Reflection.MemberTypes.Property).ToList())
-                {
-                    var summaryProperty = summary == null ? null : (summary as object).GetType().GetProperties().Where(x => x.MemberType == System.Reflection.MemberTypes.Property && x.Name == property.Name).FirstOrDefault();
-
-                    this.Summary[property.Name] = summaryProperty == null ? Activator.CreateInstance(property.PropertyType) : summaryProperty.GetValue(summary);
-                }
+                this.ProcessSummary(ref summary);
             }
         }
         private async Task LoadSummaryAsync()
         {
             if (this.SummarySelect != null)
-                this.Summary = (await this.GetGroupedSummary().ToDynamicListAsync()).FirstOrDefault();
+            {
+                var summary = (await this.GetGroupedSummary().ToDynamicListAsync()).FirstOrDefault();
+                this.ProcessSummary(ref summary);
+            }
+        }
+        private void ProcessSummary(ref object summary)
+        {
+            this.Summary = new Dictionary<string, object> { };
+
+            foreach (var property in SummarySelect.Body.Type.GetProperties().Where(x => x.MemberType == System.Reflection.MemberTypes.Property).ToList())
+            {
+                var summaryProperty = summary == null ? null : (summary as object).GetType().GetProperties().Where(x => x.MemberType == System.Reflection.MemberTypes.Property && x.Name == property.Name).FirstOrDefault();
+
+                this.Summary[property.Name] = summaryProperty == null ? Activator.CreateInstance(property.PropertyType) : summaryProperty.GetValue(summary);
+            }
         }
         private IQueryable<object> GetGroupedSummary()
         {
