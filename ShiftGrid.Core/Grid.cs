@@ -38,20 +38,45 @@ namespace ShiftSoftware.ShiftGrid.Core
 
         public string ToCSV()
         {
-            var stream = new MemoryStream();
-
             var engine = new FileHelpers.FileHelperEngine(typeof(T));
 
-            //var excludedFields = this.TypeColumns.Where(x => !this.Columns.Any(y => y.Field == x.Field));
+            var excludedFields = this.TypeColumns.Where(x => !this.Columns.Any(y => y.Field == x.Field));
 
-            //foreach (var excluded in excludedFields)
-            //    engine.Options.RemoveField(excluded.Field);
+            foreach (var excluded in excludedFields)
+            {
+                if (engine.Options.FieldsNames.Any(x => x == excluded.Field))
+                    engine.Options.RemoveField(excluded.Field);
+            }
 
             engine.HeaderText = engine.GetFileHeader();
 
-            return engine.WriteString(this.Data.Cast<object>());
+            return engine.WriteString(this.Data.Select(x => ConvertSelectedItem(x)));
         }
         #endregion
+
+        private object ConvertSelectedItem(object dataItem)
+        {
+            var t = (T)Activator.CreateInstance(typeof(T));
+
+            var dataOjectProps = dataItem.GetType().GetProperties().Where(y => y.MemberType == System.Reflection.MemberTypes.Property).ToList();
+
+            var modelProps = typeof(T).GetProperties().Where(y => y.MemberType == System.Reflection.MemberTypes.Property).ToList();
+
+            foreach (var dataField in dataOjectProps)
+            {
+                var targetField = modelProps.Where(y => y.Name == dataField.Name).FirstOrDefault();
+
+                if (targetField == null)
+                    continue;
+
+                var value = dataField.GetValue(dataItem);
+
+                targetField.SetValue(t, value);
+
+            }
+
+            return (object)t;
+        }
 
         #region Private & Internal Props
 
@@ -66,6 +91,8 @@ namespace ShiftSoftware.ShiftGrid.Core
         #region Private & Internal Methods
         internal Grid<T> Init(GridConfig payload = null)
         {
+            this.GridConfig = payload;
+
             this.Prepare(payload);
             this.GenerateQuery();
             var data = this.GetPaginatedQuery().ToDynamicList();
@@ -79,6 +106,8 @@ namespace ShiftSoftware.ShiftGrid.Core
         }
         internal async Task<Grid<T>> InitAsync(GridConfig payload = null)
         {
+            this.GridConfig = payload;
+
             this.Prepare(payload);
             this.GenerateQuery();
             var data = await this.GetPaginatedQuery().ToDynamicListAsync();
@@ -202,7 +231,12 @@ namespace ShiftSoftware.ShiftGrid.Core
 
             IQueryable newSelect;
 
-            if (this.Columns != null && this.Columns.Count > 0)
+            //var exportMode = false;
+
+            //if (this.GridConfig.ExportConfig != null && this.GridConfig.ExportConfig.Export)
+            //    exportMode = true;
+
+            if (/*!exportMode &&*/ this.Columns != null && this.Columns.Count > 0)
             {
                 var fields = string.Join(", ", this.Columns.Select(x => x.Field));
                 newSelect = select.Select($"new ({fields})");
@@ -352,6 +386,7 @@ namespace ShiftSoftware.ShiftGrid.Core
             if (this.DataPageSize == -1)
                 this.Pagination.DataEnd = dataCount;
         }
+        private GridConfig GridConfig { get; set; }
 
         #endregion
     }

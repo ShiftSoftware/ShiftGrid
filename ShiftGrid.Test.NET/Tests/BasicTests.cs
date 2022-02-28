@@ -141,7 +141,10 @@ namespace ShiftGrid.Test.NET.Tests
             var shiftGrid = db.TestItems.Select(x => new TestItemView
             {
                 ID = x.ID,
-                Title = x.Title
+                Title = x.Title,
+                CalculatedPrice = x.Price * 10m,
+                TypeId = x.TypeId,
+                Type = x.Type.Name
             })
             .ToShiftGrid(new GridConfig
             {
@@ -166,7 +169,62 @@ namespace ShiftGrid.Test.NET.Tests
                 shiftGrid.Data.Count() == 50 &&
 
                 data.StartsWith("ID") &&
-                data.TrimEnd().EndsWith("Title - 50,,") &&
+                data.TrimEnd().EndsWith("Title - 50,2,Type - 2") &&
+
+                logs.Count() == 2
+            );
+        }
+
+        [TestMethod]
+        public async Task ExportWithHiddenFields()
+        {
+            await Utils.DataInserter(this.DBType, 100);
+
+            var db = Utils.GetDBContext(this.DBType);
+
+            var logs = new List<string>();
+            Controllers.DataController.SetupLogger(db, logs);
+
+            var shiftGrid = db.TestItems.Select(x => new TestItemView
+            {
+                ID = x.ID,
+                Title = x.Title,
+                CalculatedPrice = x.Price * 10m,
+                Type = x.Type.Name
+            })
+            .ToShiftGrid(new GridConfig
+            {
+                Filters = new List<GridFilter> {
+                    new GridFilter {
+                        Field = "ID",
+                        Operator = "<=",
+                        Value = 50
+                    }
+                },
+                ExportConfig = new ExportConfig
+                {
+                    Export = true
+                },
+                Columns = new List<GridColumn>
+                {
+                    new GridColumn {
+                        Field = "ID",
+                    },
+                    new GridColumn {
+                        Field = "Title",
+                    }
+                }
+            });
+
+            var data = shiftGrid.ToCSV();
+
+            Console.WriteLine(data);
+
+            Assert.IsTrue(
+                shiftGrid.Data.Count() == 50 &&
+
+                data.StartsWith("ID") &&
+                data.TrimEnd().EndsWith("Title - 50") &&
 
                 logs.Count() == 2
             );

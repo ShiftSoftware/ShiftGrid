@@ -11,6 +11,7 @@ namespace ShiftGrid.Test.NET.Models
     {
         [GridColumn(HeaderText = "My ID")]
         public long ID { get; set; }
+        [FileHelpers.FieldCaption("Calculated Price")]
         public decimal? CalculatedPrice { get; set; }
         public string Title { get; set; }
         public long? TypeId { get; set; }
