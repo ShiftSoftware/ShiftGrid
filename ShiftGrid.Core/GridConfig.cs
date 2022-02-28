@@ -10,5 +10,6 @@ namespace ShiftSoftware.ShiftGrid.Core
         public List<GridFilter> Filters { get; set; }
         public List<GridSort> Sort { get; set; }
         public List<GridColumn> Columns { get; set; }
+        public ExportConfig ExportConfig { get; set; }
     }
 }

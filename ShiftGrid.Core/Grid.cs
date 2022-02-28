@@ -42,10 +42,10 @@ namespace ShiftSoftware.ShiftGrid.Core
 
             var engine = new FileHelpers.FileHelperEngine(typeof(T));
 
-            var excludedFields = this.TypeColumns.Where(x => !this.Columns.Any(y => y.Field == x.Field));
+            //var excludedFields = this.TypeColumns.Where(x => !this.Columns.Any(y => y.Field == x.Field));
 
-            foreach (var excluded in excludedFields)
-                engine.Options.RemoveField(excluded.Field);
+            //foreach (var excluded in excludedFields)
+            //    engine.Options.RemoveField(excluded.Field);
 
             engine.HeaderText = engine.GetFileHeader();
 
@@ -110,6 +110,12 @@ namespace ShiftSoftware.ShiftGrid.Core
                     this.DataPageSize = payload.DataPageSize;
 
                 this.Columns = payload.Columns;
+
+                if (payload.ExportConfig != null && payload.ExportConfig.Export)
+                {
+                    this.DataPageIndex = 0;
+                    this.DataPageSize = -1;
+                }
             }
 
             if (this.Sort.Count == 0)

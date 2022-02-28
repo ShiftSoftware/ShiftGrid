@@ -127,5 +127,49 @@ namespace ShiftGrid.Test.NET.Tests
                 logs.Count() == 2
             );
         }
+
+        [TestMethod]
+        public async Task Export()
+        {
+            await Utils.DataInserter(this.DBType, 100);
+
+            var db = Utils.GetDBContext(this.DBType);
+
+            var logs = new List<string>();
+            Controllers.DataController.SetupLogger(db, logs);
+
+            var shiftGrid = db.TestItems.Select(x => new TestItemView
+            {
+                ID = x.ID,
+                Title = x.Title
+            })
+            .ToShiftGrid(new GridConfig
+            {
+                Filters = new List<GridFilter> {
+                    new GridFilter {
+                        Field = "ID",
+                        Operator = "<=",
+                        Value = 50
+                    }
+                },
+                ExportConfig = new ExportConfig
+                {
+                    Export = true
+                }
+            });
+
+            var data = shiftGrid.ToCSV();
+
+            Console.WriteLine(data);
+
+            Assert.IsTrue(
+                shiftGrid.Data.Count() == 50 &&
+
+                data.StartsWith("ID") &&
+                data.TrimEnd().EndsWith("Title - 50,,") &&
+
+                logs.Count() == 2
+            );
+        }
     }
 }
