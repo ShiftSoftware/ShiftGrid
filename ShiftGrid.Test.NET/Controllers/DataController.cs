@@ -81,12 +81,9 @@ namespace ShiftGrid.Test.NET.Controllers
             });
         }
 
-        [HttpGet, Route("export-data/{dbName}/{mode}")]
-        public async Task<IHttpActionResult> ExportData(string dbName, string mode)
+        [HttpPost, Route("export-data/{mode}")]
+        public async Task<IHttpActionResult> ExportData(string mode, [FromBody] GridConfig payload)
         {
-            this.AssignDB(dbName);
-
-            this.DBType = typeof(EF.DB);
             var db = Utils.GetDBContext(this.DBType);
 
             var logs = new List<string>();
@@ -111,21 +108,7 @@ namespace ShiftGrid.Test.NET.Controllers
                     TotalID = x.Sum(y => y.ID),
                     TotalPrice = x.Sum(y => y.CalculatedPrice)
                 })
-                .ToShiftGridAsync(new GridConfig
-                {
-                    //Columns = new List<GridColumn> {
-                    //    new GridColumn {
-                    //        Field = "ID"
-                    //    },
-                    //    new GridColumn {
-                    //        Field = "Title"
-                    //    }
-                    //},
-                    ExportConfig = new ExportConfig
-                    {
-                        Export = true
-                    }
-                });
+                .ToShiftGridAsync(payload);
 
             stopWatch.Stop();
 

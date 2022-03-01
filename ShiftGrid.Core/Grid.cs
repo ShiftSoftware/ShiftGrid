@@ -68,6 +68,9 @@ namespace ShiftSoftware.ShiftGrid.Core
 
         private FileHelpers.FileHelperEngine GetCSVEngine()
         {
+            if (!this.ExportMode)
+                throw new Exception("Export Mode is not Active. ExportConfig.Export must be marked as True.");
+
             var engine = new FileHelpers.FileHelperEngine(typeof(T), System.Text.Encoding.UTF8);
 
             var excludedFields = this.TypeColumns.Where(x => !this.Columns.Any(y => y.Field == x.Field));

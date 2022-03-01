@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
+using Z.BulkOperations;
 
 namespace ShiftGrid.Test.NET.Controllers
 {
@@ -17,13 +18,7 @@ namespace ShiftGrid.Test.NET.Controllers
 
         public UtilController()
         {
-            var db = System.Web.HttpContext.Current.Request.Headers["database"].ToString();
 
-            if (db == "SqlServer")
-                this.DBType = typeof(EF.DB);
-
-            else if (db == "MySql")
-                this.DBType = typeof(EF.MySQLDb);
         }
 
         public UtilController(Type dbType)
@@ -40,15 +35,15 @@ namespace ShiftGrid.Test.NET.Controllers
         [HttpDelete, Route("delete-all")]
         public async Task<IHttpActionResult> DeleteAll()
         {
+            this.AssignDbType();
+
             var db = Utils.GetDBContext(this.DBType);
 
-            foreach (var item in (await db.TestItems.ToListAsync()))
-                db.TestItems.Remove(item);
+            await db.Database.ExecuteSqlCommandAsync("update TestItems set ParentTestItemId = null");
+            await db.Database.ExecuteSqlCommandAsync("delete from TestItems");
+            await db.Database.ExecuteSqlCommandAsync("delete from Types");
 
-            foreach (var item in (await db.Types.ToListAsync()))
-                db.Types.Remove(item);
-
-            await db.SaveChangesAsync();
+            db.Database.CommandTimeout = 1200;
 
             //SQL Server
             if (db.GetType() == typeof(EF.DB))
@@ -66,33 +61,71 @@ namespace ShiftGrid.Test.NET.Controllers
             return Ok();
         }
 
+        private void AssignDbType()
+        {
+            if (DBType == null)
+            {
+                var db = this.Request.Headers.GetValues("database").FirstOrDefault()?.ToString();
+
+                if (db == "SqlServer")
+                    this.DBType = typeof(EF.DB);
+
+                else if (db == "MySql")
+                    this.DBType = typeof(EF.MySQLDb);
+            }
+        }
+
         [HttpPost, Route("insert-test-data")]
         public async Task<IHttpActionResult> InsertTestData(InsertPayload payload)
         {
-            if (this.DBType == null)
-                this.DBType = null;
+            this.AssignDbType();
 
             var db = Utils.GetDBContext(this.DBType);
 
             var typeIds = (await db.Types.Select(x => x.ID).ToListAsync()).Select(x => (long?)x).ToList();
 
+            var connectionString = db.Database.Connection.ConnectionString;
+            var tableName = nameof(db.TestItems);
+
+            var table = new System.Data.DataTable();
+
+            table.Columns.AddRange(typeof(Models.TestItem).GetProperties().Where(x => x.MemberType == System.Reflection.MemberTypes.Property).Select(x => new System.Data.DataColumn
+            {
+                ColumnName = x.Name
+            }).ToArray());
+
             for (int i = 0; i < payload.DataCount; i++)
             {
                 var number = i + 1;
-                var testItem = new Models.TestItem()
-                {
-                    ParentTestItemId = payload.ParentTestItemId,
-                    Code = $"{payload.DataTemplate.Code} - {number}",
-                    Title = $"{payload.DataTemplate.Title} - {number}",
-                    Date = payload.DataTemplate.Date.AddDays(i * payload.Increments.Day),
-                    Price = payload.DataTemplate.Price + (i * payload.Increments.Price),
-                    TypeId = typeIds.Count == 0 ? null : typeIds.ElementAt(i % 2)
-                };
 
-                db.TestItems.Add(testItem);
+                var row = table.NewRow();
+
+                if (payload.ParentTestItemId.HasValue)
+                    row[nameof(Models.TestItem.ParentTestItemId)] = payload.ParentTestItemId;
+
+                row[nameof(Models.TestItem.Code)] = $"{payload.DataTemplate.Code} - {number}";
+                row[nameof(Models.TestItem.Title)] = $"{payload.DataTemplate.Title} - {number}";
+                row[nameof(Models.TestItem.Date)] = payload.DataTemplate.Date.AddDays(i * payload.Increments.Day).ToString("yyyy-MM-dd");
+                row[nameof(Models.TestItem.Price)] = payload.DataTemplate.Price + (i * payload.Increments.Price);
+                row[nameof(Models.TestItem.TypeId)] = typeIds.Count == 0 ? null : typeIds.ElementAt(i % 2);
+
+                table.Rows.Add(row);
             }
 
-            await db.SaveChangesAsync();
+            using (var connection = Utils.GetSqlConnection(this.DBType))
+            {
+                await connection.OpenAsync();
+
+                using (var bulk = new BulkOperation(connection))
+                {
+                    bulk.DestinationTableName = tableName;
+                    bulk.BatchSize = 5000;
+
+                    await bulk.BulkInsertAsync(table);
+                }
+
+                connection.Close();
+            }
 
             return Ok();
         }
@@ -100,6 +133,8 @@ namespace ShiftGrid.Test.NET.Controllers
         [HttpPost, Route("insert-types")]
         public async Task<IHttpActionResult> InsertTypes()
         {
+            this.AssignDbType();
+
             var db = Utils.GetDBContext(this.DBType);
 
             for (int i = 0; i < 2; i++)
