@@ -36,9 +36,39 @@ namespace ShiftSoftware.ShiftGrid.Core
             this.Pagination = new GridPagination() { PageSize = 10 };
         }
 
-        public string ToCSV()
+        public string ToCSVString()
         {
-            var engine = new FileHelpers.FileHelperEngine(typeof(T));
+            var engine = this.GetCSVEngine();
+
+            return engine.WriteString(GetExportableData());
+        }
+
+        public MemoryStream ToCSVStream()
+        {
+            var engine = this.GetCSVEngine();
+
+            var stream = new MemoryStream();
+            var gisstreamWriter = new StreamWriter(stream, System.Text.Encoding.UTF8);
+
+            engine.WriteStream(gisstreamWriter, GetExportableData());
+
+            gisstreamWriter.Flush();
+
+            return stream;
+        }
+
+        public void SaveCSV(string path)
+        {
+            var engine = this.GetCSVEngine();
+
+            engine.WriteFile(path, GetExportableData());
+        }
+
+        #endregion
+
+        private FileHelpers.FileHelperEngine GetCSVEngine()
+        {
+            var engine = new FileHelpers.FileHelperEngine(typeof(T), System.Text.Encoding.UTF8);
 
             var excludedFields = this.TypeColumns.Where(x => !this.Columns.Any(y => y.Field == x.Field));
 
@@ -50,10 +80,16 @@ namespace ShiftSoftware.ShiftGrid.Core
 
             engine.HeaderText = engine.GetFileHeader();
 
-            return engine.WriteString(this.Data.Select(x => ConvertSelectedItem(x)));
+            return engine;
         }
-        #endregion
 
+        private IEnumerable<object> GetExportableData()
+        {
+            if (this.Data.Count > 0 && this.Data.FirstOrDefault().GetType() == typeof(T))
+                return this.Data;
+
+            return this.Data.Select(x => ConvertSelectedItem(x));
+        }
         private object ConvertSelectedItem(object dataItem)
         {
             var t = (T)Activator.CreateInstance(typeof(T));
@@ -85,6 +121,7 @@ namespace ShiftSoftware.ShiftGrid.Core
         private IQueryable ProccessedSelect { get; set; }
         private IQueryable<T> SummaryProcessedSelect { get; set; }
         private List<GridColumn> TypeColumns { get; set; }
+        public bool ExportMode { get; set; }
 
         #endregion
 
@@ -144,6 +181,7 @@ namespace ShiftSoftware.ShiftGrid.Core
                 {
                     this.DataPageIndex = 0;
                     this.DataPageSize = -1;
+                    this.ExportMode = true;
                 }
             }
 
@@ -231,12 +269,7 @@ namespace ShiftSoftware.ShiftGrid.Core
 
             IQueryable newSelect;
 
-            //var exportMode = false;
-
-            //if (this.GridConfig.ExportConfig != null && this.GridConfig.ExportConfig.Export)
-            //    exportMode = true;
-
-            if (/*!exportMode &&*/ this.Columns != null && this.Columns.Count > 0)
+            if (this.Columns != null && this.Columns.Count > 0)
             {
                 var fields = string.Join(", ", this.Columns.Select(x => x.Field));
                 newSelect = select.Select($"new ({fields})");
@@ -310,6 +343,9 @@ namespace ShiftSoftware.ShiftGrid.Core
         }
         private void LoadSummary()
         {
+            if (this.ExportMode)
+                return;
+
             if (this.SummarySelect != null)
             {
                 var summary = this.GetGroupedSummary().ToDynamicList().FirstOrDefault();
@@ -318,6 +354,9 @@ namespace ShiftSoftware.ShiftGrid.Core
         }
         private async Task LoadSummaryAsync()
         {
+            if (this.ExportMode)
+                return;
+
             if (this.SummarySelect != null)
             {
                 var summary = (await this.GetGroupedSummary().ToDynamicListAsync()).FirstOrDefault();
@@ -344,11 +383,14 @@ namespace ShiftSoftware.ShiftGrid.Core
             if (this.Summary == null)
                 this.Summary = new Dictionary<string, object> { };
 
-            if (!this.Summary.Keys.Contains("Count"))
+            if (!this.Summary.Keys.Contains("Count") && !this.ExportMode)
                 this.Summary["Count"] = this.ProccessedSelect.Count();
         }
         private void ProcessPagination()
         {
+            if (this.ExportMode)
+                return;
+
             var dataCount = (int) this.Summary["Count"];
 
             //Show All

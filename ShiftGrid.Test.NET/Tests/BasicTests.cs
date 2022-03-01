@@ -161,7 +161,7 @@ namespace ShiftGrid.Test.NET.Tests
                 }
             });
 
-            var data = shiftGrid.ToCSV();
+            var data = shiftGrid.ToCSVString();
 
             Console.WriteLine(data);
 
@@ -169,9 +169,9 @@ namespace ShiftGrid.Test.NET.Tests
                 shiftGrid.Data.Count() == 50 &&
 
                 data.StartsWith("ID") &&
-                data.TrimEnd().EndsWith("Title - 50,2,Type - 2") &&
+                data.TrimEnd().EndsWith("Title - 50,Type - 2") &&
 
-                logs.Count() == 2
+                logs.Count() == 1
             );
         }
 
@@ -216,7 +216,7 @@ namespace ShiftGrid.Test.NET.Tests
                 }
             });
 
-            var data = shiftGrid.ToCSV();
+            var data = shiftGrid.ToCSVString();
 
             Console.WriteLine(data);
 
@@ -226,7 +226,7 @@ namespace ShiftGrid.Test.NET.Tests
                 data.StartsWith("ID") &&
                 data.TrimEnd().EndsWith("Title - 50") &&
 
-                logs.Count() == 2
+                logs.Count() == 1
             );
         }
     }

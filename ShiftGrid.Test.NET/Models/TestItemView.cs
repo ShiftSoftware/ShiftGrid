@@ -14,6 +14,8 @@ namespace ShiftGrid.Test.NET.Models
         [FileHelpers.FieldCaption("Calculated Price")]
         public decimal? CalculatedPrice { get; set; }
         public string Title { get; set; }
+
+        [FileHelpers.FieldHidden]
         public long? TypeId { get; set; }
         public string Type { get; set; }
 
