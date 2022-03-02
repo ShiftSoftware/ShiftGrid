@@ -95,6 +95,7 @@ namespace ShiftGrid.Test.NET.Controllers
             stopWatch.Start();
 
             var grid = await db.TestItems
+                .AsNoTracking()
                 .Select(x => new Models.TestItemView
                 {
                     ID = x.ID,
