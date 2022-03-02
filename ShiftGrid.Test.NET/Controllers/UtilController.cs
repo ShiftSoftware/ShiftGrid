@@ -39,24 +39,8 @@ namespace ShiftGrid.Test.NET.Controllers
 
             var db = Utils.GetDBContext(this.DBType);
 
-            await db.Database.ExecuteSqlCommandAsync("update TestItems set ParentTestItemId = null");
-            await db.Database.ExecuteSqlCommandAsync("delete from TestItems");
+            await db.Database.ExecuteSqlCommandAsync("TRUNCATE TABLE TestItems");
             await db.Database.ExecuteSqlCommandAsync("delete from Types");
-
-            db.Database.CommandTimeout = 1200;
-
-            //SQL Server
-            if (db.GetType() == typeof(EF.DB))
-            {
-                await db.Database.ExecuteSqlCommandAsync("DBCC CHECKIDENT (TestItems, RESEED, 0)");
-                await db.Database.ExecuteSqlCommandAsync("DBCC CHECKIDENT (Types, RESEED, 0)");
-            }
-            //MySQL
-            else if(db.GetType() == typeof(EF.MySQLDb))
-            {
-                await db.Database.ExecuteSqlCommandAsync("ALTER TABLE TestItems AUTO_INCREMENT = 1");
-                await db.Database.ExecuteSqlCommandAsync("ALTER TABLE Types AUTO_INCREMENT = 1");
-            }
 
             return Ok();
         }
