@@ -6,6 +6,7 @@
 	  <PackageId>ShiftSoftware.ShiftGrid.Core</PackageId>
 	  <Authors>Shift Software</Authors>
 	  <Product>ShiftGrid Core</Product>
+	  <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>

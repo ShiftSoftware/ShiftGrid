@@ -167,5 +167,40 @@ namespace ShiftGrid.Test.NET.Tests
                 data.Last().Title == "Title - 15"
             );
         }
+
+        [TestMethod]
+        public async Task OutOfBound()
+        {
+            await Utils.DataInserter(DBType, 100);
+
+            var db = Utils.GetDBContext(DBType);
+
+            var shiftGrid = db.TestItems.Select(x => new TestItemView
+            {
+                ID = x.ID,
+                Title = x.Title
+            })
+            .ToShiftGrid(new GridConfig
+            {
+                DataPageSize = 10,
+                DataPageIndex = 90,
+            });
+
+            var data = shiftGrid.Data.Select(x => (TestItemView)x);
+
+            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid, Newtonsoft.Json.Formatting.Indented));
+
+            Assert.IsTrue(
+                shiftGrid.Pagination.LastPageIndex == 9 &&
+                shiftGrid.Pagination.DataStart == 91 &&
+                shiftGrid.Pagination.DataEnd == 100 &&
+
+                shiftGrid.DataCount == 100 &&
+                shiftGrid.DataPageIndex == 9 &&
+
+                data.First().Title == "Title - 91" &&
+                data.Last().Title == "Title - 100"
+            );
+        }
     }
 }

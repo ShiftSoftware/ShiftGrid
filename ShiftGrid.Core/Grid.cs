@@ -16,6 +16,7 @@ namespace ShiftSoftware.ShiftGrid.Core
 
         public int DataPageIndex { get; set; }
         public int DataPageSize { get; set; }
+        public int DataCount { get; set; }
         public List<object> Data { get; set; }
         public Dictionary<string, object> Summary { get; set; }
         public List<GridSort> Sort { get; set; }
@@ -135,13 +136,13 @@ namespace ShiftSoftware.ShiftGrid.Core
 
             this.Prepare(payload);
             this.GenerateQuery();
-            var data = this.GetPaginatedQuery().ToDynamicList();
-            this.Data.AddRange(data);
             this.GenerateColumns();
             this.LoadSummary();
             this.EnsureSummary();
             this.ProcessPagination();
 
+            var data = this.GetPaginatedQuery().ToDynamicList();
+            this.Data.AddRange(data);
             return this;
         }
         internal async Task<Grid<T>> InitAsync(GridConfig payload = null)
@@ -150,13 +151,13 @@ namespace ShiftSoftware.ShiftGrid.Core
 
             this.Prepare(payload);
             this.GenerateQuery();
-            var data = await this.GetPaginatedQuery().ToDynamicListAsync();
-            this.Data.AddRange(data);
             this.GenerateColumns();
             await this.LoadSummaryAsync();
             this.EnsureSummary();
             this.ProcessPagination();
 
+            var data = await this.GetPaginatedQuery().ToDynamicListAsync();
+            this.Data.AddRange(data);
             return this;
         }
 
@@ -394,7 +395,7 @@ namespace ShiftSoftware.ShiftGrid.Core
             if (this.ExportMode)
                 return;
 
-            var dataCount = (int) this.Summary["Count"];
+            this.DataCount = (int) this.Summary["Count"];
 
             //Show All
             if (this.DataPageSize == -1)
@@ -405,15 +406,18 @@ namespace ShiftSoftware.ShiftGrid.Core
             }
             else
             {
-                this.Pagination.Count = dataCount / this.DataPageSize + (dataCount % this.DataPageSize > 0 ? 1 : 0);
+                this.Pagination.Count = DataCount / this.DataPageSize + (DataCount % this.DataPageSize > 0 ? 1 : 0);
             }
 
+            this.Pagination.LastPageIndex = this.Pagination.Count - 1;
+
+            if (this.DataPageIndex > this.Pagination.LastPageIndex)
+                this.DataPageIndex = this.Pagination.LastPageIndex;
+            
             this.Pagination.PageIndex = this.DataPageIndex % this.Pagination.PageSize;
 
             this.Pagination.PageStart = (this.DataPageIndex / this.Pagination.PageSize) * this.Pagination.PageSize;
             this.Pagination.PageEnd = this.Pagination.PageStart + (this.Pagination.PageSize - 1);
-
-            this.Pagination.LastPageIndex = this.Pagination.Count - 1;
 
             if (this.Pagination.Count == 0)
                 this.Pagination.LastPageIndex = 0;
@@ -426,16 +430,16 @@ namespace ShiftSoftware.ShiftGrid.Core
 
             this.Pagination.DataStart = (this.DataPageIndex * this.DataPageSize) + 1;
 
-            if (dataCount == 0)
+            if (DataCount == 0)
                 this.Pagination.DataStart = 0;
 
             this.Pagination.DataEnd = this.Pagination.DataStart + this.DataPageSize - 1;
 
-            if (this.Pagination.DataEnd > dataCount)
-                this.Pagination.DataEnd = dataCount;
+            if (this.Pagination.DataEnd > DataCount)
+                this.Pagination.DataEnd = DataCount;
 
             if (this.DataPageSize == -1)
-                this.Pagination.DataEnd = dataCount;
+                this.Pagination.DataEnd = DataCount;
         }
         private GridConfig GridConfig { get; set; }
 
