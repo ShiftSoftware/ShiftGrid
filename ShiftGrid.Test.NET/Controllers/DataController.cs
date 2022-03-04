@@ -72,7 +72,11 @@ namespace ShiftGrid.Test.NET.Controllers
                     TotalID = x.Sum(y => y.ID),
                     TotalPrice = x.Sum(y => y.Price)
                 })
-                .ToShiftGridAsync(payload);
+                .ToShiftGridAsync(new GridSort
+                {
+                    Field = nameof(Models.TestItem.ID),
+                    SortDirection = SortDirection.Ascending
+                }, payload);
 
             return Json(new
             {
@@ -109,7 +113,11 @@ namespace ShiftGrid.Test.NET.Controllers
                     TotalID = x.Sum(y => y.ID),
                     TotalPrice = x.Sum(y => y.CalculatedPrice)
                 })
-                .ToShiftGridAsync(payload);
+                .ToShiftGridAsync(new GridSort
+                {
+                    Field = "ID",
+                    SortDirection = SortDirection.Ascending
+                }, payload);
 
             stopWatch.Stop();
 

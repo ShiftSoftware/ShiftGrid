@@ -2,6 +2,7 @@
 using ShiftGrid.Test.NET.Models;
 using ShiftSoftware.ShiftGrid.Core;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -27,7 +28,12 @@ namespace ShiftGrid.Test.NET.Tests
                 ID = x.ID,
                 Title = x.Title
             })
-            .ToShiftGrid(new GridConfig
+            .ToShiftGrid(new GridSort
+            {
+                Field = "ID",
+                SortDirection = SortDirection.Ascending
+            },
+            new GridConfig
             {
                 DataPageSize = 5,
                 DataPageIndex = 11,
@@ -78,7 +84,12 @@ namespace ShiftGrid.Test.NET.Tests
                 ID = x.ID,
                 Title = x.Title
             })
-            .ToShiftGrid(new GridConfig
+            .ToShiftGrid(new GridSort
+            {
+                Field = "ID",
+                SortDirection = SortDirection.Ascending
+            },
+            new GridConfig
             {
                 DataPageSize = 3,
                 DataPageIndex = 22,
@@ -129,7 +140,12 @@ namespace ShiftGrid.Test.NET.Tests
                 ID = x.ID,
                 Title = x.Title
             })
-            .ToShiftGrid(new GridConfig
+            .ToShiftGrid(new GridSort
+            {
+                Field = "ID",
+                SortDirection = SortDirection.Ascending
+            },
+            new GridConfig
             {
                 DataPageSize = 15,
                 DataPageIndex = 0,
@@ -180,7 +196,12 @@ namespace ShiftGrid.Test.NET.Tests
                 ID = x.ID,
                 Title = x.Title
             })
-            .ToShiftGrid(new GridConfig
+            .ToShiftGrid(new GridSort
+            {
+                Field = "ID",
+                SortDirection = SortDirection.Ascending
+            },
+            new GridConfig
             {
                 DataPageSize = 10,
                 DataPageIndex = 90,

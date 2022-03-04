@@ -9,6 +9,7 @@ namespace ShiftSoftware.ShiftGrid.Core
         public int DataPageSize { get; set; }
         public List<GridFilter> Filters { get; set; }
         public List<GridSort> Sort { get; set; }
+        public GridSort DefaultSort { get; set; }
         public List<GridColumn> Columns { get; set; }
         public ExportConfig ExportConfig { get; set; }
     }

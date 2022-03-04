@@ -42,6 +42,17 @@ namespace ShiftGrid.Test.NET.Controllers
             await db.Database.ExecuteSqlCommandAsync("TRUNCATE TABLE TestItems");
             await db.Database.ExecuteSqlCommandAsync("delete from Types");
 
+            //SQL Server
+            if (db.GetType() == typeof(EF.DB))
+            {
+                await db.Database.ExecuteSqlCommandAsync("DBCC CHECKIDENT (Types, RESEED, 0)");
+            }
+            //MySQL
+            else if (db.GetType() == typeof(EF.MySQLDb))
+            {
+                await db.Database.ExecuteSqlCommandAsync("ALTER TABLE Types AUTO_INCREMENT = 1");
+            }
+
             return Ok();
         }
 
@@ -78,9 +89,27 @@ namespace ShiftGrid.Test.NET.Controllers
                 ColumnName = x.Name
             }).ToArray());
 
+            var price = payload.DataTemplate.Price;
+            var step = 0;
+
             for (int i = 0; i < payload.DataCount; i++)
             {
+                step++;
+
                 var number = i + 1;
+
+                if(payload.Increments.Step > 1)
+                {
+                    if (step == payload.Increments.Step)
+                    {
+                        step = 0;
+                        price = price + payload.Increments.Step;
+                    }
+                }
+                else
+                {
+                    price = payload.DataTemplate.Price + (i * payload.Increments.Price);
+                }
 
                 var row = table.NewRow();
 
@@ -90,7 +119,7 @@ namespace ShiftGrid.Test.NET.Controllers
                 row[nameof(Models.TestItem.Code)] = $"{payload.DataTemplate.Code} - {number}";
                 row[nameof(Models.TestItem.Title)] = $"{payload.DataTemplate.Title} - {number}";
                 row[nameof(Models.TestItem.Date)] = payload.DataTemplate.Date.AddDays(i * payload.Increments.Day).ToString("yyyy-MM-dd");
-                row[nameof(Models.TestItem.Price)] = payload.DataTemplate.Price + (i * payload.Increments.Price);
+                row[nameof(Models.TestItem.Price)] = price;
                 row[nameof(Models.TestItem.TypeId)] = typeIds.Count == 0 ? null : typeIds.ElementAt(i % 2);
 
                 table.Rows.Add(row);

@@ -213,9 +213,12 @@
     <Compile Include="Tests\Filters.cs" />
     <Compile Include="Tests\MySql\Filters.cs" />
     <Compile Include="Tests\MySql\BasicTests.cs" />
+    <Compile Include="Tests\MySql\Sort.cs" />
     <Compile Include="Tests\MySql\Pagination.cs" />
     <Compile Include="Tests\MySql\Summary.cs" />
+    <Compile Include="Tests\Sort.cs" />
     <Compile Include="Tests\Pagination.cs" />
+    <Compile Include="Tests\SQLServer\Sort.cs" />
     <Compile Include="Tests\SQLServer\Summary.cs" />
     <Compile Include="Tests\SQLServer\Pagination.cs" />
     <Compile Include="Tests\SQLServer\Filters.cs" />

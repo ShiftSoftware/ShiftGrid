@@ -6,7 +6,7 @@ namespace ShiftGrid.Test.NET
 {
     public class Utils
     {
-        public static async Task DataInserter(Type dbType, int count, int? subCount = null)
+        public static async Task DataInserter(Type dbType, int count, int? subCount = null, int step = 1)
         {
             var controller = new Controllers.UtilController(dbType);
 
@@ -27,7 +27,8 @@ namespace ShiftGrid.Test.NET
                 Increments = new Increments
                 {
                     Day = 1,
-                    Price = 10
+                    Price = 10,
+                    Step = step
                 }
             });
 

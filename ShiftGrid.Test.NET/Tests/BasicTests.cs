@@ -39,7 +39,11 @@ namespace ShiftGrid.Test.NET.Tests
 
             Controllers.DataController.SetupLogger(db, logs);
 
-            var shiftGrid = db.TestItems.ToShiftGrid();
+            var shiftGrid = db.TestItems.ToShiftGrid(new GridSort
+            {
+                Field = "ID",
+                SortDirection = SortDirection.Ascending
+            });
 
             var objectProps = shiftGrid.Data.First().GetType().GetProperties().Where(x=> x.MemberType == System.Reflection.MemberTypes.Property).ToList();
 
@@ -95,7 +99,11 @@ namespace ShiftGrid.Test.NET.Tests
                 ID = x.ID,
                 Title = x.Title
             })
-            .ToShiftGrid();
+            .ToShiftGrid(new GridSort
+            {
+                Field = "ID",
+                SortDirection = SortDirection.Ascending
+            });
 
             var data = shiftGrid.Data.Select(x => (TestItemView)x);
 
@@ -146,7 +154,12 @@ namespace ShiftGrid.Test.NET.Tests
                 TypeId = x.TypeId,
                 Type = x.Type.Name
             })
-            .ToShiftGrid(new GridConfig
+            .ToShiftGrid(new GridSort
+            {
+                Field = "ID",
+                SortDirection = SortDirection.Ascending
+            },
+            new GridConfig
             {
                 Filters = new List<GridFilter> {
                     new GridFilter {
@@ -192,7 +205,12 @@ namespace ShiftGrid.Test.NET.Tests
                 CalculatedPrice = x.Price * 10m,
                 Type = x.Type.Name
             })
-            .ToShiftGrid(new GridConfig
+            .ToShiftGrid(new GridSort
+            {
+                Field = "ID",
+                SortDirection = SortDirection.Ascending
+            },
+            new GridConfig
             {
                 Filters = new List<GridFilter> {
                     new GridFilter {

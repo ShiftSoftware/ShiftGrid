@@ -20,6 +20,7 @@ namespace ShiftSoftware.ShiftGrid.Core
         public List<object> Data { get; set; }
         public Dictionary<string, object> Summary { get; set; }
         public List<GridSort> Sort { get; set; }
+        public GridSort DefaultSort { get; set; }
         public List<GridFilter> Filters { get; set; }
         public List<GridColumn> Columns { get; set; }
         public GridPagination Pagination { get; set; }
@@ -191,11 +192,12 @@ namespace ShiftSoftware.ShiftGrid.Core
 
             if (this.Sort.Count == 0)
             {
-                this.Sort.Add(new GridSort
-                {
-                    Field = typeof(T).GetProperties().Where(x => x.MemberType == System.Reflection.MemberTypes.Property).First().Name,
-                    SortDirection = SortDirection.Ascending
-                });
+                //this.Sort.Add(new GridSort
+                //{
+                //    Field = typeof(T).GetProperties().Where(x => x.MemberType == System.Reflection.MemberTypes.Property).First().Name,
+                //    SortDirection = SortDirection.Ascending
+                //});
+                this.Sort.Add(DefaultSort);
             }
         }
         private void GenerateQuery()
@@ -285,13 +287,15 @@ namespace ShiftSoftware.ShiftGrid.Core
         }
         private IQueryable GetPaginatedQuery()
         {
-            IQueryable sort = this.ProccessedSelect.OrderBy(string.Join(", ", this.Sort.Select(x => $"{x.Field} {(x.SortDirection == SortDirection.Descending ? "desc" : "")}")));
+            IQueryable sort = this.ProccessedSelect
+                .OrderBy(string.Join(", ", this.Sort.Select(x => $"{x.Field} {(x.SortDirection == SortDirection.Descending ? "desc" : "")}")))
+                .ThenBy($"{this.DefaultSort.Field} {(this.DefaultSort.SortDirection == SortDirection.Descending ? "desc" : "")}");
 
             this.Data = new List<object>();
 
             IQueryable dataToIterate;
 
-            if (this.DataPageSize != -1)
+            if (this.DataPageSize != -1 && this.DataCount > DataPageSize)
                 dataToIterate = sort.Skip((DataPageIndex * DataPageSize)).Take(DataPageSize);
             else
                 dataToIterate = sort;

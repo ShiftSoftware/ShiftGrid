@@ -28,7 +28,12 @@ namespace ShiftGrid.Test.NET.Tests
                 ID = x.ID,
                 Title = x.Title
             })
-            .ToShiftGrid(new GridConfig
+            .ToShiftGrid(new GridSort
+            {
+                Field = "ID",
+                SortDirection = SortDirection.Ascending
+            },
+            new GridConfig
             {
                 Filters = new List<GridFilter> {
                    new GridFilter
@@ -62,7 +67,12 @@ namespace ShiftGrid.Test.NET.Tests
                 ID = x.ID,
                 Title = x.Title
             })
-            .ToShiftGrid(new GridConfig
+            .ToShiftGrid(new GridSort
+            {
+                Field = "ID",
+                SortDirection = SortDirection.Ascending
+            },
+            new GridConfig
             {
                 Filters = new List<GridFilter> {
                    new GridFilter
@@ -93,7 +103,12 @@ namespace ShiftGrid.Test.NET.Tests
 
             var db = Utils.GetDBContext(DBType);
 
-            var shiftGrid = db.TestItems.ToShiftGrid(new GridConfig
+            var shiftGrid = db.TestItems.ToShiftGrid(new GridSort
+            {
+                Field = "ID",
+                SortDirection = SortDirection.Ascending
+            },
+            new GridConfig
             {
                 Filters = new List<GridFilter> {
                    new GridFilter
@@ -131,7 +146,12 @@ namespace ShiftGrid.Test.NET.Tests
                 ID = x.ID,
                 Title = x.Title
             })
-            .ToShiftGrid(new GridConfig
+            .ToShiftGrid(new GridSort
+            {
+                Field = "ID",
+                SortDirection = SortDirection.Ascending
+            },
+            new GridConfig
             {
                 Filters = new List<GridFilter> {
                    new GridFilter
@@ -176,7 +196,12 @@ namespace ShiftGrid.Test.NET.Tests
                 ID = x.ID,
                 Title = x.Title
             })
-            .ToShiftGrid(new GridConfig
+            .ToShiftGrid(new GridSort
+            {
+                Field = "ID",
+                SortDirection = SortDirection.Ascending
+            },
+            new GridConfig
             {
                 Filters = new List<GridFilter> {
                    new GridFilter
@@ -219,7 +244,12 @@ namespace ShiftGrid.Test.NET.Tests
                 ID = x.ID,
                 Title = x.Title
             })
-            .ToShiftGrid(new GridConfig
+            .ToShiftGrid(new GridSort
+            {
+                Field = "ID",
+                SortDirection = SortDirection.Ascending
+            },
+            new GridConfig
             {
                 Filters = new List<GridFilter> {
                    new GridFilter
@@ -269,7 +299,12 @@ namespace ShiftGrid.Test.NET.Tests
                 ID = x.ID,
                 Title = x.Title
             })
-            .ToShiftGrid(new GridConfig
+            .ToShiftGrid(new GridSort
+            {
+                Field = "ID",
+                SortDirection = SortDirection.Ascending
+            },
+            new GridConfig
             {
                 Filters = new List<GridFilter>{
                    new GridFilter
@@ -326,7 +361,12 @@ namespace ShiftGrid.Test.NET.Tests
                     Title = y.Title,
                 })
             })
-            .ToShiftGrid(new GridConfig
+            .ToShiftGrid(new GridSort
+            {
+                Field = "ID",
+                SortDirection = SortDirection.Ascending
+            },
+            new GridConfig
             {
                 Filters = new List<GridFilter> {
                    new GridFilter
@@ -364,7 +404,12 @@ namespace ShiftGrid.Test.NET.Tests
                     Title = y.Title,
                 })
             })
-            .ToShiftGrid(new GridConfig
+            .ToShiftGrid(new GridSort
+            {
+                Field = "ID",
+                SortDirection = SortDirection.Ascending
+            },
+            new GridConfig
             {
                 Filters = new List<GridFilter> {
                    new GridFilter
@@ -414,7 +459,12 @@ namespace ShiftGrid.Test.NET.Tests
                     IncreasedPrice = y.Price * 100,
                 })
             })
-            .ToShiftGrid(new GridConfig
+            .ToShiftGrid(new GridSort
+            {
+                Field = "ID",
+                SortDirection = SortDirection.Ascending
+            },
+            new GridConfig
             {
                 Filters = new List<GridFilter> {
                    new GridFilter
@@ -457,7 +507,12 @@ namespace ShiftGrid.Test.NET.Tests
             var db = Utils.GetDBContext(DBType);
 
             var shiftGrid = db.TestItems
-            .ToShiftGrid(new GridConfig
+            .ToShiftGrid(new GridSort
+            {
+                Field = "ID",
+                SortDirection = SortDirection.Ascending
+            },
+            new GridConfig
             {
                 Filters = new List<GridFilter> {
                    new GridFilter

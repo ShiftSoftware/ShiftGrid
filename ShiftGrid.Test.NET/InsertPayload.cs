@@ -26,5 +26,6 @@ namespace ShiftGrid.Test.NET
     {
         public int Day { get; set; }
         public int Price { get; set; }
+        public int Step { get; set; }
     }
 }

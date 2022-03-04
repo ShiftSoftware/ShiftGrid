@@ -7,35 +7,39 @@ namespace ShiftSoftware.ShiftGrid.Core
 {
     public static class Extensions
     {
-        public static Grid<T> ToShiftGrid<T>(this IQueryable<T> select, GridConfig config = null)
+        public static Grid<T> ToShiftGrid<T>(this IQueryable<T> select, GridSort defaultSort, GridConfig config = null)
         {
             return new Grid<T>
             {
+                DefaultSort = defaultSort,
                 Select = select
             }.Init(config);
         }
 
-        public static async Task<Grid<T>> ToShiftGridAsync<T>(this IQueryable<T> select, GridConfig config = null)
+        public static async Task<Grid<T>> ToShiftGridAsync<T>(this IQueryable<T> select, GridSort defaultSort, GridConfig config = null)
         {
             return await new Grid<T>
             {
+                DefaultSort = defaultSort,
                 Select = select
             }.InitAsync(config);
         }
 
-        public static Grid<T> ToShiftGrid<T>(this SelectAndSummarySelectCombo<T> summarySelectCombo, GridConfig config = null)
+        public static Grid<T> ToShiftGrid<T>(this SelectAndSummarySelectCombo<T> summarySelectCombo, GridSort defaultSort, GridConfig config = null)
         {
             return new Grid<T>()
             {
+                DefaultSort = defaultSort,
                 Select = summarySelectCombo.Select,
                 SummarySelect = summarySelectCombo.SummarySelect,
             }.Init(config);
         }
 
-        public static async Task<Grid<T>> ToShiftGridAsync<T>(this SelectAndSummarySelectCombo<T> summarySelectCombo, GridConfig config = null)
+        public static async Task<Grid<T>> ToShiftGridAsync<T>(this SelectAndSummarySelectCombo<T> summarySelectCombo, GridSort defaultSort, GridConfig config = null)
         {
             return await new Grid<T>()
             {
+                DefaultSort = defaultSort,
                 Select = summarySelectCombo.Select,
                 SummarySelect = summarySelectCombo.SummarySelect,
             }.InitAsync(config);
