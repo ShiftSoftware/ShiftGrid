@@ -137,13 +137,13 @@ namespace ShiftSoftware.ShiftGrid.Core
 
             this.Prepare(payload);
             this.GenerateQuery();
-            this.GenerateColumns();
             this.LoadSummary();
             this.EnsureSummary();
             this.ProcessPagination();
 
             var data = this.GetPaginatedQuery().ToDynamicList();
             this.Data.AddRange(data);
+            this.GenerateColumns();
             return this;
         }
         internal async Task<Grid<T>> InitAsync(GridConfig payload = null)
@@ -152,13 +152,13 @@ namespace ShiftSoftware.ShiftGrid.Core
 
             this.Prepare(payload);
             this.GenerateQuery();
-            this.GenerateColumns();
             await this.LoadSummaryAsync();
             this.EnsureSummary();
             this.ProcessPagination();
 
             var data = await this.GetPaginatedQuery().ToDynamicListAsync();
             this.Data.AddRange(data);
+            this.GenerateColumns();
             return this;
         }
 
@@ -306,13 +306,11 @@ namespace ShiftSoftware.ShiftGrid.Core
         {
             var columns = new List<GridColumn>();
 
-            //var jsonResolver = new PropertyRenameAndIgnoreSerializerContractResolver();
-
             var order = 0;
 
             var props = typeof(T).GetProperties().Where(x => x.MemberType == System.Reflection.MemberTypes.Property).ToList();
 
-            if (props.Count == 0)
+            if (props.Count == 0 && this.Data.Count > 0)
                 props = this.Data.FirstOrDefault().GetType().GetProperties().Where(x => x.MemberType == System.Reflection.MemberTypes.Property).ToList();
 
             foreach (var col in props)
@@ -331,7 +329,7 @@ namespace ShiftSoftware.ShiftGrid.Core
 
             this.TypeColumns = columns;
 
-            if (this.Columns == null)
+            if (this.Columns == null || this.Columns.Count == 0)
             {
                 this.Columns = columns;
             }
@@ -340,14 +338,6 @@ namespace ShiftSoftware.ShiftGrid.Core
             {
                 x.HeaderText = columns.FirstOrDefault(y => y.Field == x.Field)?.HeaderText;
             });
-
-            //foreach (var ignoredCol in this.TypeColumns.Where(x => !this.Columns.Any(y => y.Field == x.Field)))
-            //    jsonResolver.IgnoreProperty(typeof(T), ignoredCol.Field);
-
-            //var serializerSettings = new JsonSerializerSettings();
-            //serializerSettings.ContractResolver = jsonResolver;
-
-            //this.JsonSerializerSettings = serializerSettings;
         }
         private void LoadSummary()
         {
