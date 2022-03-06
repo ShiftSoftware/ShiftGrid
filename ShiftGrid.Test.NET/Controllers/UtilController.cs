@@ -125,7 +125,7 @@ namespace ShiftGrid.Test.NET.Controllers
                 table.Rows.Add(row);
             }
 
-            using (var connection = Utils.GetSqlConnection(this.DBType))
+            using (var connection = db.Database.Connection)
             {
                 await connection.OpenAsync();
 
@@ -136,8 +136,6 @@ namespace ShiftGrid.Test.NET.Controllers
 
                     await bulk.BulkInsertAsync(table);
                 }
-
-                connection.Close();
             }
 
             return Ok();

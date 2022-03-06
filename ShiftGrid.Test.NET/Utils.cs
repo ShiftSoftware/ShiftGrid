@@ -63,24 +63,5 @@ namespace ShiftGrid.Test.NET
 
             return null;
         }
-        public static System.Data.Common.DbConnection GetSqlConnection(Type dbType)
-        {
-            DBBase db;
-            System.Data.Common.DbConnection connection = null;
-
-            if (dbType == typeof(MySQLDb))
-            {
-                db = new MySQLDb();
-                connection = new MySql.Data.MySqlClient.MySqlConnection(db.Database.Connection.ConnectionString);
-            }
-
-            else if (dbType == typeof(DB))
-            {
-                db = new DB();
-                connection = new System.Data.SqlClient.SqlConnection(db.Database.Connection.ConnectionString);
-            }
-
-            return connection;
-        }
     }
 }
