@@ -10,6 +10,7 @@
         public const string LessThanOrEquals = "<=";
         public const string Contains = "Contains";
         public const string In = "In";
+        public const string NotIn = "NotIn";
         public const string StartsWith = "StartsWith";
         public const string EndsWith = "EndsWith";
     }

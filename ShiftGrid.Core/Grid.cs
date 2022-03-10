@@ -225,7 +225,7 @@ namespace ShiftSoftware.ShiftGrid.Core
                     var value = $"@{index}";
                     var field = theFilter.Field;
 
-                    if (theFilter.Operator == GridFilterOperator.In)
+                    if (theFilter.Operator == GridFilterOperator.In || theFilter.Operator == GridFilterOperator.NotIn)
                     {
                         value = $"{theFilter.Field}";
                         field = $"@{index}";
@@ -260,6 +260,11 @@ namespace ShiftSoftware.ShiftGrid.Core
                     var theOperator = Mappings.OperatorMapping[theFilter.Operator];
 
                     var theExpression = $"{field}{theOperator}{valuePrefix}{value}{valuePostfix}";
+
+                    var expressionPrefix = Mappings.ExpressionPrefix.Keys.Contains(theFilter.Operator) ? Mappings.ExpressionPrefix[theFilter.Operator] : "";
+                    var expressionPostfix = Mappings.ExpressionPostfix.Keys.Contains(theFilter.Operator) ? Mappings.ExpressionPostfix[theFilter.Operator] : "";
+
+                    theExpression = $"{expressionPrefix}{theExpression}{expressionPostfix}";
 
                     expressions.Add(theExpression);
 

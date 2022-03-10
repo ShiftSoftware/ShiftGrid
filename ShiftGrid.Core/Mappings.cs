@@ -14,6 +14,7 @@ namespace ShiftSoftware.ShiftGrid.Core
             { GridFilterOperator.LessThanOrEquals, "<=" },
             { GridFilterOperator.Contains, ".Contains" },
             { GridFilterOperator.In, ".Contains" },
+            { GridFilterOperator.NotIn, ".Contains" },
             { GridFilterOperator.StartsWith, ".StartsWith" },
             { GridFilterOperator.EndsWith, ".EndsWith" },
         };
@@ -22,6 +23,7 @@ namespace ShiftSoftware.ShiftGrid.Core
         {
             { GridFilterOperator.Contains, "(" },
             { GridFilterOperator.In, "(" },
+            { GridFilterOperator.NotIn, "(" },
             { GridFilterOperator.StartsWith, "(" },
             { GridFilterOperator.EndsWith, "(" },
         };
@@ -30,8 +32,19 @@ namespace ShiftSoftware.ShiftGrid.Core
         {
             { GridFilterOperator.Contains, ")" },
             { GridFilterOperator.In, ")" },
+            { GridFilterOperator.NotIn, ")" },
             { GridFilterOperator.StartsWith, ")" },
             { GridFilterOperator.EndsWith, ")" },
+        };
+
+        public static Dictionary<string, string> ExpressionPrefix = new Dictionary<string, string>
+        {
+            { GridFilterOperator.NotIn, "!(" },
+        };
+
+        public static Dictionary<string, string> ExpressionPostfix = new Dictionary<string, string>
+        {
+            { GridFilterOperator.NotIn, ")" },
         };
     }
 }

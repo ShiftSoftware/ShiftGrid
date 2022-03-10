@@ -97,6 +97,47 @@ namespace ShiftGrid.Test.NET.Tests
         }
 
         [TestMethod]
+        public async Task Filters_NotIn()
+        {
+            await Utils.DataInserter(DBType, 100);
+
+            var db = Utils.GetDBContext(DBType);
+
+            var shiftGrid = db.TestItems.Select(x => new TestItemView
+            {
+                ID = x.ID,
+                Title = x.Title
+            })
+            .ToShiftGrid(new GridSort
+            {
+                Field = "ID",
+                SortDirection = SortDirection.Ascending
+            },
+            new GridConfig
+            {
+                Filters = new List<GridFilter> {
+                   new GridFilter
+                   {
+                       Field = nameof(TestItem.ID),
+                       Operator = GridFilterOperator.NotIn,
+                       Value = new List<long> { 1, 2, 3 }
+                   }
+               }
+            });
+
+            var data = shiftGrid.Data.Select(x => (TestItemView)x);
+
+            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid, Newtonsoft.Json.Formatting.Indented));
+
+            Assert.IsTrue(
+                shiftGrid.DataCount == 97 &&
+                data.ElementAt(0).Title == "Title - 4" &&
+                data.ElementAt(1).Title == "Title - 5" &&
+                data.ElementAt(2).Title == "Title - 6"
+            );
+        }
+
+        [TestMethod]
         public async Task Filters_In_NoModel()
         {
             await Utils.DataInserter(DBType, 100);
