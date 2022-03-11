@@ -24,6 +24,7 @@ namespace ShiftSoftware.ShiftGrid.Core
         public List<GridFilter> Filters { get; set; }
         public List<GridColumn> Columns { get; set; }
         public GridPagination Pagination { get; set; }
+        public ExportConfig ExportConfig { get; set; }
 
         #endregion
 
@@ -73,14 +74,26 @@ namespace ShiftSoftware.ShiftGrid.Core
             if (!this.ExportMode)
                 throw new Exception("Export Mode is not Active. ExportConfig.Export must be marked as True.");
 
-            var engine = new FileHelpers.FileHelperEngine(typeof(T), System.Text.Encoding.UTF8);
+            var engine = new FileHelpers.DelimitedFileEngine(typeof(T), System.Text.Encoding.UTF8);
 
             var excludedFields = this.TypeColumns.Where(x => !this.Columns.Any(y => y.Field == x.Field));
+
+            if (this.ExportConfig.Delimiter != null)
+                engine.Options.Delimiter = this.ExportConfig.Delimiter;
 
             foreach (var excluded in excludedFields)
             {
                 if (engine.Options.FieldsNames.Any(x => x == excluded.Field))
                     engine.Options.RemoveField(excluded.Field);
+            }
+
+            if (this.ExportConfig.HiddenFields != null)
+            {
+                foreach (var field in this.ExportConfig.HiddenFields)
+                {
+                    if (engine.Options.FieldsNames.Any(x => x == field))
+                        engine.Options.RemoveField(field);
+                }
             }
 
             engine.HeaderText = engine.GetFileHeader();
@@ -187,6 +200,7 @@ namespace ShiftSoftware.ShiftGrid.Core
                     this.DataPageIndex = 0;
                     this.DataPageSize = -1;
                     this.ExportMode = true;
+                    this.ExportConfig = payload.ExportConfig;
                 }
             }
 
