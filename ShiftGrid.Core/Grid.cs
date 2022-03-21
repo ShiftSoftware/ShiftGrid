@@ -87,15 +87,6 @@ namespace ShiftSoftware.ShiftGrid.Core
                     engine.Options.RemoveField(excluded.Field);
             }
 
-            if (this.ExportConfig.HiddenFields != null)
-            {
-                foreach (var field in this.ExportConfig.HiddenFields)
-                {
-                    if (engine.Options.FieldsNames.Any(x => x == field))
-                        engine.Options.RemoveField(field);
-                }
-            }
-
             engine.HeaderText = engine.GetFileHeader();
 
             return engine;
@@ -216,6 +207,25 @@ namespace ShiftSoftware.ShiftGrid.Core
         }
         private void GenerateQuery()
         {
+            var hiddenColumns = this.Columns?
+                    .Where(x => !x.Visible)?
+                    .Select(x => x.Field)?
+                    .ToList();
+
+            var tType = typeof(T).ToString();
+
+            //This was a dirty fix to prevent people from trying to Hide Columns
+            //When a Custom Model is not provided.
+            //This worked (Somewhat fine). But they can use db.TestItems.ToShiftGrid()
+            //In this case the exception is not thrown
+            //if (hiddenColumns != null && hiddenColumns.Count > 0 && tType.Contains("<>") && tType.Contains("AnonymousType"))
+            //{
+            //    throw new AnonymousColumnHidingException("Hiding Columns on Anonymous Objects is not allowed on this version. It might become available in future versions.");
+            //}
+
+            this.Select = new ColumnRemover<T>(this.Select)
+                .RemoveColumns(hiddenColumns);
+
             var select = this.Select.Where("1=1");
 
             foreach (var filter in this.Filters)
@@ -292,17 +302,36 @@ namespace ShiftSoftware.ShiftGrid.Core
 
             this.SummaryProcessedSelect = select;
 
-            IQueryable newSelect;
+            //IQueryable newSelect = new ColumnRemover(this.Select)
+            //    .RemoveColumns(
+            //        this.Columns
+            //        .Where(x => !x.Visible)
+            //        .Select(x => x.Field).ToList()
+            //    );
 
-            if (this.Columns != null && this.Columns.Count > 0)
-            {
-                var fields = string.Join(", ", this.Columns.Select(x => x.Field));
-                newSelect = select.Select($"new ({fields})");
-            }
-            else
-                newSelect = select;
+            //if (this.Columns != null && this.Columns.Count > 0)
+            //{
+            //    //var names = new AndAlsoModifier().GetSelectedProperties(select.Expression);
 
-            this.ProccessedSelect = newSelect;
+            //    var propertiesToSelect  = select.ElementType.GetProperties().Select(x => x.Name);
+
+            //    //var propertiesToSelect = new AndAlsoModifier().GetSelectedProperties(select.Expression);
+
+            //    System.Diagnostics.Debug.WriteLine("Cols Are: " + string.Join(", ", propertiesToSelect));
+
+            //    if (this.Columns != null)
+            //        propertiesToSelect = propertiesToSelect.Where(x => !this.Columns.Any(y => y.Field.ToUpper() == x.ToUpper() && !y.Visible)).ToList();
+
+            //    var fields = string.Join(", ", propertiesToSelect);
+
+            //    //var fields = string.Join(", ", names);
+            //    //var fields = string.Join(", ", this.TypeColumns.Select(x => x.Field));
+            //    newSelect = select.Select($"new ({fields})");
+            //}
+            //else
+            //newSelect = select;
+
+            this.ProccessedSelect = select;
         }
         private IQueryable GetPaginatedQuery()
         {

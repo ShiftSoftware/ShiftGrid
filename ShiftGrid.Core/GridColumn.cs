@@ -8,6 +8,7 @@
 
         [Newtonsoft.Json.JsonProperty]
         public string Field { get; set; }
+        public bool Visible { get; set; } = true;
 
         [Newtonsoft.Json.JsonProperty]
         public int Order { get; set; }

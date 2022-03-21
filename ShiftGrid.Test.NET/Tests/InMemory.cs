@@ -86,12 +86,6 @@ namespace ShiftGrid.Test.NET.Tests
                     },
                     new GridConfig
                     {
-                        Columns = new List<GridColumn> {
-                            new GridColumn
-                            {
-                                Field = "Name"
-                            }
-                        },
                         DataPageIndex = 1,
                         DataPageSize = 5,
                         Filters = new List<GridFilter>
@@ -112,10 +106,11 @@ namespace ShiftGrid.Test.NET.Tests
 
             Assert.IsTrue(
                 shiftGrid.DataCount == 11 &&
-                shiftGrid.Columns.First().Field == "Name" &&
+                shiftGrid.Columns.First().Field == "ID" &&
+                shiftGrid.Columns.Last().Field == "Name" &&
                 jsonData[0]["Name"].ToObject<string>() == "Name - 14" &&
                 jsonData[4]["Name"].ToObject<string>() == "Name - 10" &&
-                jsonData[1]["ID"] == null
+                jsonData[1]["ID"].ToObject<long>() == 12
             );
         }
     }

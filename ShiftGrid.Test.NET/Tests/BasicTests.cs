@@ -249,62 +249,6 @@ namespace ShiftGrid.Test.NET.Tests
         }
 
         [TestMethod]
-        public async Task ExportWithHiddenFields()
-        {
-            await Utils.DataInserter(this.DBType, 100);
-
-            var db = Utils.GetDBContext(this.DBType);
-
-            var logs = new List<string>();
-            Controllers.DataController.SetupLogger(db, logs);
-
-            var shiftGrid = db.TestItems.Select(x => new TestItemView
-            {
-                ID = x.ID,
-                Title = x.Title,
-                CalculatedPrice = x.Price * 10m,
-                Type = x.Type.Name
-            })
-            .ToShiftGrid(new GridSort
-            {
-                Field = "ID",
-                SortDirection = SortDirection.Ascending
-            },
-            new GridConfig
-            {
-                Filters = new List<GridFilter> {
-                    new GridFilter {
-                        Field = "ID",
-                        Operator = "<=",
-                        Value = 50
-                    }
-                },
-                ExportConfig = new ExportConfig
-                {
-                    Export = true,
-                    HiddenFields = new List<string>
-                    {
-                        "CalculatedPrice",
-                        "Type",
-                    }
-                }
-            });
-
-            var data = shiftGrid.ToCSVString();
-
-            Console.WriteLine(data);
-
-            Assert.IsTrue(
-                shiftGrid.Data.Count() == 50 &&
-
-                data.StartsWith("ID") &&
-                data.TrimEnd().EndsWith("Title - 50") &&
-
-                logs.Count() == 1
-            );
-        }
-
-        [TestMethod]
         public async Task ExportWithDifferentDelimiter()
         {
             await Utils.DataInserter(this.DBType, 100);
