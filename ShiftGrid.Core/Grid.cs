@@ -76,7 +76,7 @@ namespace ShiftSoftware.ShiftGrid.Core
 
             var engine = new FileHelpers.DelimitedFileEngine(typeof(T), System.Text.Encoding.UTF8);
 
-            var excludedFields = this.TypeColumns.Where(x => !this.Columns.Any(y => y.Field == x.Field));
+            var excludedFields = this.Columns.Where(y => !y.Visible);
 
             if (this.ExportConfig.Delimiter != null)
                 engine.Options.Delimiter = this.ExportConfig.Delimiter;

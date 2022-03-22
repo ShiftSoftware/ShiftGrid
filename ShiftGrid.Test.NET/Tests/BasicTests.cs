@@ -226,12 +226,14 @@ namespace ShiftGrid.Test.NET.Tests
                 Columns = new List<GridColumn>
                 {
                     new GridColumn {
-                        Field = "ID",
+                        Field = "CalculatedPrice",
+                        Visible = false,
                     },
                     new GridColumn {
-                        Field = "Title",
+                        Field = "Type",
+                        Visible = false,
                     }
-                }
+                },
             });
 
             var data = shiftGrid.ToCSVString();
