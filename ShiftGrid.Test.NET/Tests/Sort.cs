@@ -49,21 +49,19 @@ namespace ShiftGrid.Test.NET.Tests
                 }
             });
 
-            var data = shiftGrid.Data.Select(x => (TestItemView)x);
-
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid, Newtonsoft.Json.Formatting.Indented));
 
             Assert.IsTrue(
-                data.ElementAt(0).Title == "Title - 1" &&
-                data.ElementAt(1).Title == "Title - 2" &&
-                data.ElementAt(2).Title == "Title - 3" &&
-                data.ElementAt(3).Title == "Title - 4" &&
-                data.ElementAt(4).Title == "Title - 5" &&
-                data.ElementAt(5).Title == "Title - 6" &&
-                data.ElementAt(6).Title == "Title - 7" &&
-                data.ElementAt(7).Title == "Title - 8" &&
-                data.ElementAt(8).Title == "Title - 9" &&
-                data.ElementAt(9).Title == "Title - 10"
+                shiftGrid.Data.ElementAt(0).Title == "Title - 1" &&
+                shiftGrid.Data.ElementAt(1).Title == "Title - 2" &&
+                shiftGrid.Data.ElementAt(2).Title == "Title - 3" &&
+                shiftGrid.Data.ElementAt(3).Title == "Title - 4" &&
+                shiftGrid.Data.ElementAt(4).Title == "Title - 5" &&
+                shiftGrid.Data.ElementAt(5).Title == "Title - 6" &&
+                shiftGrid.Data.ElementAt(6).Title == "Title - 7" &&
+                shiftGrid.Data.ElementAt(7).Title == "Title - 8" &&
+                shiftGrid.Data.ElementAt(8).Title == "Title - 9" &&
+                shiftGrid.Data.ElementAt(9).Title == "Title - 10"
             );
         }
     }

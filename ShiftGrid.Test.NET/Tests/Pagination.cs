@@ -43,8 +43,6 @@ namespace ShiftGrid.Test.NET.Tests
                 }
             });
 
-            var data = shiftGrid.Data.Select(x => (TestItemView)x);
-
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid, Newtonsoft.Json.Formatting.Indented));
 
             Assert.IsTrue(
@@ -67,8 +65,8 @@ namespace ShiftGrid.Test.NET.Tests
                 shiftGrid.Sort.First().Field == "ID" &&
                 shiftGrid.Sort.First().SortDirection == SortDirection.Ascending &&
 
-                data.First().Title == "Title - 56" &&
-                data.Last().Title == "Title - 60"
+                shiftGrid.Data.First().Title == "Title - 56" &&
+                shiftGrid.Data.Last().Title == "Title - 60"
             );
         }
 
@@ -99,8 +97,6 @@ namespace ShiftGrid.Test.NET.Tests
                 }
             });
 
-            var data = shiftGrid.Data.Select(x => (TestItemView)x);
-
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid, Newtonsoft.Json.Formatting.Indented));
 
             Assert.IsTrue(
@@ -123,8 +119,8 @@ namespace ShiftGrid.Test.NET.Tests
                 shiftGrid.Sort.First().Field == "ID" &&
                 shiftGrid.Sort.First().SortDirection == SortDirection.Ascending &&
 
-                data.First().Title == "Title - 67" &&
-                data.Last().Title == "Title - 69"
+                shiftGrid.Data.First().Title == "Title - 67" &&
+                shiftGrid.Data.Last().Title == "Title - 69"
             );
         }
 
@@ -155,8 +151,6 @@ namespace ShiftGrid.Test.NET.Tests
                 }
             });
 
-            var data = shiftGrid.Data.Select(x => (TestItemView)x);
-
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid, Newtonsoft.Json.Formatting.Indented));
 
             Assert.IsTrue(
@@ -179,8 +173,8 @@ namespace ShiftGrid.Test.NET.Tests
                 shiftGrid.Sort.First().Field == "ID" &&
                 shiftGrid.Sort.First().SortDirection == SortDirection.Ascending &&
 
-                data.First().Title == "Title - 1" &&
-                data.Last().Title == "Title - 15"
+                shiftGrid.Data.First().Title == "Title - 1" &&
+                shiftGrid.Data.Last().Title == "Title - 15"
             );
         }
 
@@ -207,8 +201,6 @@ namespace ShiftGrid.Test.NET.Tests
                 DataPageIndex = 90,
             });
 
-            var data = shiftGrid.Data.Select(x => (TestItemView)x);
-
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid, Newtonsoft.Json.Formatting.Indented));
 
             Assert.IsTrue(
@@ -219,8 +211,8 @@ namespace ShiftGrid.Test.NET.Tests
                 shiftGrid.DataCount == 100 &&
                 shiftGrid.DataPageIndex == 9 &&
 
-                data.First().Title == "Title - 91" &&
-                data.Last().Title == "Title - 100"
+                shiftGrid.Data.First().Title == "Title - 91" &&
+                shiftGrid.Data.Last().Title == "Title - 100"
             );
         }
     }

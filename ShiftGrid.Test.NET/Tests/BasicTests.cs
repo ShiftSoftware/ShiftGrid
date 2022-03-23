@@ -45,8 +45,6 @@ namespace ShiftGrid.Test.NET.Tests
                 SortDirection = SortDirection.Ascending
             });
 
-            var objectProps = shiftGrid.Data.First().GetType().GetProperties().Where(x=> x.MemberType == System.Reflection.MemberTypes.Property).ToList();
-
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid, Newtonsoft.Json.Formatting.Indented));
 
             Console.WriteLine(string.Join(Environment.NewLine + Environment.NewLine + Environment.NewLine, logs));
@@ -73,7 +71,7 @@ namespace ShiftGrid.Test.NET.Tests
                 shiftGrid.Sort.First().Field == "ID" &&
                 shiftGrid.Sort.First().SortDirection == SortDirection.Ascending &&
 
-                objectProps.FirstOrDefault(x=> x.Name == "Title").GetValue(shiftGrid.Data.FirstOrDefault()).ToString() == "Title - 1" &&
+                shiftGrid.Data.FirstOrDefault().Title == "Title - 1" &&
 
                 //1 for listing the table
                 //1 for counting
@@ -105,8 +103,6 @@ namespace ShiftGrid.Test.NET.Tests
                 SortDirection = SortDirection.Ascending
             });
 
-            var data = shiftGrid.Data.Select(x => (TestItemView)x);
-
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid, Newtonsoft.Json.Formatting.Indented));
 
             Assert.IsTrue(
@@ -129,8 +125,8 @@ namespace ShiftGrid.Test.NET.Tests
                 shiftGrid.Sort.First().Field == "ID" &&
                 shiftGrid.Sort.First().SortDirection == SortDirection.Ascending &&
 
-                data.First().Title == "Title - 1" &&
-                data.Last().Title == "Title - 20" &&
+                shiftGrid.Data.First().Title == "Title - 1" &&
+                shiftGrid.Data.Last().Title == "Title - 20" &&
 
                 logs.Count() == 2
             );

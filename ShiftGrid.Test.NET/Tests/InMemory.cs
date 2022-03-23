@@ -38,12 +38,12 @@ namespace ShiftGrid.Test.NET.Tests
         [TestMethod]
         public void Basic()
         {
-            var inMemoryData = new List<object> { 
-                new {
+            var inMemoryData = new List<DataModel> { 
+                new DataModel {
                   ID = 1,
                   Name = "One"
                 },
-                new {
+                new DataModel{
                   ID = 2,
                   Name = "Two"
                 },
@@ -56,18 +56,12 @@ namespace ShiftGrid.Test.NET.Tests
                 SortDirection = SortDirection.Descending
             });
 
-            var data = shiftGrid.Data;
-
-            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid, Newtonsoft.Json.Formatting.Indented));
-
-            var jsonData = Newtonsoft.Json.Linq.JArray.Parse(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid.Data));
-
             Assert.IsTrue(
                 shiftGrid.DataCount == 2 &&
                 shiftGrid.Columns.First().Field == "ID" &&
                 shiftGrid.Columns.Last().Field == "Name" &&
-                jsonData[0]["ID"].ToObject<int>() == 2 &&
-                jsonData[1]["ID"].ToObject<int>() == 1
+                shiftGrid.Data.First().ID == 2 &&
+                shiftGrid.Data.ElementAt(1).ID == 1
             );
         }
 
@@ -102,15 +96,13 @@ namespace ShiftGrid.Test.NET.Tests
 
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid, Newtonsoft.Json.Formatting.Indented));
 
-            var jsonData = Newtonsoft.Json.Linq.JArray.Parse(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid.Data));
-
             Assert.IsTrue(
                 shiftGrid.DataCount == 11 &&
                 shiftGrid.Columns.First().Field == "ID" &&
                 shiftGrid.Columns.Last().Field == "Name" &&
-                jsonData[0]["Name"].ToObject<string>() == "Name - 14" &&
-                jsonData[4]["Name"].ToObject<string>() == "Name - 10" &&
-                jsonData[1]["ID"].ToObject<long>() == 12
+                shiftGrid.Data.ElementAt(0).Name == "Name - 14" &&
+                shiftGrid.Data.ElementAt(4).Name == "Name - 10" &&
+                shiftGrid.Data.ElementAt(1).ID == 12
             );
         }
     }

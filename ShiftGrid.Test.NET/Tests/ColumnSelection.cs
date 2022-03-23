@@ -55,8 +55,6 @@ namespace ShiftGrid.Test.NET.Tests
                     }
                 });
 
-            var objectProps = shiftGrid.Data.First().GetType().GetProperties().Where(x => x.MemberType == System.Reflection.MemberTypes.Property).ToList();
-
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid, Newtonsoft.Json.Formatting.Indented));
 
             Console.WriteLine(string.Join(Environment.NewLine + Environment.NewLine + Environment.NewLine, logs));
@@ -64,17 +62,10 @@ namespace ShiftGrid.Test.NET.Tests
             Assert.IsTrue(
                 shiftGrid.DataCount == 10 &&
 
-                objectProps.FirstOrDefault(x => x.Name == "Title")
-                .GetValue(shiftGrid.Data.FirstOrDefault()).ToString() == "Title - 1" &&
-
-                objectProps.FirstOrDefault(x => x.Name == "ID")
-                .GetValue(shiftGrid.Data.FirstOrDefault()).ToString() == "1" &&
-
-                objectProps.FirstOrDefault(x => x.Name == "TypeId")
-                .GetValue(shiftGrid.Data.FirstOrDefault()) == null &&
-
-                objectProps.FirstOrDefault(x => x.Name == "CalculatedPrice")
-                .GetValue(shiftGrid.Data.FirstOrDefault()) == null
+                shiftGrid.Data.FirstOrDefault().Title == "Title - 1" &&
+                shiftGrid.Data.FirstOrDefault().ID == 1 &&
+                shiftGrid.Data.FirstOrDefault().TypeId == null &&
+                shiftGrid.Data.FirstOrDefault().CalculatedPrice == null
             );
         }
 
@@ -116,23 +107,15 @@ namespace ShiftGrid.Test.NET.Tests
                     }
                 });
 
-            var objectProps = shiftGrid.Data.First().GetType().GetProperties().Where(x => x.MemberType == System.Reflection.MemberTypes.Property).ToList();
-
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid, Newtonsoft.Json.Formatting.Indented));
 
             Console.WriteLine(string.Join(Environment.NewLine + Environment.NewLine + Environment.NewLine, logs));
 
             Assert.IsTrue(
                 shiftGrid.DataCount == 10 &&
-
-                objectProps.FirstOrDefault(x => x.Name == "Title")
-                .GetValue(shiftGrid.Data.FirstOrDefault()).ToString() == "Title - 1" &&
-
-                objectProps.FirstOrDefault(x => x.Name == "ID")
-                .GetValue(shiftGrid.Data.FirstOrDefault()).ToString() == "1" &&
-
-                objectProps.FirstOrDefault(x => x.Name == "Items")
-                .GetValue(shiftGrid.Data.FirstOrDefault()) == null
+                shiftGrid.Data.FirstOrDefault().Title == "Title - 1" &&
+                shiftGrid.Data.FirstOrDefault().ID == 1 &&
+                shiftGrid.Data.FirstOrDefault().Items == null
             );
         }
 
@@ -175,18 +158,13 @@ namespace ShiftGrid.Test.NET.Tests
                     }
                 });
 
-            var objectProps = shiftGrid.Data.First().GetType().GetProperties().Where(x => x.MemberType == System.Reflection.MemberTypes.Property).ToList();
-
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid, Newtonsoft.Json.Formatting.Indented));
 
             Console.WriteLine(string.Join(Environment.NewLine + Environment.NewLine + Environment.NewLine, logs));
 
             Assert.IsTrue(
-                objectProps.FirstOrDefault(x => x.Name == "Title")
-                .GetValue(shiftGrid.Data.FirstOrDefault()) == null &&
-
-                (objectProps.FirstOrDefault(x => x.Name == "Items")
-                .GetValue(shiftGrid.Data.FirstOrDefault()) as List<Models.SubTestItemView>).First().Title.StartsWith("Sub Title")
+                shiftGrid.Data.FirstOrDefault().Title == null &&
+                shiftGrid.Data.FirstOrDefault().Items.First().Title.StartsWith("Sub Title")
             );
         }
 

@@ -17,7 +17,7 @@ namespace ShiftSoftware.ShiftGrid.Core
         public int DataPageIndex { get; set; }
         public int DataPageSize { get; set; }
         public int DataCount { get; set; }
-        public List<object> Data { get; set; }
+        public List<T> Data { get; set; }
         public Dictionary<string, object> Summary { get; set; }
         public List<GridSort> Sort { get; set; }
         public GridSort DefaultSort { get; set; }
@@ -35,7 +35,7 @@ namespace ShiftSoftware.ShiftGrid.Core
             this.Sort = new List<GridSort> { };
             this.Columns = new List<GridColumn> { };
             this.DataPageSize = 20;
-            this.Data = new List<object>();
+            this.Data = new List<T>();
             this.Pagination = new GridPagination() { PageSize = 10 };
         }
 
@@ -94,33 +94,7 @@ namespace ShiftSoftware.ShiftGrid.Core
 
         private IEnumerable<object> GetExportableData()
         {
-            if (this.Data.Count > 0 && this.Data.FirstOrDefault().GetType() == typeof(T))
-                return this.Data;
-
-            return this.Data.Select(x => ConvertSelectedItem(x));
-        }
-        private object ConvertSelectedItem(object dataItem)
-        {
-            var t = (T)Activator.CreateInstance(typeof(T));
-
-            var dataOjectProps = dataItem.GetType().GetProperties().Where(y => y.MemberType == System.Reflection.MemberTypes.Property).ToList();
-
-            var modelProps = typeof(T).GetProperties().Where(y => y.MemberType == System.Reflection.MemberTypes.Property).ToList();
-
-            foreach (var dataField in dataOjectProps)
-            {
-                var targetField = modelProps.Where(y => y.Name == dataField.Name).FirstOrDefault();
-
-                if (targetField == null)
-                    continue;
-
-                var value = dataField.GetValue(dataItem);
-
-                targetField.SetValue(t, value);
-
-            }
-
-            return (object)t;
+                return this.Data.Cast<object>();
         }
 
         #region Private & Internal Props
@@ -145,7 +119,7 @@ namespace ShiftSoftware.ShiftGrid.Core
             this.EnsureSummary();
             this.ProcessPagination();
 
-            var data = this.GetPaginatedQuery().ToDynamicList();
+            var data = this.GetPaginatedQuery().ToDynamicList<T>();
             this.Data.AddRange(data);
             this.GenerateColumns();
             return this;
@@ -160,7 +134,7 @@ namespace ShiftSoftware.ShiftGrid.Core
             this.EnsureSummary();
             this.ProcessPagination();
 
-            var data = await this.GetPaginatedQuery().ToDynamicListAsync();
+            var data = await this.GetPaginatedQuery().ToDynamicListAsync<T>();
             this.Data.AddRange(data);
             this.GenerateColumns();
             return this;
@@ -338,8 +312,6 @@ namespace ShiftSoftware.ShiftGrid.Core
             IQueryable sort = this.ProccessedSelect
                 .OrderBy(string.Join(", ", this.Sort.Select(x => $"{x.Field} {(x.SortDirection == SortDirection.Descending ? "desc" : "")}")))
                 .ThenBy($"{this.DefaultSort.Field} {(this.DefaultSort.SortDirection == SortDirection.Descending ? "desc" : "")}");
-
-            this.Data = new List<object>();
 
             IQueryable dataToIterate;
 
