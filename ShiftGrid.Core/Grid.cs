@@ -103,7 +103,7 @@ namespace ShiftSoftware.ShiftGrid.Core
         internal Expression<Func<IGrouping<int, T>, object>> SummarySelect { get; set; }
         private IQueryable ProccessedSelect { get; set; }
         private IQueryable<T> SummaryProcessedSelect { get; set; }
-        private List<GridColumn> TypeColumns { get; set; }
+        //private List<GridColumn> TypeColumns { get; set; }
         public bool ExportMode { get; set; }
 
         #endregion
@@ -158,7 +158,8 @@ namespace ShiftSoftware.ShiftGrid.Core
                 if (payload.DataPageSize != 0)
                     this.DataPageSize = payload.DataPageSize;
 
-                this.Columns = payload.Columns;
+                if (payload.Columns != null)
+                    this.Columns = payload.Columns;
 
                 if (payload.ExportConfig != null && payload.ExportConfig.Export)
                 {
@@ -324,40 +325,63 @@ namespace ShiftSoftware.ShiftGrid.Core
         }
         private void GenerateColumns()
         {
-            var columns = new List<GridColumn>();
-
-            var order = 0;
+            var dataTypeColumns = new List<GridColumn>();
 
             var props = typeof(T).GetProperties().Where(x => x.MemberType == System.Reflection.MemberTypes.Property).ToList();
 
-            if (props.Count == 0 && this.Data.Count > 0)
-                props = this.Data.FirstOrDefault().GetType().GetProperties().Where(x => x.MemberType == System.Reflection.MemberTypes.Property).ToList();
+            //throw new Exception(props.Count.ToString());
+
+            //if (props.Count == 0 && this.Data.Count > 0)
+            //    props = this.Data.FirstOrDefault().GetType().GetProperties().Where(x => x.MemberType == System.Reflection.MemberTypes.Property).ToList();
 
             foreach (var col in props)
             {
-                var customAttribute = (GridColumn)col.GetCustomAttributes(true).FirstOrDefault(x => x.GetType() == typeof(GridColumn));
+                var customAttribute = (GridColumnAttribute)col.GetCustomAttributes(true).FirstOrDefault(x => x.GetType() == typeof(GridColumnAttribute));
 
-                columns.Add(new GridColumn
+                var gridColumn = new GridColumn
                 {
                     Field = col.Name,
-                    Order = customAttribute == null ? order : customAttribute.Order,
-                    HeaderText = customAttribute == null ? col.Name : customAttribute.HeaderText
-                });
+                    Order = customAttribute == null || customAttribute.Order == int.MinValue ? new Nullable<int>() : customAttribute.Order,
+                    HeaderText = customAttribute == null ? col.Name : customAttribute.HeaderText,
+                    Visible = true,
+                };
 
-                order++;
+                while (gridColumn.Order != null && this.Columns.Any(x => x.Order == gridColumn.Order))
+                    gridColumn.Order++;
+
+                dataTypeColumns.Add(gridColumn);
             }
 
-            this.TypeColumns = columns;
-
-            if (this.Columns == null || this.Columns.Count == 0)
+            dataTypeColumns.ForEach((dataTypeColumn) =>
             {
-                this.Columns = columns;
-            }
+                var payloadColumn = this.Columns.FirstOrDefault(y => y.Field == dataTypeColumn.Field);
 
-            this.Columns.ForEach((x) =>
-            {
-                x.HeaderText = columns.FirstOrDefault(y => y.Field == x.Field)?.HeaderText;
+                if (payloadColumn != null)
+                {
+                    //This will overwrite the Attribute Order if confilicts
+                    if (payloadColumn.Order != null)
+                        dataTypeColumn.Order = payloadColumn.Order;
+
+                    dataTypeColumn.Visible = payloadColumn.Visible;
+                }
             });
+
+            var autoOrder = 0;
+
+            dataTypeColumns.ForEach((dataTypeColumn) =>
+            {
+                if (dataTypeColumn.Order == null)
+                {
+                    while (dataTypeColumns.Any(x => x.Order == autoOrder))
+                        autoOrder++;
+
+                    dataTypeColumn.Order = autoOrder;
+
+                    autoOrder++;
+                }
+            });
+
+            this.Columns = dataTypeColumns.OrderBy(x => x.Order).ToList();
         }
         private void LoadSummary()
         {

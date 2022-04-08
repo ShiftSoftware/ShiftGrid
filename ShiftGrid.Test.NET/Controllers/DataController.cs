@@ -61,16 +61,17 @@ namespace ShiftGrid.Test.NET.Controllers
             //    .ToShiftGridAsync(payload);
 
             var grid = await db.TestItems
-                .Select(x => new
+                .Select(x => new Models.TestItemView
                 {
                     ID = x.ID,
-                    Price = x.Price,
+                    CalculatedPrice = x.Price,
+                    Title = x.Title,
                 })
                 .SelectSummary(x => new
                 {
                     Count = x.Count(),
                     TotalID = x.Sum(y => y.ID),
-                    TotalPrice = x.Sum(y => y.Price)
+                    TotalPrice = x.Sum(y => y.CalculatedPrice)
                 })
                 .ToShiftGridAsync(new GridSort
                 {

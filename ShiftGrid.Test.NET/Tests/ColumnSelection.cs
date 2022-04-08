@@ -59,13 +59,22 @@ namespace ShiftGrid.Test.NET.Tests
 
             Console.WriteLine(string.Join(Environment.NewLine + Environment.NewLine + Environment.NewLine, logs));
 
+            var cols = shiftGrid.Columns.ToDictionary(x => x.Field, x => x);
+
             Assert.IsTrue(
                 shiftGrid.DataCount == 10 &&
 
                 shiftGrid.Data.FirstOrDefault().Title == "Title - 1" &&
                 shiftGrid.Data.FirstOrDefault().ID == 1 &&
                 shiftGrid.Data.FirstOrDefault().TypeId == null &&
-                shiftGrid.Data.FirstOrDefault().CalculatedPrice == null
+                shiftGrid.Data.FirstOrDefault().CalculatedPrice == null &&
+
+                cols["ID"].Visible &&
+                !cols["CalculatedPrice"].Visible &&
+                cols["Title"].Visible &&
+                !cols["TypeId"].Visible &&
+                cols["Type"].Visible &&
+                cols["Items"].Visible
             );
         }
 
@@ -111,11 +120,20 @@ namespace ShiftGrid.Test.NET.Tests
 
             Console.WriteLine(string.Join(Environment.NewLine + Environment.NewLine + Environment.NewLine, logs));
 
+            var cols = shiftGrid.Columns.ToDictionary(x => x.Field, x => x);
+
             Assert.IsTrue(
                 shiftGrid.DataCount == 10 &&
                 shiftGrid.Data.FirstOrDefault().Title == "Title - 1" &&
                 shiftGrid.Data.FirstOrDefault().ID == 1 &&
-                shiftGrid.Data.FirstOrDefault().Items == null
+                shiftGrid.Data.FirstOrDefault().Items == null &&
+
+                cols["ID"].Visible &&
+                cols["CalculatedPrice"].Visible &&
+                cols["Title"].Visible &&
+                cols["TypeId"].Visible &&
+                cols["Type"].Visible &&
+                !cols["Items"].Visible
             );
         }
 
@@ -162,9 +180,18 @@ namespace ShiftGrid.Test.NET.Tests
 
             Console.WriteLine(string.Join(Environment.NewLine + Environment.NewLine + Environment.NewLine, logs));
 
+            var cols = shiftGrid.Columns.ToDictionary(x => x.Field, x => x);
+
             Assert.IsTrue(
                 shiftGrid.Data.FirstOrDefault().Title == null &&
-                shiftGrid.Data.FirstOrDefault().Items.First().Title.StartsWith("Sub Title")
+                shiftGrid.Data.FirstOrDefault().Items.First().Title.StartsWith("Sub Title") &&
+
+                cols["ID"].Visible &&
+                cols["CalculatedPrice"].Visible &&
+                !cols["Title"].Visible &&
+                cols["TypeId"].Visible &&
+                cols["Type"].Visible &&
+                cols["Items"].Visible
             );
         }
 

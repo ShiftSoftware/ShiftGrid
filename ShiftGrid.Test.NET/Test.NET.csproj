@@ -132,8 +132,8 @@
     <Reference Include="Ubiety.Dns.Core, Version=2.2.1.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
       <HintPath>..\packages\MySql.Data.8.0.28\lib\net452\Ubiety.Dns.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Z.BulkOperations, Version=3.0.52.0, Culture=neutral, PublicKeyToken=59b66d028979105b, processorArchitecture=MSIL">
-      <HintPath>..\packages\Z.BulkOperations.3.0.52\lib\net45\Z.BulkOperations.dll</HintPath>
+    <Reference Include="Z.BulkOperations, Version=3.0.54.0, Culture=neutral, PublicKeyToken=59b66d028979105b, processorArchitecture=MSIL">
+      <HintPath>..\packages\Z.BulkOperations.3.0.54\lib\net45\Z.BulkOperations.dll</HintPath>
     </Reference>
     <Reference Include="ZstdNet, Version=1.4.5.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
       <HintPath>..\packages\MySql.Data.8.0.28\lib\net452\ZstdNet.dll</HintPath>
@@ -210,9 +210,11 @@
     <Compile Include="MySQLMigrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tests\BasicTests.cs" />
+    <Compile Include="Tests\ColumnOrder.cs" />
     <Compile Include="Tests\ColumnSelection.cs" />
     <Compile Include="Tests\Filters.cs" />
     <Compile Include="Tests\InMemory.cs" />
+    <Compile Include="Tests\MySql\ColumnOrder.cs" />
     <Compile Include="Tests\MySql\Filters.cs" />
     <Compile Include="Tests\MySql\BasicTests.cs" />
     <Compile Include="Tests\MySql\ColumnSelection.cs" />
@@ -221,6 +223,7 @@
     <Compile Include="Tests\MySql\Summary.cs" />
     <Compile Include="Tests\Sort.cs" />
     <Compile Include="Tests\Pagination.cs" />
+    <Compile Include="Tests\SQLServer\ColumnOrder.cs" />
     <Compile Include="Tests\SQLServer\ColumnSelection.cs" />
     <Compile Include="Tests\SQLServer\Sort.cs" />
     <Compile Include="Tests\SQLServer\Summary.cs" />
