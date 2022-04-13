@@ -1,47 +1,27 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using ShiftGrid.Core;
 using ShiftGrid.Test.NET.Models;
+using ShiftSoftware.ShiftGrid.Core;
+using System.Collections.Generic;
 
 namespace ShiftGrid.Test.NET.Tests
 {
-    [TestClass]
     public class BasicTests
     {
-        private async Task DataInserter(int count)
+        public System.Type DBType { get; set; }
+        public BasicTests(System.Type type)
         {
-            var controller = new Controllers.UtilController();
-
-            await controller.DeleteAll();
-
-            await controller.InsertTestData(new InsertPayload
-            {
-                DataCount = count,
-                DataTemplate = new DataTemplate
-                {
-                    Code = "Code",
-                    Title = "Title",
-                    Date = DateTime.Now,
-                    Price = 10m,
-                    TypeId = 1
-                },
-                Increments = new Increments
-                {
-                    Day = 1,
-                    Price = 10
-                }
-            });
+            this.DBType = type;
         }
 
         [TestMethod]
         public async Task BasicInsertTest()
         {
-            await this.DataInserter(100);
+            await Utils.DataInserter(this.DBType, 100);
 
-            var db = Utils.GetDBContext();
+            var db = Utils.GetDBContext(this.DBType);
 
             var itemToTest = await db.TestItems.FindAsync(50);
 
@@ -51,16 +31,77 @@ namespace ShiftGrid.Test.NET.Tests
         [TestMethod]
         public async Task NoConfig()
         {
-            await this.DataInserter(100);
+            await Utils.DataInserter(this.DBType, 100, 6);
 
-            var db = Utils.GetDBContext();
+            var db = Utils.GetDBContext(this.DBType);
+
+            var logs = new List<string>();
+
+            Controllers.DataController.SetupLogger(db, logs);
+
+            var shiftGrid = db.TestItems.ToShiftGrid(new GridSort
+            {
+                Field = "ID",
+                SortDirection = SortDirection.Ascending
+            });
+
+            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid, Newtonsoft.Json.Formatting.Indented));
+
+            Console.WriteLine(string.Join(Environment.NewLine + Environment.NewLine + Environment.NewLine, logs));
+            //Console.WriteLine($"Log Count is: {logs.Count}");
+
+
+            Assert.IsTrue(
+                shiftGrid.Pagination.Count == 6 &&
+                shiftGrid.Pagination.PageSize == 10 &&
+                shiftGrid.Pagination.PageStart == 0 &&
+                shiftGrid.Pagination.PageEnd == 5 &&
+                shiftGrid.Pagination.PageIndex == 0 &&
+                shiftGrid.Pagination.HasPreviousPage == false &&
+                shiftGrid.Pagination.HasNextPage == false &&
+                shiftGrid.Pagination.LastPageIndex == 5 &&
+                shiftGrid.Pagination.DataStart == 1 &&
+                shiftGrid.Pagination.DataEnd == 20 &&
+
+                shiftGrid.Summary["Count"].ToString() == "106" &&
+
+                shiftGrid.DataPageIndex == 0 &&
+                shiftGrid.DataPageSize == 20 &&
+
+                shiftGrid.Sort.First().Field == "ID" &&
+                shiftGrid.Sort.First().SortDirection == SortDirection.Ascending &&
+
+                shiftGrid.Data.FirstOrDefault().Title == "Title - 1" &&
+
+                //1 for listing the table
+                //1 for counting
+                //2 for getting the Types (Type -1) and (Type - 2)
+                //20 for Checking sub items. For each of the 20 items that are listed.
+                //6 for getting each of the sub-items of the first item (ID = 1)
+                logs.Count == 30
+            );
+        }
+
+        [TestMethod]
+        public async Task NoConfigWithModel()
+        {
+            await Utils.DataInserter(this.DBType, 100);
+
+            var db = Utils.GetDBContext(this.DBType);
+
+            var logs = new List<string>();
+            Controllers.DataController.SetupLogger(db, logs);
 
             var shiftGrid = db.TestItems.Select(x => new TestItemView
             {
                 ID = x.ID,
                 Title = x.Title
             })
-            .ToShiftGrid();
+            .ToShiftGrid(new GridSort
+            {
+                Field = "ID",
+                SortDirection = SortDirection.Ascending
+            });
 
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid, Newtonsoft.Json.Formatting.Indented));
 
@@ -76,7 +117,7 @@ namespace ShiftGrid.Test.NET.Tests
                 shiftGrid.Pagination.DataStart == 1 &&
                 shiftGrid.Pagination.DataEnd == 20 &&
 
-                shiftGrid.Summary.DataCount == 100 &&
+                shiftGrid.Summary["Count"].ToString() == "100" &&
 
                 shiftGrid.DataPageIndex == 0 &&
                 shiftGrid.DataPageSize == 20 &&
@@ -85,452 +126,175 @@ namespace ShiftGrid.Test.NET.Tests
                 shiftGrid.Sort.First().SortDirection == SortDirection.Ascending &&
 
                 shiftGrid.Data.First().Title == "Title - 1" &&
-                shiftGrid.Data.Last().Title == "Title - 20"
+                shiftGrid.Data.Last().Title == "Title - 20" &&
+
+                logs.Count() == 2
             );
         }
 
         [TestMethod]
-        public async Task Sorting()
+        public async Task Export()
         {
-            await this.DataInserter(100);
+            await Utils.DataInserter(this.DBType, 100);
 
-            var db = Utils.GetDBContext();
+            var db = Utils.GetDBContext(this.DBType);
+
+            var logs = new List<string>();
+            Controllers.DataController.SetupLogger(db, logs);
 
             var shiftGrid = db.TestItems.Select(x => new TestItemView
             {
                 ID = x.ID,
-                Title = x.Title
+                Title = x.Title,
+                CalculatedPrice = x.Price * 10m,
+                TypeId = x.TypeId,
+                Type = x.Type.Name
             })
-            .ToShiftGrid(new Grid<TestItemView>
+            .ToShiftGrid(new GridSort
             {
-                Sort = new System.Collections.ObjectModel.ObservableCollection<GridSort> {
-                    new GridSort {
-                        Field = nameof(TestItem.ID),
-                        SortDirection = SortDirection.Descending,
+                Field = "ID",
+                SortDirection = SortDirection.Ascending
+            },
+            new GridConfig
+            {
+                Filters = new List<GridFilter> {
+                    new GridFilter {
+                        Field = "ID",
+                        Operator = "<=",
+                        Value = 50
                     }
-                }
-            });
-
-            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid, Newtonsoft.Json.Formatting.Indented));
-
-            Assert.IsTrue(
-                shiftGrid.Pagination.Count == 5 &&
-                shiftGrid.Pagination.PageSize == 10 &&
-                shiftGrid.Pagination.PageStart == 0 &&
-                shiftGrid.Pagination.PageEnd == 4 &&
-                shiftGrid.Pagination.PageIndex == 0 &&
-                shiftGrid.Pagination.HasPreviousPage == false &&
-                shiftGrid.Pagination.HasNextPage == false &&
-                shiftGrid.Pagination.LastPageIndex == 4 &&
-                shiftGrid.Pagination.DataStart == 1 &&
-                shiftGrid.Pagination.DataEnd == 20 &&
-
-                shiftGrid.Summary.DataCount == 100 &&
-
-                shiftGrid.DataPageIndex == 0 &&
-                shiftGrid.DataPageSize == 20 &&
-
-                shiftGrid.Sort.First().Field == "ID" &&
-                shiftGrid.Sort.First().SortDirection == SortDirection.Descending &&
-
-                shiftGrid.Data.First().Title == "Title - 100" &&
-                shiftGrid.Data.Last().Title == "Title - 81"
-            );
-        }
-
-        [TestMethod]
-        public async Task Pagination()
-        {
-            await this.DataInserter(100);
-
-            var db = Utils.GetDBContext();
-
-            var shiftGrid = db.TestItems.Select(x => new TestItemView
-            {
-                ID = x.ID,
-                Title = x.Title
-            })
-            .ToShiftGrid(new Grid<TestItemView>
-            {
-                DataPageSize = 5,
-                DataPageIndex = 11,
-                Pagination = new GridPagination
+                },
+                ExportConfig = new ExportConfig
                 {
-                    PageSize = 5
+                    Export = true
                 }
             });
 
-            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid, Newtonsoft.Json.Formatting.Indented));
+            var data = shiftGrid.ToCSVString();
+
+            Console.WriteLine(data);
 
             Assert.IsTrue(
-                shiftGrid.Pagination.Count == 20 &&
-                shiftGrid.Pagination.PageSize == 5 &&
-                shiftGrid.Pagination.PageStart == 10 &&
-                shiftGrid.Pagination.PageEnd == 14 &&
-                shiftGrid.Pagination.PageIndex == 1 &&
-                shiftGrid.Pagination.HasPreviousPage == true &&
-                shiftGrid.Pagination.HasNextPage == true &&
-                shiftGrid.Pagination.LastPageIndex == 19 &&
-                shiftGrid.Pagination.DataStart == 56 &&
-                shiftGrid.Pagination.DataEnd == 60 &&
+                shiftGrid.Data.Count() == 50 &&
 
-                shiftGrid.Summary.DataCount == 100 &&
+                data.StartsWith("ID") &&
+                data.TrimEnd().EndsWith("Title - 50,Type - 2") &&
 
-                shiftGrid.DataPageIndex == 11 &&
-                shiftGrid.DataPageSize == 5 &&
-
-                shiftGrid.Sort.First().Field == "ID" &&
-                shiftGrid.Sort.First().SortDirection == SortDirection.Ascending &&
-
-                shiftGrid.Data.First().Title == "Title - 56" &&
-                shiftGrid.Data.Last().Title == "Title - 60"
+                logs.Count() == 1
             );
         }
 
         [TestMethod]
-        public async Task Pagination2()
+        public async Task ExportWithExcludedFields()
         {
-            await this.DataInserter(100);
+            await Utils.DataInserter(this.DBType, 100);
 
-            var db = Utils.GetDBContext();
+            var db = Utils.GetDBContext(this.DBType);
+
+            var logs = new List<string>();
+            Controllers.DataController.SetupLogger(db, logs);
 
             var shiftGrid = db.TestItems.Select(x => new TestItemView
             {
                 ID = x.ID,
-                Title = x.Title
+                Title = x.Title,
+                CalculatedPrice = x.Price * 10m,
+                Type = x.Type.Name
             })
-            .ToShiftGrid(new Grid<TestItemView>
+            .ToShiftGrid(new GridSort
             {
-                DataPageSize = 3,
-                DataPageIndex = 22,
-                Pagination = new GridPagination
+                Field = "ID",
+                SortDirection = SortDirection.Ascending
+            },
+            new GridConfig
+            {
+                Filters = new List<GridFilter> {
+                    new GridFilter {
+                        Field = "ID",
+                        Operator = "<=",
+                        Value = 50
+                    }
+                },
+                ExportConfig = new ExportConfig
                 {
-                    PageSize = 5
-                }
-            });
-
-            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid, Newtonsoft.Json.Formatting.Indented));
-
-            Assert.IsTrue(
-                shiftGrid.Pagination.Count == 34 &&
-                shiftGrid.Pagination.PageSize == 5 &&
-                shiftGrid.Pagination.PageStart == 20 &&
-                shiftGrid.Pagination.PageEnd == 24 &&
-                shiftGrid.Pagination.PageIndex == 2 &&
-                shiftGrid.Pagination.HasPreviousPage == true &&
-                shiftGrid.Pagination.HasNextPage == true &&
-                shiftGrid.Pagination.LastPageIndex == 33 &&
-                shiftGrid.Pagination.DataStart == 67 &&
-                shiftGrid.Pagination.DataEnd == 69 &&
-
-                shiftGrid.Summary.DataCount == 100 &&
-
-                shiftGrid.DataPageIndex == 22 &&
-                shiftGrid.DataPageSize == 3 &&
-
-                shiftGrid.Sort.First().Field == "ID" &&
-                shiftGrid.Sort.First().SortDirection == SortDirection.Ascending &&
-
-                shiftGrid.Data.First().Title == "Title - 67" &&
-                shiftGrid.Data.Last().Title == "Title - 69"
-            );
-        }
-
-        [TestMethod]
-        public async Task Pagination3()
-        {
-            await this.DataInserter(100);
-
-            var db = Utils.GetDBContext();
-
-            var shiftGrid = db.TestItems.Select(x => new TestItemView
-            {
-                ID = x.ID,
-                Title = x.Title
-            })
-            .ToShiftGrid(new Grid<TestItemView>
-            {
-                DataPageSize = 15,
-                DataPageIndex = 0,
-                Pagination = new GridPagination
+                    Export = true
+                },
+                Columns = new List<GridColumn>
                 {
-                    PageSize = 10
+                    new GridColumn {
+                        Field = "CalculatedPrice",
+                        Visible = false,
+                    },
+                    new GridColumn {
+                        Field = "Type",
+                        Visible = false,
+                    }
+                },
+            });
+
+            var data = shiftGrid.ToCSVString();
+
+            Console.WriteLine(data);
+
+            Assert.IsTrue(
+                shiftGrid.Data.Count() == 50 &&
+
+                data.StartsWith("ID") &&
+                data.TrimEnd().EndsWith("Title - 50") &&
+
+                logs.Count() == 1
+            );
+        }
+
+        [TestMethod]
+        public async Task ExportWithDifferentDelimiter()
+        {
+            await Utils.DataInserter(this.DBType, 100);
+
+            var db = Utils.GetDBContext(this.DBType);
+
+            var logs = new List<string>();
+            Controllers.DataController.SetupLogger(db, logs);
+
+            var shiftGrid = db.TestItems.Select(x => new TestItemView
+            {
+                ID = x.ID,
+                Title = x.Title,
+                CalculatedPrice = x.Price * 10m,
+                Type = x.Type.Name
+            })
+            .ToShiftGrid(new GridSort
+            {
+                Field = "ID",
+                SortDirection = SortDirection.Ascending
+            },
+            new GridConfig
+            {
+                Filters = new List<GridFilter> {
+                    new GridFilter {
+                        Field = "ID",
+                        Operator = "<=",
+                        Value = 50
+                    }
+                },
+                ExportConfig = new ExportConfig
+                {
+                    Export = true,
+                    Delimiter = "|"
                 }
             });
 
-            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid, Newtonsoft.Json.Formatting.Indented));
+            var data = shiftGrid.ToCSVString();
+
+            Console.WriteLine(data);
 
             Assert.IsTrue(
-                shiftGrid.Pagination.Count == 7 &&
-                shiftGrid.Pagination.PageSize == 10 &&
-                shiftGrid.Pagination.PageStart == 0 &&
-                shiftGrid.Pagination.PageEnd == 6 &&
-                shiftGrid.Pagination.PageIndex == 0 &&
-                shiftGrid.Pagination.HasPreviousPage == false &&
-                shiftGrid.Pagination.HasNextPage == false &&
-                shiftGrid.Pagination.LastPageIndex == 6 &&
-                shiftGrid.Pagination.DataStart == 1 &&
-                shiftGrid.Pagination.DataEnd == 15 &&
+                shiftGrid.Data.Count() == 50 &&
 
-                shiftGrid.Summary.DataCount == 100 &&
+                data.StartsWith("ID|") &&
+                data.TrimEnd().EndsWith("|Title - 50|Type - 2") &&
 
-                shiftGrid.DataPageIndex == 0 &&
-                shiftGrid.DataPageSize == 15 &&
-
-                shiftGrid.Sort.First().Field == "ID" &&
-                shiftGrid.Sort.First().SortDirection == SortDirection.Ascending &&
-
-                shiftGrid.Data.First().Title == "Title - 1" &&
-                shiftGrid.Data.Last().Title == "Title - 15"
-            );
-        }
-
-        [TestMethod]
-        public async Task Filters_Equals()
-        {
-            await this.DataInserter(100);
-
-            var db = Utils.GetDBContext();
-
-            var shiftGrid = db.TestItems.Select(x => new TestItemView
-            {
-                ID = x.ID,
-                Title = x.Title
-            })
-            .ToShiftGrid(new Grid<TestItemView>
-            {
-                Filters = new System.Collections.ObjectModel.ObservableCollection<GridFilter> {
-                   new GridFilter
-                   {
-                       Field = nameof(TestItem.ID),
-                       Operator = Core.GridFilterOperator.Equals,
-                       Value = 1
-                   }
-               }
-            });
-
-            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid, Newtonsoft.Json.Formatting.Indented));
-
-            Assert.IsTrue(
-                shiftGrid.Data.Count == 1 &&
-                shiftGrid.Data.ElementAt(0).Title == "Title - 1"
-            );
-        }
-
-        [TestMethod]
-        public async Task Filters_In()
-        {
-            await this.DataInserter(100);
-
-            var db = Utils.GetDBContext();
-
-            var shiftGrid = db.TestItems.Select(x => new TestItemView
-            {
-                ID = x.ID,
-                Title = x.Title
-            })
-            .ToShiftGrid(new Grid<TestItemView>
-            {
-                Filters = new System.Collections.ObjectModel.ObservableCollection<GridFilter> {
-                   new GridFilter
-                   {
-                       Field = nameof(TestItem.ID),
-                       Operator = Core.GridFilterOperator.In,
-                       Value = new List<long> { 1, 4, 10 }
-                   }
-               }
-            });
-
-            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid, Newtonsoft.Json.Formatting.Indented));
-
-            Assert.IsTrue(
-                shiftGrid.Data.Count == 3 &&
-                shiftGrid.Data.ElementAt(0).Title == "Title - 1" &&
-                shiftGrid.Data.ElementAt(1).Title == "Title - 4" &&
-                shiftGrid.Data.ElementAt(2).Title == "Title - 10"
-            );
-        }
-
-        [TestMethod]
-        public async Task Filters_StartsWith()
-        {
-            await this.DataInserter(100);
-
-            var db = Utils.GetDBContext();
-
-            var shiftGrid = db.TestItems.Select(x => new TestItemView
-            {
-                ID = x.ID,
-                Title = x.Title
-            })
-            .ToShiftGrid(new Grid<TestItemView>
-            {
-                Filters = new System.Collections.ObjectModel.ObservableCollection<GridFilter> {
-                   new GridFilter
-                   {
-                       Field = nameof(TestItem.Title),
-                       Operator = Core.GridFilterOperator.StartsWith,
-                       Value = "Title - 1"
-                   }
-               }
-            });
-
-            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid, Newtonsoft.Json.Formatting.Indented));
-
-            Assert.IsTrue(
-                shiftGrid.Data.Count == 12 &&
-                shiftGrid.Data.ElementAt(0).Title == "Title - 1" &&
-                shiftGrid.Data.ElementAt(1).Title == "Title - 10" &&
-                shiftGrid.Data.ElementAt(2).Title == "Title - 11" &&
-                shiftGrid.Data.ElementAt(3).Title == "Title - 12" &&
-                shiftGrid.Data.ElementAt(4).Title == "Title - 13" &&
-                shiftGrid.Data.ElementAt(5).Title == "Title - 14" &&
-                shiftGrid.Data.ElementAt(6).Title == "Title - 15" &&
-                shiftGrid.Data.ElementAt(7).Title == "Title - 16" &&
-                shiftGrid.Data.ElementAt(8).Title == "Title - 17" &&
-                shiftGrid.Data.ElementAt(9).Title == "Title - 18" &&
-                shiftGrid.Data.ElementAt(10).Title == "Title - 19" &&
-                shiftGrid.Data.ElementAt(11).Title == "Title - 100"
-            );
-        }
-
-        [TestMethod]
-        public async Task Filters_EndsWith()
-        {
-            await this.DataInserter(100);
-
-            var db = Utils.GetDBContext();
-
-            var shiftGrid = db.TestItems.Select(x => new TestItemView
-            {
-                ID = x.ID,
-                Title = x.Title
-            })
-            .ToShiftGrid(new Grid<TestItemView>
-            {
-                Filters = new System.Collections.ObjectModel.ObservableCollection<GridFilter> {
-                   new GridFilter
-                   {
-                       Field = nameof(TestItem.Title),
-                       Operator = Core.GridFilterOperator.EndsWith,
-                       Value = "1"
-                   }
-               }
-            });
-
-            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid, Newtonsoft.Json.Formatting.Indented));
-
-            Assert.IsTrue(
-                shiftGrid.Data.Count == 10 &&
-                shiftGrid.Data.ElementAt(0).Title == "Title - 1" &&
-                shiftGrid.Data.ElementAt(1).Title == "Title - 11" &&
-                shiftGrid.Data.ElementAt(2).Title == "Title - 21" &&
-                shiftGrid.Data.ElementAt(3).Title == "Title - 31" &&
-                shiftGrid.Data.ElementAt(4).Title == "Title - 41" &&
-                shiftGrid.Data.ElementAt(5).Title == "Title - 51" &&
-                shiftGrid.Data.ElementAt(6).Title == "Title - 61" &&
-                shiftGrid.Data.ElementAt(7).Title == "Title - 71" &&
-                shiftGrid.Data.ElementAt(8).Title == "Title - 81" &&
-                shiftGrid.Data.ElementAt(9).Title == "Title - 91"
-            );
-        }
-
-        [TestMethod]
-        public async Task Filters_Or_Equals()
-        {
-            await this.DataInserter(100);
-
-            var db = Utils.GetDBContext();
-
-            var shiftGrid = db.TestItems.Select(x => new TestItemView
-            {
-                ID = x.ID,
-                Title = x.Title
-            })
-            .ToShiftGrid(new Grid<TestItemView>
-            {
-                Filters = new System.Collections.ObjectModel.ObservableCollection<GridFilter> {
-                   new GridFilter
-                   {
-                       Field = nameof(TestItem.Title),
-                       Operator = GridFilterOperator.Equals,
-                       Value = "Title - 1",
-                       OR = new List<GridFilter> { 
-                           new GridFilter
-                           {
-                               Field = nameof(TestItem.Title),
-                               Operator = GridFilterOperator.Equals,
-                               Value = "Title - 21"
-                           },
-                           new GridFilter
-                           {
-                               Field = nameof(TestItem.Title),
-                               Operator = GridFilterOperator.Equals,
-                               Value = "Title - 31"
-                           }
-                       }
-                   }
-               }
-            });
-
-            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid, Newtonsoft.Json.Formatting.Indented));
-
-            Assert.IsTrue(
-                shiftGrid.Data.Count == 3 &&
-                shiftGrid.Data.ElementAt(0).Title == "Title - 1" &&
-                shiftGrid.Data.ElementAt(1).Title == "Title - 21" &&
-                shiftGrid.Data.ElementAt(2).Title == "Title - 31"
-            );
-        }
-
-        [TestMethod]
-        public async Task Filters_Or_InAndEquals()
-        {
-            await this.DataInserter(100);
-
-            var db = Utils.GetDBContext();
-
-            var shiftGrid = db.TestItems.Select(x => new TestItemView
-            {
-                ID = x.ID,
-                Title = x.Title
-            })
-            .ToShiftGrid(new Grid<TestItemView>
-            {
-                Filters = new System.Collections.ObjectModel.ObservableCollection<GridFilter> {
-                   new GridFilter
-                   {
-                       Field = nameof(TestItem.ID),
-                       Operator = GridFilterOperator.In,
-                       Value = new List<long> { 33, 44, 55, 66 },
-                       OR = new List<GridFilter> {
-                           new GridFilter
-                           {
-                               Field = nameof(TestItem.Title),
-                               Operator = GridFilterOperator.Equals,
-                               Value = "Title - 14"
-                           },
-                           new GridFilter
-                           {
-                               Field = nameof(TestItem.Title),
-                               Operator = GridFilterOperator.Equals,
-                               Value = "Title - 19"
-                           }
-                       }
-                   }
-               }
-            });
-
-            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid, Newtonsoft.Json.Formatting.Indented));
-
-            Assert.IsTrue(
-                shiftGrid.Data.Count == 6 &&
-                shiftGrid.Data.ElementAt(0).Title == "Title - 14" &&
-                shiftGrid.Data.ElementAt(1).Title == "Title - 19" &&
-                shiftGrid.Data.ElementAt(2).Title == "Title - 33" &&
-                shiftGrid.Data.ElementAt(3).Title == "Title - 44" &&
-                shiftGrid.Data.ElementAt(4).Title == "Title - 55" &&
-                shiftGrid.Data.ElementAt(5).Title == "Title - 66"
+                logs.Count() == 1
             );
         }
     }
