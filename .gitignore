@@ -362,3 +362,4 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /ShiftGrid.Test.NET/exported.csv
+/ShiftGrid.UI
