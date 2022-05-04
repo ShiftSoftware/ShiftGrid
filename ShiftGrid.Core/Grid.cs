@@ -25,6 +25,8 @@ namespace ShiftSoftware.ShiftGrid.Core
         public List<GridColumn> Columns { get; set; }
         public GridPagination Pagination { get; set; }
         public ExportConfig ExportConfig { get; set; }
+        public DateTime BeforeDataLoading { get; set; }
+        public DateTime AfterDataLoading { get; set; }
 
         #endregion
 
@@ -119,7 +121,9 @@ namespace ShiftSoftware.ShiftGrid.Core
             this.EnsureSummary();
             this.ProcessPagination();
 
+            this.BeforeDataLoading = DateTime.UtcNow;
             var data = this.GetPaginatedQuery().ToDynamicList<T>();
+            this.AfterDataLoading = DateTime.UtcNow;
             this.Data.AddRange(data);
             this.GenerateColumns();
             return this;
@@ -134,7 +138,9 @@ namespace ShiftSoftware.ShiftGrid.Core
             this.EnsureSummary();
             this.ProcessPagination();
 
+            this.BeforeDataLoading = DateTime.UtcNow;
             var data = await this.GetPaginatedQuery().ToDynamicListAsync<T>();
+            this.AfterDataLoading = DateTime.UtcNow;
             this.Data.AddRange(data);
             this.GenerateColumns();
             return this;

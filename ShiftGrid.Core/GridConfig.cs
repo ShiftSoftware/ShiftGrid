@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace ShiftSoftware.ShiftGrid.Core
 {
@@ -12,5 +13,7 @@ namespace ShiftSoftware.ShiftGrid.Core
         public GridSort DefaultSort { get; set; }
         public List<GridColumn> Columns { get; set; }
         public ExportConfig ExportConfig { get; set; }
+        public DateTime? BeforeDataLoading { get; set; }
+        public DateTime? AfterDataLoading { get; set; }
     }
 }
