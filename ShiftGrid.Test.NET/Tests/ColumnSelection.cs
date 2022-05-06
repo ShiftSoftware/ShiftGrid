@@ -17,6 +17,32 @@ namespace ShiftGrid.Test.NET.Tests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ColumnHidingException))]
+        public async Task ExcludeFieldFromDBSet()
+        {
+            await Utils.DataInserter(this.DBType, 10);
+
+            var db = Utils.GetDBContext(this.DBType);
+
+            var shiftGrid = db.TestItems
+                .ToShiftGrid(new GridSort
+                {
+                    Field = "ID",
+                    SortDirection = SortDirection.Ascending
+                },
+                new GridConfig
+                {
+                    Columns = new List<GridColumn>
+                    {
+                        new GridColumn {
+                            Field = "TypeId",
+                            Visible = false
+                        }
+                    }
+                });
+        }
+
+        [TestMethod]
         public async Task ExcludeField()
         {
             await Utils.DataInserter(this.DBType, 10);

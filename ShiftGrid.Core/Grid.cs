@@ -204,6 +204,11 @@ namespace ShiftSoftware.ShiftGrid.Core
             //    throw new AnonymousColumnHidingException("Hiding Columns on Anonymous Objects is not allowed on this version. It might become available in future versions.");
             //}
 
+            if (hiddenColumns != null && hiddenColumns.Count > 0 && this.Select.GetType().ToString().StartsWith("System.Data.Entity.DbSet"))
+            {
+                throw new ColumnHidingException("Hiding Columns on DBSet is not allowed on this version. It might become available in future versions.");
+            }
+
             this.Select = new ColumnRemover<T>(this.Select)
                 .RemoveColumns(hiddenColumns);
 
