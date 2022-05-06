@@ -41,7 +41,7 @@ namespace ShiftSoftware.ShiftGrid.Core
                 bindings.ToArray()
             );
 
-            System.Diagnostics.Debug.WriteLine(ex);
+            //System.Diagnostics.Debug.WriteLine(ex);
 
             return ex;
         }

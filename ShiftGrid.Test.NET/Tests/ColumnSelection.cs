@@ -237,5 +237,71 @@ namespace ShiftGrid.Test.NET.Tests
 
         //    Console.WriteLine(string.Join(Environment.NewLine + Environment.NewLine + Environment.NewLine, logs));
         //}
+
+        [TestMethod]
+        public async Task ExcludeAFieldThatsInSummary()
+        {
+            await Utils.DataInserter(this.DBType, 10);
+
+            var db = Utils.GetDBContext(this.DBType);
+
+            var logs = new List<string>();
+
+            Controllers.DataController.SetupLogger(db, logs);
+
+            var shiftGrid = db.TestItems
+                .Select(x => new Models.TestItemView
+                {
+                    ID = x.ID,
+                    Title = x.Title,
+                    CalculatedPrice = x.Price,
+                    TypeId = x.TypeId
+                })
+                .SelectSummary(x => new
+                {
+                    Count = x.Count(),
+                    TotalID = x.Sum(y => y.ID),
+                    TotalPrice = x.Sum(y => y.CalculatedPrice),
+                    TotalMixed = x.Sum(y => y.CalculatedPrice * y.ID)
+                })
+                .ToShiftGrid(new GridSort
+                {
+                    Field = "ID",
+                    SortDirection = SortDirection.Ascending
+                },
+                new GridConfig
+                {
+                    Columns = new List<GridColumn>
+                    {
+                        new GridColumn {
+                            Field = "CalculatedPrice",
+                            Visible = false
+                        }
+                    }
+                });
+
+            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid, Newtonsoft.Json.Formatting.Indented));
+
+            //Console.WriteLine(string.Join(Environment.NewLine + Environment.NewLine + Environment.NewLine, logs));
+
+            var cols = shiftGrid.Columns.ToDictionary(x => x.Field, x => x);
+
+            Assert.IsTrue(
+                shiftGrid.DataCount == 10 &&
+
+                shiftGrid.Data.FirstOrDefault().Title == "Title - 1" &&
+                shiftGrid.Data.FirstOrDefault().ID == 1 &&
+                shiftGrid.Data.FirstOrDefault().TypeId == 1 &&
+                shiftGrid.Data.FirstOrDefault().CalculatedPrice == null &&
+
+                cols["ID"].Visible &&
+                !cols["CalculatedPrice"].Visible &&
+                cols["Title"].Visible &&
+                cols["Type"].Visible &&
+                cols["Items"].Visible &&
+                shiftGrid.Summary["TotalPrice"] == null &&
+                shiftGrid.Summary["TotalMixed"] == null
+            );
+        }
     }
 }

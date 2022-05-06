@@ -207,6 +207,9 @@ namespace ShiftSoftware.ShiftGrid.Core
             this.Select = new ColumnRemover<T>(this.Select)
                 .RemoveColumns(hiddenColumns);
 
+            if (this.SummarySelect != null)
+                this.SummarySelect = new SummaryColumnRemover<T>(this.SummarySelect).RemoveColumns(hiddenColumns);
+
             var select = this.Select.Where("1=1");
 
             foreach (var filter in this.Filters)
