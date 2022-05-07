@@ -19,22 +19,19 @@ namespace ShiftSoftware.ShiftGrid.Core
         public Expression<Func<IGrouping<int, T>, object>> RemoveColumns(List<string> columnsToRemove)
         {
             this.ColumnsToRemove = columnsToRemove;
-            return this.Visit(this.Query) as Expression<Func<IGrouping<int, T>, object>>;
+            
+            var expression = this.Visit(this.Query) as Expression<Func<IGrouping<int, T>, object>>;
+
+            //System.Diagnostics.Debug.WriteLine(expression);
+
+            return expression;
         }
 
         protected override Expression VisitMember(MemberExpression node)
         {
             if (this.ColumnsToRemove.Contains(node.Member.Name))
             {
-                if (node.Member.MemberType == System.Reflection.MemberTypes.Property)
-                {
-                    var type = ((System.Reflection.PropertyInfo)node?.Member).PropertyType;
-
-                    if (type.IsValueType)
-                    {
-                        return MemberExpression.New(type);
-                    }
-                }
+                return AnonymousColumnRemover<T>.GetDefaultExpressionFor(node.Member);
             }
 
             return base.VisitMember(node);

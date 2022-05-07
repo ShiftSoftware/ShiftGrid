@@ -209,11 +209,16 @@ namespace ShiftSoftware.ShiftGrid.Core
                 throw new ColumnHidingException("Hiding Columns on DBSet is not allowed on this version. It might become available in future versions.");
             }
 
-            this.Select = new ColumnRemover<T>(this.Select)
-                .RemoveColumns(hiddenColumns);
+            if (hiddenColumns != null && hiddenColumns.Count > 0)
+            {
+                if (tType.Contains("<>") && tType.Contains("AnonymousType"))
+                    this.Select = new AnonymousColumnRemover<T>(this.Select).RemoveColumns(hiddenColumns);
+                else
+                    this.Select = new ColumnRemover<T>(this.Select).RemoveColumns(hiddenColumns);
 
-            if (this.SummarySelect != null)
-                this.SummarySelect = new SummaryColumnRemover<T>(this.SummarySelect).RemoveColumns(hiddenColumns);
+                if (this.SummarySelect != null)
+                    this.SummarySelect = new SummaryColumnRemover<T>(this.SummarySelect).RemoveColumns(hiddenColumns);
+            }
 
             var select = this.Select.Where("1=1");
 
