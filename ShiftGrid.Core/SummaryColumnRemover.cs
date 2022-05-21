@@ -36,9 +36,48 @@ namespace ShiftSoftware.ShiftGrid.Core
 
             return base.VisitMember(node);
         }
+
+        protected override Expression VisitMethodCall(MethodCallExpression node)
+        {
+            if (new HiddenMemberChecker(this.ColumnsToRemove).ContainsHiddenMember(node))
+                return AnonymousColumnRemover<T>.GetDefaultExpressionFor(node.Method.ReturnType);
+
+            return base.VisitMethodCall(node);
+        }
+
         public override Expression Visit(Expression node)
         {
+            //System.Diagnostics.Debug.WriteLine(node + "\t\t" + node?.NodeType);
+
             return base.Visit(node);
+        }
+    }
+
+    class HiddenMemberChecker : ExpressionVisitor
+    {
+        public List<string> ColumnsToRemove { get; set; }
+        private bool containsHiddenMember = false;
+
+        public HiddenMemberChecker(List<string> columnsToRemove)
+        {
+            this.ColumnsToRemove = columnsToRemove;
+        }
+
+        protected override Expression VisitMember(MemberExpression node)
+        {
+            if (this.ColumnsToRemove.Contains(node.Member.Name))
+            {
+                this.containsHiddenMember = true;
+            }
+
+            return base.VisitMember(node);
+        }
+
+        public bool ContainsHiddenMember(Expression expression)
+        {
+            this.Visit(expression);
+
+            return this.containsHiddenMember;
         }
     }
 }

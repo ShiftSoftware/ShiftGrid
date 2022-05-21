@@ -61,15 +61,18 @@ namespace ShiftSoftware.ShiftGrid.Core
 
             if (member.MemberType == MemberTypes.Property)
             {
-                var type = ((PropertyInfo)member).PropertyType;
-
-                if (type.IsValueType)
-                    expression = MemberExpression.New(type);
-                else
-                    expression = MemberExpression.Constant(null, type);
+                return GetDefaultExpressionFor(((PropertyInfo)member).PropertyType);
             }
 
             return expression;
+        }
+
+        public static Expression GetDefaultExpressionFor(Type type)
+        {
+            if (type.IsValueType)
+                return MemberExpression.New(type);
+            else
+                return MemberExpression.Constant(null, type);
         }
     }
 }
