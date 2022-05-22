@@ -38,11 +38,7 @@ namespace ShiftGrid.Test.Shared.Tests
 
             var testItems = this.Utils.GetTestItems();
 
-            var shiftGrid = testItems.ToShiftGrid(new GridSort
-            {
-                Field = "ID",
-                SortDirection = SortDirection.Ascending
-            });
+            var shiftGrid = testItems.ToShiftGrid(nameof(TestItem.ID));
 
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid, Newtonsoft.Json.Formatting.Indented));
 
@@ -93,11 +89,7 @@ namespace ShiftGrid.Test.Shared.Tests
                 ID = x.ID,
                 Title = x.Title
             })
-            .ToShiftGrid(new GridSort
-            {
-                Field = "ID",
-                SortDirection = SortDirection.Ascending
-            });
+            .ToShiftGrid(nameof(TestItemView.ID));
 
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid, Newtonsoft.Json.Formatting.Indented));
 
@@ -143,11 +135,7 @@ namespace ShiftGrid.Test.Shared.Tests
                 TypeId = x.TypeId,
                 Type = x.Type.Name
             })
-            .ToShiftGrid(new GridSort
-            {
-                Field = "ID",
-                SortDirection = SortDirection.Ascending
-            },
+            .ToShiftGrid(nameof(TestItemView.ID), SortDirection.Ascending,
             new GridConfig
             {
                 Filters = new List<GridFilter> {
@@ -191,11 +179,7 @@ namespace ShiftGrid.Test.Shared.Tests
                 CalculatedPrice = x.Price * 10m,
                 Type = x.Type.Name
             })
-            .ToShiftGrid(new GridSort
-            {
-                Field = "ID",
-                SortDirection = SortDirection.Ascending
-            },
+            .ToShiftGrid(nameof(TestItemView.ID), SortDirection.Ascending,
             new GridConfig
             {
                 Filters = new List<GridFilter> {
@@ -250,11 +234,7 @@ namespace ShiftGrid.Test.Shared.Tests
                 CalculatedPrice = x.Price * 10m,
                 Type = x.Type.Name
             })
-            .ToShiftGrid(new GridSort
-            {
-                Field = "ID",
-                SortDirection = SortDirection.Ascending
-            },
+            .ToShiftGrid(nameof(TestItemView.ID), SortDirection.Ascending,
             new GridConfig
             {
                 Filters = new List<GridFilter> {

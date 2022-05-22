@@ -31,11 +31,7 @@ namespace ShiftGrid.Test.Shared.Tests
                 ID = x.ID,
                 Title = x.Title
             })
-            .ToShiftGrid(new GridSort
-            {
-                Field = "ID",
-                SortDirection = SortDirection.Ascending
-            },
+            .ToShiftGrid(nameof(TestItemView.ID), SortDirection.Ascending,
             new GridConfig
             {
                 DataPageSize = 5,
@@ -85,11 +81,7 @@ namespace ShiftGrid.Test.Shared.Tests
                 ID = x.ID,
                 Title = x.Title
             })
-            .ToShiftGrid(new GridSort
-            {
-                Field = "ID",
-                SortDirection = SortDirection.Ascending
-            },
+            .ToShiftGrid(nameof(TestItemView.ID), SortDirection.Ascending,
             new GridConfig
             {
                 DataPageSize = 3,
@@ -139,11 +131,7 @@ namespace ShiftGrid.Test.Shared.Tests
                 ID = x.ID,
                 Title = x.Title
             })
-            .ToShiftGrid(new GridSort
-            {
-                Field = "ID",
-                SortDirection = SortDirection.Ascending
-            },
+            .ToShiftGrid(nameof(TestItemView.ID), SortDirection.Ascending,
             new GridConfig
             {
                 DataPageSize = 15,
@@ -193,11 +181,7 @@ namespace ShiftGrid.Test.Shared.Tests
                 ID = x.ID,
                 Title = x.Title
             })
-            .ToShiftGrid(new GridSort
-            {
-                Field = "ID",
-                SortDirection = SortDirection.Ascending
-            },
+            .ToShiftGrid(nameof(TestItemView.ID), SortDirection.Ascending,
             new GridConfig
             {
                 DataPageSize = 10,

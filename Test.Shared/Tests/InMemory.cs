@@ -49,11 +49,7 @@ namespace ShiftGrid.Test.Shared.Tests
             };
 
             var shiftGrid = inMemoryData.AsQueryable()
-            .ToShiftGrid(new GridSort
-            {
-                Field = "ID",
-                SortDirection = SortDirection.Descending
-            });
+            .ToShiftGrid("ID", SortDirection.Descending);
 
             Assert.IsTrue(
                 shiftGrid.DataCount == 2 &&
@@ -71,12 +67,7 @@ namespace ShiftGrid.Test.Shared.Tests
 
             var shiftGrid = data
                 .AsQueryable()
-                .ToShiftGrid(
-                    new GridSort
-                    {
-                        Field = "Name",
-                        SortDirection = SortDirection.Descending
-                    },
+                .ToShiftGrid("ID", SortDirection.Descending,
                     new GridConfig
                     {
                         DataPageIndex = 1,

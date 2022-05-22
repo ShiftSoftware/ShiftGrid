@@ -31,11 +31,7 @@ namespace ShiftGrid.Test.Shared.Tests
                 Count = x.Count(),
                 TotalPrice = x.Sum(y => y.Price)
             })
-            .ToShiftGrid(new GridSort
-            {
-                Field = "ID",
-                SortDirection = SortDirection.Ascending
-            });
+            .ToShiftGrid(nameof(TestItem.ID));
 
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid, Newtonsoft.Json.Formatting.Indented));
 
@@ -62,11 +58,7 @@ namespace ShiftGrid.Test.Shared.Tests
                     Count = x.Count(),
                     TotalPrice = x.Sum(y => y.NewPrice)
                 })
-                .ToShiftGrid(new GridSort
-                {
-                    Field = "NewPrice",
-                    SortDirection = SortDirection.Ascending
-                });
+                .ToShiftGrid("NewPrice");
 
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid, Newtonsoft.Json.Formatting.Indented));
 
@@ -94,11 +86,8 @@ namespace ShiftGrid.Test.Shared.Tests
                     Count = x.Count(),
                     TotalPrice = x.Sum(y => y.NewPrice)
                 })
-                .ToShiftGrid(new GridSort
-                {
-                    Field = "NewPrice",
-                    SortDirection = SortDirection.Ascending
-                }, new GridConfig
+                .ToShiftGrid("NewPrice", SortDirection.Ascending, 
+                new GridConfig
                 {
                     Filters = new List<GridFilter> {
                         new GridFilter {
@@ -140,11 +129,8 @@ namespace ShiftGrid.Test.Shared.Tests
                     Count = x.Count(),
                     TotalPrice = x.Sum(y => y.NewPrice)
                 })
-                .ToShiftGrid(new GridSort
-                {
-                    Field = "NewPrice",
-                    SortDirection = SortDirection.Ascending
-                }, new GridConfig
+                .ToShiftGrid("NewPrice", SortDirection.Ascending,
+                new GridConfig
                 {
                     Filters = new List<GridFilter> {
                         new GridFilter {
@@ -185,11 +171,7 @@ namespace ShiftGrid.Test.Shared.Tests
                     Count = x.Count(),
                     TotalPrice = x.Sum(y => y.NewPrice.Value)
                 })
-                .ToShiftGrid(new GridSort
-                {
-                    Field = "NewPrice",
-                    SortDirection = SortDirection.Ascending
-                }, 
+                .ToShiftGrid("NewPrice", SortDirection.Ascending, 
                 new GridConfig
                 {
                     Filters = new List<GridFilter> {
@@ -230,11 +212,8 @@ namespace ShiftGrid.Test.Shared.Tests
                 {
                     TotalPrice = x.Sum(y => y.NewPrice)
                 })
-                .ToShiftGrid(new GridSort
-                {
-                    Field = "NewPrice",
-                    SortDirection = SortDirection.Ascending
-                }, new GridConfig
+                .ToShiftGrid("NewPrice", SortDirection.Ascending, 
+                new GridConfig
                 {
                     Filters = new List<GridFilter> {
                         new GridFilter {

@@ -32,11 +32,7 @@ namespace ShiftGrid.Test.Shared.Tests
                 Title = x.Title,
                 CalculatedPrice = x.Price
             })
-            .ToShiftGrid(new GridSort
-            {
-                Field = "ID",
-                SortDirection = SortDirection.Ascending
-            },
+            .ToShiftGrid(nameof(TestItemView.ID), SortDirection.Ascending,
             new GridConfig
             {
                 DataPageSize = 10,

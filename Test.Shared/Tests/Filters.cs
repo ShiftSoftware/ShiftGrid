@@ -30,11 +30,7 @@ namespace ShiftGrid.Test.Shared.Tests
                 ID = x.ID,
                 Title = x.Title
             })
-            .ToShiftGrid(new GridSort
-            {
-                Field = "ID",
-                SortDirection = SortDirection.Ascending
-            },
+            .ToShiftGrid(nameof(TestItemView.ID), SortDirection.Ascending,
             new GridConfig
             {
                 Filters = new List<GridFilter> {
@@ -67,11 +63,7 @@ namespace ShiftGrid.Test.Shared.Tests
                 ID = x.ID,
                 Title = x.Title
             })
-            .ToShiftGrid(new GridSort
-            {
-                Field = "ID",
-                SortDirection = SortDirection.Ascending
-            },
+            .ToShiftGrid(nameof(TestItemView.ID), SortDirection.Ascending,
             new GridConfig
             {
                 Filters = new List<GridFilter> {
@@ -106,11 +98,7 @@ namespace ShiftGrid.Test.Shared.Tests
                 ID = x.ID,
                 Title = x.Title
             })
-            .ToShiftGrid(new GridSort
-            {
-                Field = "ID",
-                SortDirection = SortDirection.Ascending
-            },
+            .ToShiftGrid(nameof(TestItemView.ID), SortDirection.Ascending,
             new GridConfig
             {
                 Filters = new List<GridFilter> {
@@ -140,11 +128,7 @@ namespace ShiftGrid.Test.Shared.Tests
 
             var testItems = this.Utils.GetTestItems();
 
-            var shiftGrid = testItems.ToShiftGrid(new GridSort
-            {
-                Field = "ID",
-                SortDirection = SortDirection.Ascending
-            },
+            var shiftGrid = testItems.ToShiftGrid(nameof(TestItem.ID), SortDirection.Ascending,
             new GridConfig
             {
                 Filters = new List<GridFilter> {
@@ -179,11 +163,7 @@ namespace ShiftGrid.Test.Shared.Tests
                 ID = x.ID,
                 Title = x.Title
             })
-            .ToShiftGrid(new GridSort
-            {
-                Field = "ID",
-                SortDirection = SortDirection.Ascending
-            },
+            .ToShiftGrid(nameof(TestItemView.ID), SortDirection.Ascending,
             new GridConfig
             {
                 Filters = new List<GridFilter> {
@@ -227,11 +207,7 @@ namespace ShiftGrid.Test.Shared.Tests
                 ID = x.ID,
                 Title = x.Title
             })
-            .ToShiftGrid(new GridSort
-            {
-                Field = "ID",
-                SortDirection = SortDirection.Ascending
-            },
+            .ToShiftGrid(nameof(TestItemView.ID), SortDirection.Ascending,
             new GridConfig
             {
                 Filters = new List<GridFilter> {
@@ -273,11 +249,7 @@ namespace ShiftGrid.Test.Shared.Tests
                 ID = x.ID,
                 Title = x.Title
             })
-            .ToShiftGrid(new GridSort
-            {
-                Field = "ID",
-                SortDirection = SortDirection.Ascending
-            },
+            .ToShiftGrid(nameof(TestItemView.ID), SortDirection.Ascending,
             new GridConfig
             {
                 Filters = new List<GridFilter> {
@@ -326,11 +298,7 @@ namespace ShiftGrid.Test.Shared.Tests
                 ID = x.ID,
                 Title = x.Title
             })
-            .ToShiftGrid(new GridSort
-            {
-                Field = "ID",
-                SortDirection = SortDirection.Ascending
-            },
+            .ToShiftGrid(nameof(TestItemView.ID), SortDirection.Ascending,
             new GridConfig
             {
                 Filters = new List<GridFilter>{
@@ -386,11 +354,7 @@ namespace ShiftGrid.Test.Shared.Tests
                     Title = y.Title,
                 })
             })
-            .ToShiftGrid(new GridSort
-            {
-                Field = "ID",
-                SortDirection = SortDirection.Ascending
-            },
+            .ToShiftGrid(nameof(TestItemView.ID), SortDirection.Ascending,
             new GridConfig
             {
                 Filters = new List<GridFilter> {
@@ -427,11 +391,7 @@ namespace ShiftGrid.Test.Shared.Tests
                     Title = y.Title,
                 })
             })
-            .ToShiftGrid(new GridSort
-            {
-                Field = "ID",
-                SortDirection = SortDirection.Ascending
-            },
+            .ToShiftGrid(nameof(TestItemView.ID), SortDirection.Ascending,
             new GridConfig
             {
                 Filters = new List<GridFilter> {
@@ -477,11 +437,7 @@ namespace ShiftGrid.Test.Shared.Tests
                     IncreasedPrice = y.Price * 100,
                 })
             })
-            .ToShiftGrid(new GridSort
-            {
-                Field = "ID",
-                SortDirection = SortDirection.Ascending
-            },
+            .ToShiftGrid("ID", SortDirection.Ascending,
             new GridConfig
             {
                 Filters = new List<GridFilter> {
@@ -525,11 +481,7 @@ namespace ShiftGrid.Test.Shared.Tests
             var testItems = this.Utils.GetTestItems();
 
             var shiftGrid = testItems
-            .ToShiftGrid(new GridSort
-            {
-                Field = "ID",
-                SortDirection = SortDirection.Ascending
-            },
+            .ToShiftGrid(nameof(TestItem.ID), SortDirection.Ascending,
             new GridConfig
             {
                 Filters = new List<GridFilter> {

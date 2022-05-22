@@ -20,7 +20,7 @@ namespace ShiftSoftware.ShiftGrid.Core
         public List<T> Data { get; set; }
         public Dictionary<string, object> Summary { get; set; }
         public List<GridSort> Sort { get; set; }
-        public GridSort DefaultSort { get; set; }
+        public GridSort StableSort { get; set; }
         public List<GridFilter> Filters { get; set; }
         public List<GridColumn> Columns { get; set; }
         public GridPagination Pagination { get; set; }
@@ -183,7 +183,7 @@ namespace ShiftSoftware.ShiftGrid.Core
                 //    Field = typeof(T).GetProperties().Where(x => x.MemberType == System.Reflection.MemberTypes.Property).First().Name,
                 //    SortDirection = SortDirection.Ascending
                 //});
-                this.Sort.Add(DefaultSort);
+                this.Sort.Add(StableSort);
             }
         }
         private void GenerateQuery()
@@ -336,7 +336,7 @@ namespace ShiftSoftware.ShiftGrid.Core
         {
             IQueryable sort = this.ProccessedSelect
                 .OrderBy(string.Join(", ", this.Sort.Select(x => $"{x.Field} {(x.SortDirection == SortDirection.Descending ? "desc" : "")}")))
-                .ThenBy($"{this.DefaultSort.Field} {(this.DefaultSort.SortDirection == SortDirection.Descending ? "desc" : "")}");
+                .ThenBy($"{this.StableSort.Field} {(this.StableSort.SortDirection == SortDirection.Descending ? "desc" : "")}");
 
             IQueryable dataToIterate;
 
