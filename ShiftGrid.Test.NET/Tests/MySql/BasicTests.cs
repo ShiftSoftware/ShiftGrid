@@ -3,9 +3,9 @@
 namespace ShiftGrid.Test.NET.Tests.MySql
 {
     [TestClass]
-    public class BasicTests : Tests.BasicTests
+    public class BasicTests : Shared.Tests.BasicTests
     {
-        public BasicTests() : base(typeof(EF.MySQLDb))
+        public BasicTests() : base(typeof(EF.MySQLDb), new Utils(typeof(EF.MySQLDb)))
         {
 
         }

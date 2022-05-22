@@ -3,9 +3,9 @@
 namespace ShiftGrid.Test.NET.Tests.MySql
 {
     [TestClass]
-    public class Pagination : Tests.Pagination
+    public class Pagination : Shared.Tests.Pagination
     {
-        public Pagination() : base(typeof(EF.MySQLDb))
+        public Pagination() : base(typeof(EF.MySQLDb), new Utils(typeof(EF.MySQLDb)))
         {
 
         }

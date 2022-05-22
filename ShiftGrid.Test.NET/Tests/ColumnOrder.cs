@@ -1,10 +1,10 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ShiftSoftware.ShiftGrid.Core;
+﻿using ShiftSoftware.ShiftGrid.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
+using ShiftGrid.Test.Shared.Models;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ShiftGrid.Test.NET.Tests
 {
@@ -24,7 +24,7 @@ namespace ShiftGrid.Test.NET.Tests
             var db = Utils.GetDBContext(this.DBType);
 
             var shiftGrid = db.TestItems
-                .Select(x => new Models.TestItemView
+                .Select(x => new TestItemView
                 {
                     ID = x.ID,
                     Title = x.Title,
@@ -66,7 +66,7 @@ namespace ShiftGrid.Test.NET.Tests
             var db = Utils.GetDBContext(this.DBType);
 
             var shiftGrid = db.TestItems
-                .Select(x => new Models.TestItemView
+                .Select(x => new TestItemView
                 {
                     ID = x.ID,
                     Title = x.Title,
@@ -111,7 +111,7 @@ namespace ShiftGrid.Test.NET.Tests
             var db = Utils.GetDBContext(this.DBType);
 
             var shiftGrid = db.TestItems
-                .Select(x => new Models.TestItemView
+                .Select(x => new TestItemView
                 {
                     ID = x.ID,
                     Title = x.Title,
@@ -160,7 +160,7 @@ namespace ShiftGrid.Test.NET.Tests
             var db = Utils.GetDBContext(this.DBType);
 
             var shiftGrid = db.TestItems
-                .Select(x => new Models.TestItemView
+                .Select(x => new TestItemView
                 {
                     ID = x.ID,
                     Title = x.Title,
@@ -205,7 +205,7 @@ namespace ShiftGrid.Test.NET.Tests
             var db = Utils.GetDBContext(this.DBType);
 
             var shiftGrid = db.TestItems
-                .Select(x => new Models.TestItemView
+                .Select(x => new TestItemView
                 {
                     ID = x.ID,
                     Title = x.Title,
@@ -254,7 +254,7 @@ namespace ShiftGrid.Test.NET.Tests
             var db = Utils.GetDBContext(this.DBType);
 
             var shiftGrid = db.TestItems
-                .Select(x => new Models.TestItemView
+                .Select(x => new TestItemView
                 {
                     ID = x.ID,
                     Title = x.Title,
@@ -299,7 +299,7 @@ namespace ShiftGrid.Test.NET.Tests
             var db = Utils.GetDBContext(this.DBType);
 
             var shiftGrid = db.TestItems
-                .Select(x => new Models.TestItemView
+                .Select(x => new TestItemView
                 {
                     ID = x.ID,
                     Title = x.Title,

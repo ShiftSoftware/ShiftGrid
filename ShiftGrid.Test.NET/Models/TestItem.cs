@@ -18,13 +18,8 @@ namespace ShiftGrid.Test.NET.Models
         public long? ParentTestItemId { get; set; }
 
         [Newtonsoft.Json.JsonIgnore]
-        [ForeignKey("ParentTestItemId")]
         public virtual TestItem ParentTestItem { get; set; }
-
-        [ForeignKey("TypeId")]
         public virtual Type Type { get; set; }
-
-        [InverseProperty("ParentTestItem")]
         public virtual ICollection<TestItem> ChildTestItems { get; set; }
     }
 }

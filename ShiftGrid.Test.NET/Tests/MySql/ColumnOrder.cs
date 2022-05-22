@@ -3,9 +3,9 @@
 namespace ShiftGrid.Test.NET.Tests.MySql
 {
     [TestClass]
-    public class ColumnOrder : Tests.ColumnOrder
+    public class ColumnOrder : Shared.Tests.ColumnOrder
     {
-        public ColumnOrder() : base(typeof(EF.MySQLDb))
+        public ColumnOrder() : base(typeof(EF.MySQLDb), new Utils(typeof(EF.MySQLDb)))
         {
 
         }

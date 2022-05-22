@@ -7,21 +7,23 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
+using ShiftGrid.Test.Shared.Models;
 using Z.BulkOperations;
+using ShiftGrid.Test.Shared.Insert;
 
 namespace ShiftGrid.Test.NET.Controllers
 {
     [RoutePrefix("api")]
     public class UtilController : ApiController
     {
-        public Type DBType { get; set; }
+        public System.Type DBType { get; set; }
 
         public UtilController()
         {
 
         }
 
-        public UtilController(Type dbType)
+        public UtilController(System.Type dbType)
         {
             this.DBType = dbType;
         }
@@ -77,6 +79,14 @@ namespace ShiftGrid.Test.NET.Controllers
 
             var db = Utils.GetDBContext(this.DBType);
 
+            var testItems = new Shared.Insert.Tools().GenerateTestItems(payload);
+
+            db.TestItems.AddRange(testItems);
+
+            await db.SaveChangesAsync();
+
+            return Ok();
+
             var typeIds = (await db.Types.Select(x => x.ID).ToListAsync()).Select(x => (long?)x).ToList();
 
             var connectionString = db.Database.Connection.ConnectionString;
@@ -84,7 +94,7 @@ namespace ShiftGrid.Test.NET.Controllers
 
             var table = new System.Data.DataTable();
 
-            table.Columns.AddRange(typeof(Models.TestItem).GetProperties().Where(x => x.MemberType == System.Reflection.MemberTypes.Property).Select(x => new System.Data.DataColumn
+            table.Columns.AddRange(typeof(TestItem).GetProperties().Where(x => x.MemberType == System.Reflection.MemberTypes.Property).Select(x => new System.Data.DataColumn
             {
                 ColumnName = x.Name
             }).ToArray());
@@ -114,13 +124,13 @@ namespace ShiftGrid.Test.NET.Controllers
                 var row = table.NewRow();
 
                 if (payload.ParentTestItemId.HasValue)
-                    row[nameof(Models.TestItem.ParentTestItemId)] = payload.ParentTestItemId;
+                    row[nameof(TestItem.ParentTestItemId)] = payload.ParentTestItemId;
 
-                row[nameof(Models.TestItem.Code)] = $"{payload.DataTemplate.Code} - {number}";
-                row[nameof(Models.TestItem.Title)] = $"{payload.DataTemplate.Title} - {number}";
-                row[nameof(Models.TestItem.Date)] = payload.DataTemplate.Date.AddDays(i * payload.Increments.Day).ToString("yyyy-MM-dd");
-                row[nameof(Models.TestItem.Price)] = price;
-                row[nameof(Models.TestItem.TypeId)] = typeIds.Count == 0 ? null : typeIds.ElementAt(i % 2);
+                row[nameof(TestItem.Code)] = $"{payload.DataTemplate.Code} - {number}";
+                row[nameof(TestItem.Title)] = $"{payload.DataTemplate.Title} - {number}";
+                row[nameof(TestItem.Date)] = payload.DataTemplate.Date.AddDays(i * payload.Increments.Day).ToString("yyyy-MM-dd");
+                row[nameof(TestItem.Price)] = price;
+                row[nameof(TestItem.TypeId)] = typeIds.Count == 0 ? null : typeIds.ElementAt(i % 2);
 
                 table.Rows.Add(row);
             }
@@ -148,15 +158,9 @@ namespace ShiftGrid.Test.NET.Controllers
 
             var db = Utils.GetDBContext(this.DBType);
 
-            for (int i = 0; i < 2; i++)
-            {
-                var type = new Models.Type
-                {
-                    Name = $"Type - {(i + 1)}"
-                };
+            var types = new Shared.Insert.Tools().GenerateTypes();
 
-                db.Types.Add(type);
-            }
+            db.Types.AddRange(types);
 
             await db.SaveChangesAsync();
 

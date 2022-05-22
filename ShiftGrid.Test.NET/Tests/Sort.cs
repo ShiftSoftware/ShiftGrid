@@ -1,5 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ShiftGrid.Test.NET.Models;
+using ShiftGrid.Test.Shared.Models;
 using ShiftSoftware.ShiftGrid.Core;
 using System;
 using System.Collections.Generic;

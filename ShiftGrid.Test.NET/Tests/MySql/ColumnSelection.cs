@@ -3,9 +3,9 @@
 namespace ShiftGrid.Test.NET.Tests.MySql
 {
     [TestClass]
-    public class ColumnSelection : Tests.ColumnSelection
+    public class ColumnSelection : Shared.Tests.ColumnSelection
     {
-        public ColumnSelection() : base(typeof(EF.MySQLDb))
+        public ColumnSelection() : base(typeof(EF.MySQLDb), new Utils(typeof(EF.MySQLDb)))
         {
 
         }

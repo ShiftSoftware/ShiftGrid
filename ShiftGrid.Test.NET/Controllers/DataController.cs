@@ -8,6 +8,7 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web.Http;
 using ShiftSoftware.ShiftGrid.Core;
+using ShiftGrid.Test.Shared.Models;
 
 namespace ShiftGrid.Test.NET.Controllers
 {
@@ -61,7 +62,7 @@ namespace ShiftGrid.Test.NET.Controllers
             //    .ToShiftGridAsync(payload);
 
             var grid = await db.TestItems
-                .Select(x => new Models.TestItemView
+                .Select(x => new TestItemView
                 {
                     ID = x.ID,
                     CalculatedPrice = x.Price,
@@ -75,7 +76,7 @@ namespace ShiftGrid.Test.NET.Controllers
                 })
                 .ToShiftGridAsync(new GridSort
                 {
-                    Field = nameof(Models.TestItem.ID),
+                    Field = nameof(TestItem.ID),
                     SortDirection = SortDirection.Ascending
                 }, payload);
 
@@ -101,7 +102,7 @@ namespace ShiftGrid.Test.NET.Controllers
 
             var grid = await db.TestItems
                 .AsNoTracking()
-                .Select(x => new Models.TestItemView
+                .Select(x => new TestItemView
                 {
                     ID = x.ID,
                     CalculatedPrice = x.Price,

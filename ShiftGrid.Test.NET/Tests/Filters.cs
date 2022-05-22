@@ -2,7 +2,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using ShiftGrid.Test.NET.Models;
+using ShiftGrid.Test.Shared.Models;
 using ShiftSoftware.ShiftGrid.Core;
 using System.Collections.Generic;
 

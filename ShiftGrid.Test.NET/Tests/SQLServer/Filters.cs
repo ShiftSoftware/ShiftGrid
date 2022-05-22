@@ -3,9 +3,9 @@
 namespace ShiftGrid.Test.NET.Tests.SQLServer
 {
     [TestClass]
-    public class Filters : Tests.Filters
+    public class Filters : ShiftGrid.Test.Shared.Tests.Filters
     {
-        public Filters() : base(typeof(EF.DB))
+        public Filters() : base(typeof(EF.DB), new Utils(typeof(EF.DB)))
         {
 
         }

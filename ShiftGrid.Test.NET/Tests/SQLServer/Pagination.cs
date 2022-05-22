@@ -3,9 +3,9 @@
 namespace ShiftGrid.Test.NET.Tests.SQLServer
 {
     [TestClass]
-    public class Pagination : Tests.Pagination
+    public class Pagination : ShiftGrid.Test.Shared.Tests.Pagination
     {
-        public Pagination() : base(typeof(EF.DB))
+        public Pagination() : base(typeof(EF.DB), new Utils(typeof(EF.DB)))
         {
 
         }

@@ -3,17 +3,20 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Web;
+using ShiftGrid.Test.Shared.Models;
 
 namespace ShiftGrid.Test.NET.EF
 {
-    public class DBBase : DbContext
+    public interface DBBase/* : DbContext*/
     {
-        public DBBase(string connectionString): base(connectionString)
-        {
+        //public DBBase(string connectionString): base(connectionString)
+        //{
 
-        }
+        //}
 
-        public virtual DbSet<Models.TestItem> TestItems { get; set; }
-        public virtual DbSet<Models.Type> Types { get; set; }
+        Database Database { get; }
+        DbSet<TestItem> TestItems { get; set; }
+        DbSet<Shared.Models.Type> Types { get; set; }
+        System.Threading.Tasks.Task SaveChangesAsync();
     }
 }
