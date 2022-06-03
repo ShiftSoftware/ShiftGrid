@@ -1,0 +1,41 @@
+site_name: Shift Grid
+repo_url: https://github.com/ShiftSoftware/ShiftGrid
+repo_name: ShiftSoftware/ShiftGrid
+site_author: Shift Software
+site_description: >-
+  Data Grid adapter for Entity Framework and Entity Framework Core with support for Pagination, Sorting, Filtering, and Data Exporting.
+copyright: Copyright &copy; 2022 Shift Software
+default: getting-started
+theme:
+  name: material
+  custom_dir: docs/overrides
+  logo: assets/images/logo.png
+  features:
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+nav:
+    - Home: 'index.md'
+    - Docs: 
+        - Getting Started: 'getting-started.md'
+extra_css:
+  - overrides/css/extra.css
+extra:
+  social:
+    - icon: fontawesome/brands/github 
+      link: https://github.com/ShiftSoftware
+    - icon: fontawesome/brands/instagram 
+      link: https://www.instagram.com/shift.software
+    - icon: fontawesome/brands/linkedin 
+      link: https://www.linkedin.com/company/shift-software
+
+markdown_extensions:
+  - attr_list
+  - md_in_html
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - toc:
+      permalink: true
+  - pymdownx.tabbed:
+      alternate_style: true
