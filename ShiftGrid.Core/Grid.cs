@@ -24,9 +24,8 @@ namespace ShiftSoftware.ShiftGrid.Core
         public List<GridFilter> Filters { get; set; }
         public List<GridColumn> Columns { get; set; }
         public GridPagination Pagination { get; set; }
-        public ExportConfig ExportConfig { get; set; }
-        public DateTime BeforeDataLoading { get; set; }
-        public DateTime AfterDataLoading { get; set; }
+        public DateTime BeforeLoadingData { get; set; }
+        public DateTime AfterLoadingData { get; set; }
 
         #endregion
 
@@ -71,42 +70,15 @@ namespace ShiftSoftware.ShiftGrid.Core
 
         #endregion
 
-        private FileHelpers.FileHelperEngine GetCSVEngine()
-        {
-            if (!this.ExportMode)
-                throw new Exception("Export Mode is not Active. ExportConfig.Export must be marked as True.");
-
-            var engine = new FileHelpers.DelimitedFileEngine(typeof(T), System.Text.Encoding.UTF8);
-
-            var excludedFields = this.Columns.Where(y => !y.Visible);
-
-            if (this.ExportConfig.Delimiter != null)
-                engine.Options.Delimiter = this.ExportConfig.Delimiter;
-
-            foreach (var excluded in excludedFields)
-            {
-                if (engine.Options.FieldsNames.Any(x => x == excluded.Field))
-                    engine.Options.RemoveField(excluded.Field);
-            }
-
-            engine.HeaderText = engine.GetFileHeader();
-
-            return engine;
-        }
-
-        private IEnumerable<object> GetExportableData()
-        {
-                return this.Data.Cast<object>();
-        }
-
         #region Private & Internal Props
 
+        private ExportConfig ExportConfig { get; set; }
         internal IQueryable<T> Select { get; set; }
         internal Expression<Func<IGrouping<int, T>, object>> SummarySelect { get; set; }
         private IQueryable ProccessedSelect { get; set; }
         private IQueryable<T> SummaryProcessedSelect { get; set; }
         //private List<GridColumn> TypeColumns { get; set; }
-        public bool ExportMode { get; set; }
+        private bool ExportMode { get; set; }
 
         #endregion
 
@@ -121,9 +93,9 @@ namespace ShiftSoftware.ShiftGrid.Core
             this.EnsureSummary();
             this.ProcessPagination();
 
-            this.BeforeDataLoading = DateTime.UtcNow;
+            this.BeforeLoadingData = DateTime.UtcNow;
             var data = this.GetPaginatedQuery().ToDynamicList<T>();
-            this.AfterDataLoading = DateTime.UtcNow;
+            this.AfterLoadingData = DateTime.UtcNow;
             this.Data.AddRange(data);
             this.GenerateColumns();
             return this;
@@ -138,9 +110,9 @@ namespace ShiftSoftware.ShiftGrid.Core
             this.EnsureSummary();
             this.ProcessPagination();
 
-            this.BeforeDataLoading = DateTime.UtcNow;
+            this.BeforeLoadingData = DateTime.UtcNow;
             var data = await this.GetPaginatedQuery().ToDynamicListAsync<T>();
-            this.AfterDataLoading = DateTime.UtcNow;
+            this.AfterLoadingData = DateTime.UtcNow;
             this.Data.AddRange(data);
             this.GenerateColumns();
             return this;
@@ -502,6 +474,32 @@ namespace ShiftSoftware.ShiftGrid.Core
 
             if (this.DataPageSize == -1)
                 this.Pagination.DataEnd = DataCount;
+        }
+        private FileHelpers.FileHelperEngine GetCSVEngine()
+        {
+            if (!this.ExportMode)
+                throw new Exception("Export Mode is not Active. ExportConfig.Export must be marked as True.");
+
+            var engine = new FileHelpers.DelimitedFileEngine(typeof(T), System.Text.Encoding.UTF8);
+
+            var excludedFields = this.Columns.Where(y => !y.Visible);
+
+            if (this.ExportConfig.Delimiter != null)
+                engine.Options.Delimiter = this.ExportConfig.Delimiter;
+
+            foreach (var excluded in excludedFields)
+            {
+                if (engine.Options.FieldsNames.Any(x => x == excluded.Field))
+                    engine.Options.RemoveField(excluded.Field);
+            }
+
+            engine.HeaderText = engine.GetFileHeader();
+
+            return engine;
+        }
+        private IEnumerable<object> GetExportableData()
+        {
+            return this.Data.Cast<object>();
         }
         private GridConfig GridConfig { get; set; }
 
