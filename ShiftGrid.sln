@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Shared", "Test.Shared\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.NETFramework", "Test.NETFramework\Test.NETFramework.csproj", "{632B03C9-C39C-4260-AB75-D943706D4811}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayGround", "PlayGround\PlayGround.csproj", "{C76E4882-E64E-441F-A4CA-02A18BB1D7CC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{632B03C9-C39C-4260-AB75-D943706D4811}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{632B03C9-C39C-4260-AB75-D943706D4811}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{632B03C9-C39C-4260-AB75-D943706D4811}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C76E4882-E64E-441F-A4CA-02A18BB1D7CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C76E4882-E64E-441F-A4CA-02A18BB1D7CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C76E4882-E64E-441F-A4CA-02A18BB1D7CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C76E4882-E64E-441F-A4CA-02A18BB1D7CC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
