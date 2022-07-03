@@ -16,7 +16,13 @@ namespace PlayGround.Controllers
             var db = new EF.DB();
 
             await db.Database.ExecuteSqlRawAsync("TRUNCATE TABLE Employees");
-            await db.Database.ExecuteSqlRawAsync("delete Departments");
+            // https://msdn.microsoft.com/en-us/library/ms176057(v=sql.120).aspx
+            // Current identity value is set to the new_reseed_value. If no rows have been inserted into the table since the table
+            // was created, or if all rows have been removed by using the TRUNCATE TABLE statement, the first row inserted after you
+            // run DBCC CHECKIDENT uses new_reseed_value as the identity.If rows are present in the table, or if all rows have been
+            // removed by using the DELETE statement, the next row inserted uses new_reseed_value +the current increment value.
+            await db.Database.ExecuteSqlRawAsync("INSERT INTO Departments (Name) VALUES ('dep')");
+            await db.Database.ExecuteSqlRawAsync("DELETE Departments");
             await db.Database.ExecuteSqlRawAsync("DBCC CHECKIDENT (Departments, RESEED, 0)");
 
             var departments = new string[] { "IT", "Finance", "HR", "Sales", "Marketing", "Customer Support" };
