@@ -37,6 +37,8 @@ namespace Test.NETCore
             var db = this.GetDBContext();
 
             await db.Database.ExecuteSqlRawAsync("TRUNCATE TABLE TestItems");
+
+            await db.Database.ExecuteSqlRawAsync("insert into Types (Name) values ('')");
             await db.Database.ExecuteSqlRawAsync("delete from Types");
 
             //SQL Server

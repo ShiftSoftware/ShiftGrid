@@ -7,42 +7,42 @@ namespace ShiftSoftware.ShiftGrid.Core
 {
     public static class Extensions
     {
-        public static Grid<T> ToShiftGrid<T>(this IQueryable<T> select, string stableSortField, SortDirection stableSortDirection = SortDirection.Ascending, GridConfig config = null)
+        public static Grid<T> ToShiftGrid<T>(this IQueryable<T> select, string stableSortField, SortDirection stableSortDirection = SortDirection.Ascending, GridConfig gridConfig = null)
         {
             return new Grid<T>
             {
                 StableSort = new GridSort { Field = stableSortField, SortDirection = stableSortDirection },
                 Select = select
-            }.Init(config);
+            }.Init(gridConfig);
         }
 
-        public static async Task<Grid<T>> ToShiftGridAsync<T>(this IQueryable<T> select, string stableSortField, SortDirection stableSortDirection = SortDirection.Ascending, GridConfig config = null)
+        public static async Task<Grid<T>> ToShiftGridAsync<T>(this IQueryable<T> select, string stableSortField, SortDirection stableSortDirection = SortDirection.Ascending, GridConfig gridConfig = null)
         {
             return await new Grid<T>
             {
                 StableSort = new GridSort { Field = stableSortField, SortDirection = stableSortDirection },
                 Select = select
-            }.InitAsync(config);
+            }.InitAsync(gridConfig);
         }
 
-        public static Grid<T> ToShiftGrid<T>(this SelectAndSummarySelectCombo<T> summarySelectCombo, string stableSortField, SortDirection stableSortDirection = SortDirection.Ascending, GridConfig config = null)
+        public static Grid<T> ToShiftGrid<T>(this SelectAndSummarySelectCombo<T> summarySelectCombo, string stableSortField, SortDirection stableSortDirection = SortDirection.Ascending, GridConfig gridConfig = null)
         {
             return new Grid<T>()
             {
                 StableSort = new GridSort { Field = stableSortField, SortDirection = stableSortDirection },
                 Select = summarySelectCombo.Select,
                 SummarySelect = summarySelectCombo.SummarySelect,
-            }.Init(config);
+            }.Init(gridConfig);
         }
 
-        public static async Task<Grid<T>> ToShiftGridAsync<T>(this SelectAndSummarySelectCombo<T> summarySelectCombo, string stableSortField, SortDirection stableSortDirection = SortDirection.Ascending, GridConfig config = null)
+        public static async Task<Grid<T>> ToShiftGridAsync<T>(this SelectAndSummarySelectCombo<T> summarySelectCombo, string stableSortField, SortDirection stableSortDirection = SortDirection.Ascending, GridConfig gridConfig = null)
         {
             return await new Grid<T>()
             {
                 StableSort = new GridSort { Field = stableSortField, SortDirection = stableSortDirection },
                 Select = summarySelectCombo.Select,
                 SummarySelect = summarySelectCombo.SummarySelect,
-            }.InitAsync(config);
+            }.InitAsync(gridConfig);
         }
 
         public class SelectAndSummarySelectCombo<T>

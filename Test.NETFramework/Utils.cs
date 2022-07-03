@@ -102,6 +102,9 @@ namespace Test.NETFramework
             var db = this.GetDBContext();
 
             await db.Database.ExecuteSqlCommandAsync("TRUNCATE TABLE TestItems");
+
+
+            await db.Database.ExecuteSqlCommandAsync("insert into Types (Name) values ('')");
             await db.Database.ExecuteSqlCommandAsync("delete from Types");
 
             //SQL Server

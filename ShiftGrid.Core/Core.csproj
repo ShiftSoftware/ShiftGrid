@@ -5,20 +5,23 @@
 		<Authors>Shift Software</Authors>
 		<Product>ShiftGrid Core</Product>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-		<Version>1.0.1</Version>
+		<Version>1.0.2</Version>
 		<AssemblyName>ShiftSoftware.ShiftGrid.Core</AssemblyName>
-
+		
 		<PackageId>ShiftSoftware.ShiftGrid.Core</PackageId>
 		<Authors>aza.asim,ShiftSoftware</Authors>
 		<Description>Data Grid adapter for Entity Framework and Entity Framework Core with support for Pagination, Sorting, Filtering, and Data Exporting.</Description>
 		<Copyright>Copyright (c) Shift Software 2022</Copyright>
-		<PackageProjectUrl>https://github.com/ShiftSoftware/ShiftGrid</PackageProjectUrl>
+		<PackageProjectUrl>https://shiftsoftware.github.io/ShiftGrid/</PackageProjectUrl>
 		<PackageIcon>icon.png</PackageIcon>
 		<RepositoryUrl>https://github.com/ShiftSoftware/ShiftGrid</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageTags>linq entity-framework netcore data-grid entity-framework-core datagrid netframework dynamic-linq pagination sorting filtering exporting</PackageTags>
 		<Title>ShiftGrid</Title>
-		<PackageReleaseNotes>Add Package License Expression</PackageReleaseNotes>
+		<PackageReleaseNotes>
+			-Renamed ('BeforeDataLoading' and 'AfterDataLoading') to ('BeforeLoadingData', 'AfterLoadingData')
+			-Hid some unnecessary props (Marked them as private).
+		</PackageReleaseNotes>
 		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
 	</PropertyGroup>
 	<ItemGroup>

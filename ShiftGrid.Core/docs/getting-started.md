@@ -1,3 +1,5 @@
+This guide will get you started quickly. Then dive into the docs to learn more.
+
 ### Installation
 
 The Core package ```ShiftSoftware.ShiftGrid.Core``` is available on [nuget.org](https://nuget.org).
@@ -24,7 +26,7 @@ using ShiftSoftware.ShiftGrid.Core;
 
 ### Basic Example
 
-This example shows the Grid being used in a Web API.
+This example shows the Shift Grid being used in a Web API.
 
 !!! info ""
     === "C# / Endpoint"

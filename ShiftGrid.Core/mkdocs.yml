@@ -18,6 +18,7 @@ nav:
     - Home: 'index.md'
     - Docs: 
         - Getting Started: 'getting-started.md'
+        - Reference: 'reference.md'
 extra_css:
   - overrides/css/extra.css
 extra:
@@ -35,6 +36,8 @@ markdown_extensions:
   - admonition
   - pymdownx.details
   - pymdownx.superfences
+  - tables
+  - pymdownx.mark
   - toc:
       permalink: true
   - pymdownx.tabbed:
