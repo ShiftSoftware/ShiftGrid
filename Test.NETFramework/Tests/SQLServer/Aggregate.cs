@@ -3,9 +3,9 @@
 namespace Test.NETFramework.Tests.SQLServer
 {
     [TestClass]
-    public class Summary : ShiftGrid.Test.Shared.Tests.Summary
+    public class Aggregate : ShiftGrid.Test.Shared.Tests.Aggregate
     {
-        public Summary() : base(typeof(EF.DB), new Utils(typeof(EF.DB)))
+        public Aggregate() : base(typeof(EF.DB), new Utils(typeof(EF.DB)))
         {
 
         }

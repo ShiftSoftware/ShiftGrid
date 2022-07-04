@@ -134,14 +134,14 @@
     <Compile Include="Tests\MySql\Filters.cs" />
     <Compile Include="Tests\MySql\Pagination.cs" />
     <Compile Include="Tests\MySql\Sort.cs" />
-    <Compile Include="Tests\MySql\Summary.cs" />
+    <Compile Include="Tests\MySql\Aggregate.cs" />
     <Compile Include="Tests\SQLServer\BasicTests.cs" />
     <Compile Include="Tests\SQLServer\ColumnOrder.cs" />
     <Compile Include="Tests\SQLServer\ColumnSelection.cs" />
     <Compile Include="Tests\SQLServer\Filters.cs" />
     <Compile Include="Tests\SQLServer\Pagination.cs" />
     <Compile Include="Tests\SQLServer\Sort.cs" />
-    <Compile Include="Tests\SQLServer\Summary.cs" />
+    <Compile Include="Tests\SQLServer\Aggregate.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>

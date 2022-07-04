@@ -269,14 +269,14 @@ namespace ShiftGrid.Test.Shared.Tests
                     TypeId = x.TypeId,
                     //Date = x.Date
                 })
-                .SelectSummary(x => new
+                .SelectAggregate(x => new
                 {
                     Count = x.Count(),
                     TotalID = x.Sum(y => y.ID),
                     TotalPrice = x.Sum(y => y.CalculatedPrice),
                     TotalMixed = x.Sum(y => y.CalculatedPrice * y.ID),
                     TotalMixed2 = x.Sum(y => y.CalculatedPrice) + x.Sum(y => y.CalculatedPrice),
-                    MaxID = x.Max(y => y.ID).ToString()
+                    MaxID = x.Max(y => y.ID)
                 })
                 .ToShiftGrid(nameof(TestItemView.ID), SortDirection.Ascending,
                 new GridConfig
@@ -290,7 +290,7 @@ namespace ShiftGrid.Test.Shared.Tests
                     }
                 });
 
-            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid.Summary, Newtonsoft.Json.Formatting.Indented));
+            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid.Aggregate, Newtonsoft.Json.Formatting.Indented));
 
             Console.WriteLine(string.Join(Environment.NewLine + Environment.NewLine + Environment.NewLine, this.Utils.Logs));
 
@@ -309,9 +309,9 @@ namespace ShiftGrid.Test.Shared.Tests
                 cols["Title"].Visible &&
                 cols["Type"].Visible &&
                 cols["Items"].Visible &&
-                shiftGrid.Summary["TotalPrice"] == null &&
-                shiftGrid.Summary["TotalMixed"] == null &&
-                shiftGrid.Summary["MaxID"].Equals("10")
+                shiftGrid.Aggregate.TotalPrice == null &&
+                shiftGrid.Aggregate.TotalMixed == null &&
+                shiftGrid.Aggregate.MaxID == 10
             );
         }
 
@@ -321,7 +321,7 @@ namespace ShiftGrid.Test.Shared.Tests
             public long TotalID { get; set; }
             public decimal? TotalPrice { get; set; }
             public decimal? TotalMixed { get; set; }
-            public string MaxID { get; set; }
+            public long MaxID { get; set; }
         }
 
         [TestMethod]
@@ -339,13 +339,13 @@ namespace ShiftGrid.Test.Shared.Tests
                     CalculatedPrice = x.Price,
                     TypeId = x.TypeId
                 })
-                .SelectSummary(x => new SummaryModel
+                .SelectAggregate(x => new SummaryModel
                 {
                     Count = x.Count(),
                     TotalID = x.Sum(y => y.ID),
                     TotalPrice = x.Sum(y => y.CalculatedPrice),
                     TotalMixed = x.Sum(y => y.CalculatedPrice * y.ID),
-                    MaxID = x.Max(y => y.ID).ToString()
+                    MaxID = x.Max(y => y.ID)
                 })
                 .ToShiftGrid(nameof(TestItemView.ID), SortDirection.Ascending,
                 new GridConfig
@@ -378,9 +378,9 @@ namespace ShiftGrid.Test.Shared.Tests
                 cols["Title"].Visible &&
                 cols["Type"].Visible &&
                 cols["Items"].Visible &&
-                shiftGrid.Summary["TotalPrice"] == null &&
-                shiftGrid.Summary["TotalMixed"] == null &&
-                shiftGrid.Summary["MaxID"].Equals("10") 
+                shiftGrid.Aggregate.TotalPrice == null &&
+                shiftGrid.Aggregate.TotalMixed == null &&
+                shiftGrid.Aggregate.MaxID == 10
             );
         }
     }

@@ -56,7 +56,7 @@ namespace ShiftGrid.Test.Shared.Tests
                 shiftGrid.Pagination.DataStart == 56 &&
                 shiftGrid.Pagination.DataEnd == 60 &&
 
-                shiftGrid.Summary["Count"].ToString() == "100" &&
+                shiftGrid.DataCount == 100 &&
 
                 shiftGrid.DataPageIndex == 11 &&
                 shiftGrid.DataPageSize == 5 &&
@@ -106,7 +106,7 @@ namespace ShiftGrid.Test.Shared.Tests
                 shiftGrid.Pagination.DataStart == 67 &&
                 shiftGrid.Pagination.DataEnd == 69 &&
 
-                shiftGrid.Summary["Count"].ToString() == "100" &&
+                shiftGrid.DataCount == 100 &&
 
                 shiftGrid.DataPageIndex == 22 &&
                 shiftGrid.DataPageSize == 3 &&
@@ -156,7 +156,7 @@ namespace ShiftGrid.Test.Shared.Tests
                 shiftGrid.Pagination.DataStart == 1 &&
                 shiftGrid.Pagination.DataEnd == 15 &&
 
-                shiftGrid.Summary["Count"].ToString() == "100" &&
+                shiftGrid.DataCount == 100 &&
 
                 shiftGrid.DataPageIndex == 0 &&
                 shiftGrid.DataPageSize == 15 &&
