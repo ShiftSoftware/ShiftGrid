@@ -161,14 +161,13 @@
     <Compile Include="Tests\MySql\Filters.cs" />
     <Compile Include="Tests\MySql\Pagination.cs" />
     <Compile Include="Tests\MySql\Sort.cs" />
-    <Compile Include="Tests\MySql\Summary.cs" />
     <Compile Include="Tests\Postgres\BasicTests.cs" />
     <Compile Include="Tests\Postgres\ColumnOrder.cs" />
     <Compile Include="Tests\Postgres\ColumnSelection.cs" />
     <Compile Include="Tests\Postgres\Filters.cs" />
     <Compile Include="Tests\Postgres\Pagination.cs" />
     <Compile Include="Tests\Postgres\Sort.cs" />
-    <Compile Include="Tests\Postgres\Summary.cs" />
+    <Compile Include="Tests\Postgres\Aggregate.cs" />
     <Compile Include="Tests\MySql\Aggregate.cs" />
     <Compile Include="Tests\SQLServer\BasicTests.cs" />
     <Compile Include="Tests\SQLServer\ColumnOrder.cs" />
