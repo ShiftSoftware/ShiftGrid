@@ -8,11 +8,11 @@ using System.Collections.Generic;
 
 namespace ShiftGrid.Test.Shared.Tests
 {
-    public class Summary
+    public class Aggregate
     {
         public System.Type DBType { get; set; }
         public Shared.Utils Utils { get; set; }
-        public Summary(System.Type type, Utils utils)
+        public Aggregate(System.Type type, Utils utils)
         {
             this.DBType = type;
             this.Utils = utils;
@@ -26,7 +26,7 @@ namespace ShiftGrid.Test.Shared.Tests
             var testItems = this.Utils.GetTestItems();
 
             var shiftGrid = testItems
-            .SelectSummary(x => new
+            .SelectAggregate(x => new
             {
                 Count = x.Count(),
                 TotalPrice = x.Sum(y => y.Price)
@@ -36,8 +36,8 @@ namespace ShiftGrid.Test.Shared.Tests
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid, Newtonsoft.Json.Formatting.Indented));
 
             Assert.IsTrue(
-                int.Parse(shiftGrid.Summary["Count"].ToString()) == 100 &&
-                decimal.Parse(shiftGrid.Summary["TotalPrice"].ToString()) == 50500m
+                shiftGrid.Aggregate.Count == 100 &&
+                shiftGrid.Aggregate.TotalPrice == 50500m
             );
         }
 
@@ -53,7 +53,7 @@ namespace ShiftGrid.Test.Shared.Tests
                 {
                     NewPrice = 10m * x.Price
                 })
-                .SelectSummary(x => new
+                .SelectAggregate(x => new
                 {
                     Count = x.Count(),
                     TotalPrice = x.Sum(y => y.NewPrice)
@@ -63,8 +63,8 @@ namespace ShiftGrid.Test.Shared.Tests
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid, Newtonsoft.Json.Formatting.Indented));
 
             Assert.IsTrue(
-                int.Parse(shiftGrid.Summary["Count"].ToString()) == 100 &&
-                decimal.Parse(shiftGrid.Summary["TotalPrice"].ToString()) == 505000m &&
+                shiftGrid.Aggregate.Count == 100 &&
+                shiftGrid.Aggregate.TotalPrice == 505000m &&
                 this.Utils.Logs.Count == 2
             );
         }
@@ -81,7 +81,7 @@ namespace ShiftGrid.Test.Shared.Tests
                 {
                     NewPrice = 10m * x.Price
                 })
-                .SelectSummary(x => new
+                .SelectAggregate(x => new
                 {
                     Count = x.Count(),
                     TotalPrice = x.Sum(y => y.NewPrice)
@@ -106,8 +106,8 @@ namespace ShiftGrid.Test.Shared.Tests
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid, Newtonsoft.Json.Formatting.Indented));
 
             Assert.IsTrue(
-                int.Parse(shiftGrid.Summary["Count"].ToString()) == 9 &&
-                decimal.Parse(shiftGrid.Summary["TotalPrice"].ToString()) == 76500m &&
+                shiftGrid.Aggregate.Count == 9 &&
+                shiftGrid.Aggregate.TotalPrice == 76500m &&
                 this.Utils.Logs.Count == 2
             );
         }
@@ -124,7 +124,7 @@ namespace ShiftGrid.Test.Shared.Tests
                 {
                     NewPrice = 10m * x.Price
                 })
-                .SelectSummary(x => new
+                .SelectAggregate(x => new
                 {
                     Count = x.Count(),
                     TotalPrice = x.Sum(y => y.NewPrice)
@@ -149,8 +149,8 @@ namespace ShiftGrid.Test.Shared.Tests
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid, Newtonsoft.Json.Formatting.Indented));
 
             Assert.IsTrue(
-                int.Parse(shiftGrid.Summary["Count"].ToString()) == 0 &&
-                shiftGrid.Summary["TotalPrice"] == null
+                shiftGrid.Aggregate?.Count == null &&
+                shiftGrid.Aggregate?.TotalPrice == null
             );
         }
 
@@ -166,7 +166,7 @@ namespace ShiftGrid.Test.Shared.Tests
                 {
                     NewPrice = 10m * x.Price
                 })
-                .SelectSummary(x => new
+                .SelectAggregate(x => new
                 {
                     Count = x.Count(),
                     TotalPrice = x.Sum(y => y.NewPrice.Value)
@@ -191,8 +191,8 @@ namespace ShiftGrid.Test.Shared.Tests
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid, Newtonsoft.Json.Formatting.Indented));
 
             Assert.IsTrue(
-                int.Parse(shiftGrid.Summary["Count"].ToString()) == 0 &&
-                decimal.Parse(shiftGrid.Summary["TotalPrice"].ToString()) == 0m
+                shiftGrid.Aggregate?.Count == null &&
+                shiftGrid.Aggregate?.TotalPrice == null
             );
         }
 
@@ -208,7 +208,7 @@ namespace ShiftGrid.Test.Shared.Tests
                 {
                     NewPrice = 10m * x.Price
                 })
-                .SelectSummary(x => new
+                .SelectAggregate(x => new
                 {
                     TotalPrice = x.Sum(y => y.NewPrice)
                 })
@@ -232,8 +232,8 @@ namespace ShiftGrid.Test.Shared.Tests
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid, Newtonsoft.Json.Formatting.Indented));
 
             Assert.IsTrue(
-                int.Parse(shiftGrid.Summary["Count"].ToString()) == 9 &&
-                decimal.Parse(shiftGrid.Summary["TotalPrice"].ToString()) == 76500m &&
+                //shiftGrid.Aggregate.Count == 9 &&
+                shiftGrid.Aggregate.TotalPrice == 76500m &&
                 this.Utils.Logs.Count == 3
             );
         }

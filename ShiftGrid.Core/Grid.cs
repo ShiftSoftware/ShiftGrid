@@ -10,15 +10,15 @@ using System.Linq.Expressions;
 
 namespace ShiftSoftware.ShiftGrid.Core
 {
-    public class Grid<T>
+    public class Grid<T, T2>
     {
         #region Public Props
 
         public int DataPageIndex { get; set; }
         public int DataPageSize { get; set; }
-        public int DataCount { get; set; }
+        public int DataCount { get; set; } = -1;
         public List<T> Data { get; set; }
-        public Dictionary<string, object> Summary { get; set; }
+        public T2 Aggregate { get; set; }
         public List<GridSort> Sort { get; set; }
         public GridSort StableSort { get; set; }
         public List<GridFilter> Filters { get; set; }
@@ -74,23 +74,20 @@ namespace ShiftSoftware.ShiftGrid.Core
 
         private ExportConfig ExportConfig { get; set; }
         internal IQueryable<T> Select { get; set; }
-        internal Expression<Func<IGrouping<int, T>, object>> SummarySelect { get; set; }
-        private IQueryable ProccessedSelect { get; set; }
-        private IQueryable<T> SummaryProcessedSelect { get; set; }
-        //private List<GridColumn> TypeColumns { get; set; }
+        internal Expression<Func<IGrouping<int, T>, T2>> AggregateSelect { get; set; }
+        private IQueryable<T> ProccessedSelect { get; set; }
         private bool ExportMode { get; set; }
 
         #endregion
 
         #region Private & Internal Methods
-        internal Grid<T> Init(GridConfig payload = null)
+        internal Grid<T, T2> Init(GridConfig payload = null)
         {
             this.GridConfig = payload;
 
             this.Prepare(payload);
             this.GenerateQuery();
-            this.LoadSummary();
-            this.EnsureSummary();
+            this.LoadAggregate();
             this.ProcessPagination();
 
             this.BeforeLoadingData = DateTime.UtcNow;
@@ -100,14 +97,13 @@ namespace ShiftSoftware.ShiftGrid.Core
             this.GenerateColumns();
             return this;
         }
-        internal async Task<Grid<T>> InitAsync(GridConfig payload = null)
+        internal async Task<Grid<T, T2>> InitAsync(GridConfig payload = null)
         {
             this.GridConfig = payload;
 
             this.Prepare(payload);
             this.GenerateQuery();
-            await this.LoadSummaryAsync();
-            this.EnsureSummary();
+            await this.LoadAggregateAsync();
             this.ProcessPagination();
 
             this.BeforeLoadingData = DateTime.UtcNow;
@@ -193,8 +189,8 @@ namespace ShiftSoftware.ShiftGrid.Core
                 else
                     this.Select = new ColumnRemover<T>(this.Select).RemoveColumns(hiddenColumns);
 
-                if (this.SummarySelect != null)    
-                    this.SummarySelect = new SummaryColumnRemover<T>(this.SummarySelect).RemoveColumns(hiddenColumns);
+                if (this.AggregateSelect != null)    
+                    this.AggregateSelect = new AggregateColumnRemover<T, T2>(this.AggregateSelect).RemoveColumns(hiddenColumns);
             }
 
             var select = this.Select.Where("1=1");
@@ -270,8 +266,6 @@ namespace ShiftSoftware.ShiftGrid.Core
 
                 select = select.Where(expression, values.ToArray());
             }
-
-            this.SummaryProcessedSelect = select;
 
             //IQueryable newSelect = new ColumnRemover(this.Select)
             //    .RemoveColumns(
@@ -379,57 +373,49 @@ namespace ShiftSoftware.ShiftGrid.Core
 
             this.Columns = dataTypeColumns.OrderBy(x => x.Order).ToList();
         }
-        private void LoadSummary()
+        private void LoadAggregate()
         {
             if (this.ExportMode)
                 return;
 
-            if (this.SummarySelect != null)
+            if (this.AggregateSelect != null)
             {
-                var summary = this.GetGroupedSummary().ToDynamicList().FirstOrDefault();
-                this.ProcessSummary(ref summary);
+                var aggregate = GetGroupedAggregate().ToDynamicList().Cast<T2>().FirstOrDefault();
+
+                this.Aggregate = aggregate;
             }
         }
-        private async Task LoadSummaryAsync()
+        private async Task LoadAggregateAsync()
         {
             if (this.ExportMode)
                 return;
 
-            if (this.SummarySelect != null)
+            if (this.AggregateSelect != null)
             {
-                var summary = (await this.GetGroupedSummary().ToDynamicListAsync()).FirstOrDefault();
-                this.ProcessSummary(ref summary);
+                var aggregate = (await GetGroupedAggregate().ToDynamicListAsync()).Cast<T2>().FirstOrDefault();
+
+                this.Aggregate = aggregate;
             }
         }
-        private void ProcessSummary(ref object summary)
+       
+        private IQueryable<T2> GetGroupedAggregate()
         {
-            this.Summary = new Dictionary<string, object> { };
-
-            foreach (var property in SummarySelect.Body.Type.GetProperties().Where(x => x.MemberType == System.Reflection.MemberTypes.Property).ToList())
-            {
-                var summaryProperty = summary == null ? null : (summary as object).GetType().GetProperties().Where(x => x.MemberType == System.Reflection.MemberTypes.Property && x.Name == property.Name).FirstOrDefault();
-
-                this.Summary[property.Name] = summaryProperty == null ? Activator.CreateInstance(property.PropertyType) : summaryProperty.GetValue(summary);
-            }
+            return this.ProccessedSelect.GroupBy(x => Math.Abs(1)).Select(this.AggregateSelect);
         }
-        private IQueryable<object> GetGroupedSummary()
-        {
-            return this.SummaryProcessedSelect.GroupBy(x => Math.Abs(1)).Select(this.SummarySelect);
-        }
-        private void EnsureSummary()
-        {
-            if (this.Summary == null)
-                this.Summary = new Dictionary<string, object> { };
 
-            if (!this.Summary.Keys.Contains("Count") && !this.ExportMode)
-                this.Summary["Count"] = this.ProccessedSelect.Count();
-        }
         private void ProcessPagination()
         {
             if (this.ExportMode)
                 return;
 
-            this.DataCount = (int) this.Summary["Count"];
+            if (!this.ExportMode)
+            {
+                if (this.Aggregate == null || !this.Aggregate.GetType().GetProperties().Any(x => x.Name == "Count"))
+                    this.DataCount = this.ProccessedSelect.Count();
+            }
+
+            if (this.DataCount < 0)
+                this.DataCount = (int)this.Aggregate.GetType().GetProperties().FirstOrDefault(x => x.Name == "Count")?.GetValue(this.Aggregate);
 
             //Show All
             if (this.DataPageSize == -1)

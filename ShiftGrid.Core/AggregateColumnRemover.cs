@@ -6,21 +6,21 @@ using System.Text;
 
 namespace ShiftSoftware.ShiftGrid.Core
 {
-    internal class SummaryColumnRemover<T> : ExpressionVisitor
+    internal class AggregateColumnRemover<T, T2> : ExpressionVisitor
     {
-        internal Expression<Func<IGrouping<int, T>, object>> Query { get; set; }
+        internal Expression<Func<IGrouping<int, T>, T2>> Query { get; set; }
         private List<string> ColumnsToRemove;
 
-        public SummaryColumnRemover(Expression<Func<IGrouping<int, T>, object>> query)
+        public AggregateColumnRemover(Expression<Func<IGrouping<int, T>, T2>> query)
         {
             this.Query = query;
         }
 
-        public Expression<Func<IGrouping<int, T>, object>> RemoveColumns(List<string> columnsToRemove)
+        public Expression<Func<IGrouping<int, T>, T2>> RemoveColumns(List<string> columnsToRemove)
         {
             this.ColumnsToRemove = columnsToRemove;
             
-            var expression = this.Visit(this.Query) as Expression<Func<IGrouping<int, T>, object>>;
+            var expression = this.Visit(this.Query) as Expression<Func<IGrouping<int, T>, T2>>;
 
             //System.Diagnostics.Debug.WriteLine(expression);
 
