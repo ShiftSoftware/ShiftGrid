@@ -73,6 +73,8 @@ namespace Test.NETFramework
 
             else if (this.DBType == typeof(DB))
                 return new DB();
+            else if (this.DBType == typeof(PostgresDB))
+                return new PostgresDB();
 
             return null;
         }
@@ -100,12 +102,22 @@ namespace Test.NETFramework
         public async Task DeleteAll()
         {
             var db = this.GetDBContext();
+            if (this.DBType == typeof(PostgresDB))
+            {
+                await db.Database.ExecuteSqlCommandAsync("TRUNCATE TABLE dbo.\"TestItems\" RESTART IDENTITY");
 
-            await db.Database.ExecuteSqlCommandAsync("TRUNCATE TABLE TestItems");
+                await db.Database.ExecuteSqlCommandAsync("INSERT INTO dbo.\"Types\"(\"Name\") values ('')");
+                await db.Database.ExecuteSqlCommandAsync("TRUNCATE TABLE dbo.\"Types\" RESTART IDENTITY CASCADE");
+            }
+            else
+            {
+                await db.Database.ExecuteSqlCommandAsync("TRUNCATE TABLE TestItems");
 
+                await db.Database.ExecuteSqlCommandAsync("insert into Types (Name) values ('')");
+                await db.Database.ExecuteSqlCommandAsync("delete from Types");
+            }
 
-            await db.Database.ExecuteSqlCommandAsync("insert into Types (Name) values ('')");
-            await db.Database.ExecuteSqlCommandAsync("delete from Types");
+            
 
             //SQL Server
             if (db.GetType() == typeof(EF.DB))
@@ -117,6 +129,7 @@ namespace Test.NETFramework
             {
                 await db.Database.ExecuteSqlCommandAsync("ALTER TABLE Types AUTO_INCREMENT = 1");
             }
+
         }
 
         public async Task InsertTypes()

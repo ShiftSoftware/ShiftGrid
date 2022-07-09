@@ -28,6 +28,8 @@ namespace Test.NETCore
 
             else if (this.DBType == typeof(DB))
                 return new DB();
+            else if (this.DBType == typeof(PostgresDB))
+                return new PostgresDB();
 
             return null;
         }
@@ -35,11 +37,22 @@ namespace Test.NETCore
         public async Task DeleteAll()
         {
             var db = this.GetDBContext();
+            if (db.GetType() == typeof(EF.PostgresDB))
+            {
+                await db.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"TestItems\" RESTART IDENTITY");
 
-            await db.Database.ExecuteSqlRawAsync("TRUNCATE TABLE TestItems");
+                await db.Database.ExecuteSqlRawAsync("INSERT INTO \"Types\"(\"Name\") values ('')");
+                await db.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"Types\" RESTART IDENTITY CASCADE");
+            }
+            else
+            {
+                await db.Database.ExecuteSqlRawAsync("TRUNCATE TABLE TestItems");
 
-            await db.Database.ExecuteSqlRawAsync("insert into Types (Name) values ('')");
-            await db.Database.ExecuteSqlRawAsync("delete from Types");
+                await db.Database.ExecuteSqlRawAsync("insert into Types (Name) values ('')");
+                await db.Database.ExecuteSqlRawAsync("delete from Types");
+            }
+
+            
 
             //SQL Server
             if (db.GetType() == typeof(EF.DB))
@@ -51,6 +64,11 @@ namespace Test.NETCore
             {
                 await db.Database.ExecuteSqlRawAsync("ALTER TABLE Types AUTO_INCREMENT = 1");
             }
+            //Posgres
+            /*else if (db.GetType() == typeof(EF.PostgresDB))
+            {
+                await db.Database.ExecuteSqlRawAsync("TRUNCATE TABLE \"Types\" RESTART IDENTITY;");
+            }*/
         }
 
         public IQueryable<TestItem>? GetTestItems()
@@ -68,7 +86,7 @@ namespace Test.NETCore
 
             var testItems = new Tools().GenerateTestItems(payload);
 
-            db.TestItems.AddRange(testItems);
+                db.TestItems.AddRange(testItems);
 
             await db.SaveChangesAsync();
         }
@@ -97,7 +115,7 @@ namespace Test.NETCore
                 {
                     Code = "Code",
                     Title = "Title",
-                    Date = DateTime.Now,
+                    Date = DateTime.UtcNow,
                     Price = 10m,
                 },
                 Increments = new Increments
@@ -118,7 +136,7 @@ namespace Test.NETCore
                     {
                         Code = "Sub Code",
                         Title = "Sub Title",
-                        Date = DateTime.Now,
+                        Date = DateTime.UtcNow,
                         Price = 10m
                     },
                     Increments = new Increments

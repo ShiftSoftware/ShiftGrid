@@ -22,7 +22,7 @@ namespace ShiftGrid.Test.Shared.Tests
         [TestMethod]
         public async Task BasicInsertTest()
         {
-            await this.Utils.PopulateTestData(100, 6);
+                    await this.Utils.PopulateTestData(100, 6);
 
             var testItems = this.Utils.GetTestItems();
 
@@ -151,7 +151,7 @@ namespace ShiftGrid.Test.Shared.Tests
                 }
             });
 
-            var data = shiftGrid.ToCSVString();
+            var data = shiftGrid.ToCSVString(); 
 
             Console.WriteLine(data);
 
