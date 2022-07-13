@@ -246,5 +246,43 @@ namespace PlayGround.Controllers
 
             return Ok(csvString);
         }
+
+        [HttpPost("stable-sort")]
+        public async Task<ActionResult> StableSort()
+        {
+            var db = new DB();
+
+            var shiftGrid =
+                await db
+                .Employees
+                .ToShiftGridAsync("ID", SortDirection.Ascending);
+
+            return Ok(db.Logs);
+        }
+
+        [HttpPost("stable-sort-with-another-sort")]
+        public async Task<ActionResult> StableSortWithAnotherSort()
+        {
+            var db = new DB();
+
+            var shiftGrid =
+                await db
+                .Employees
+                .ToShiftGridAsync(
+                "ID",
+                SortDirection.Ascending,
+                new GridConfig
+                {
+                    Sort = new List<GridSort> {
+                        new GridSort
+                        {
+                            Field = nameof(Employee.Birthdate),
+                            SortDirection = SortDirection.Descending
+                        }
+                    }
+                });
+
+            return Ok(db.Logs);
+        }
     }
 }
