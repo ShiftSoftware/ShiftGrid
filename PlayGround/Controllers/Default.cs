@@ -174,5 +174,77 @@ namespace PlayGround.Controllers
             //It's better to use nameof. When targetting fields in Filters and Columns.
             return Ok(shiftGrid);
         }
+
+        [FileHelpers.DelimitedRecord(",")]
+        public class EmployeeCSV
+        {
+            [FileHelpers.FieldCaption("Employee ID")]
+            public long ID { get; set; }
+
+            [FileHelpers.FieldCaption("Full Name")]
+            public string FullName { get; set; }
+
+            [FileHelpers.FieldCaption("Age")]
+            public int? Age { get; set; }
+        }
+
+        [HttpGet("export")]
+        public async Task<ActionResult> Export()
+        {
+            var db = new DB();
+
+            var DbF = Microsoft.EntityFrameworkCore.EF.Functions;
+
+            var shiftGrid =
+                await db
+                .Employees
+                .Select(x => new EmployeeCSV
+                {
+                    ID = x.ID,
+                    FullName = x.FirstName + " " + x.LastName,
+                    Age = DbF.DateDiffYear(x.Birthdate, DateTime.Now)
+                })
+                .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig
+                {
+                    ExportConfig = new ExportConfig
+                    {
+                        Export = true,
+                    }
+                });
+
+            var stream = shiftGrid.ToCSVStream();
+
+            return File(stream.ToArray(), "text/csv");
+        }
+
+        [HttpGet("export-string")]
+        public async Task<ActionResult> ExportString()
+        {
+            var db = new DB();
+
+            var DbF = Microsoft.EntityFrameworkCore.EF.Functions;
+
+            var shiftGrid =
+                await db
+                .Employees
+                .Select(x => new EmployeeCSV
+                {
+                    ID = x.ID,
+                    FullName = x.FirstName + " " + x.LastName,
+                    Age = DbF.DateDiffYear(x.Birthdate, DateTime.Now)
+                })
+                .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig
+                {
+                    ExportConfig = new ExportConfig
+                    {
+                        Export = true,
+                        Delimiter = "|"
+                    }
+                });
+
+            var csvString = shiftGrid.ToCSVString();
+
+            return Ok(csvString);
+        }
     }
 }

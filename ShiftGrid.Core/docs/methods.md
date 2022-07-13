@@ -82,3 +82,94 @@ public async Task<ActionResult> Aggregate([FromBody] GridConfig gridConfig)
         }
     ```
     
+
+
+### ToCSVStream
+When the ``Export`` flag on [ExportConfig](/reference/#exportconfig) is set to true. This method ``ToCSVStream()`` can be used to export the entire data (Unpaginated) to a stream.
+
+Here's an example:
+``` C#
+[HttpGet("export")]
+public async Task<ActionResult> Export()
+{
+    var db = new DB();
+
+    var DbF = Microsoft.EntityFrameworkCore.EF.Functions;
+
+    var shiftGrid =
+        await db
+        .Employees
+        .Select(x => new EmployeeCSV
+        {
+            ID = x.ID,
+            FullName = x.FirstName + " " + x.LastName,
+            Age = DbF.DateDiffYear(x.Birthdate, DateTime.Now)
+        })
+        .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig
+        {
+            ExportConfig = new ExportConfig
+            {
+                Export = true,
+            }
+        });
+
+    var stream = shiftGrid.ToCSVStream();
+
+    return File(stream.ToArray(), "text/csv");
+}
+```
+
+### ToCSVString
+Identical to [ToCSVStream](#tocsvstream). But this will export the data to a ``String`` instead of a ``Stream``.
+Here's an example for that. Note the Delimiter is changed to ``|`` in this example.
+``` C#
+[HttpGet("export-string")]
+public async Task<ActionResult> ExportString()
+{
+    var db = new DB();
+
+    var DbF = Microsoft.EntityFrameworkCore.EF.Functions;
+
+    var shiftGrid =
+        await db
+        .Employees
+        .Select(x => new EmployeeCSV
+        {
+            ID = x.ID,
+            FullName = x.FirstName + " " + x.LastName,
+            Age = DbF.DateDiffYear(x.Birthdate, DateTime.Now)
+        })
+        .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig
+        {
+            ExportConfig = new ExportConfig
+            {
+                Export = true,
+                Delimiter = "|"
+            }
+        });
+
+    var csvString = shiftGrid.ToCSVString();
+
+    return Ok(csvString);
+}
+```
+
+!!! note
+
+    We're using the [`FileHelpers`](https://www.filehelpers.net/) for exporting data to CSV.  
+       
+    In the above example we're using a class named ``EmployeeCSV``. Note how the class and the fields are decorated by custom attributes from ``FileHelpers`.
+    ``` C#
+    [FileHelpers.DelimitedRecord(",")]
+    public class EmployeeCSV
+    {
+        [FileHelpers.FieldCaption("Employee ID")]
+        public long ID { get; set; }
+
+        [FileHelpers.FieldCaption("Full Name")]
+        public string FullName { get; set; }
+
+        [FileHelpers.FieldCaption("Age")]
+        public int? Age { get; set; }
+    }
+    ```

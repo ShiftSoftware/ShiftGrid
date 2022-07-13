@@ -2,7 +2,7 @@
 
 ### Grid
 
-The ``Grid`` (``ShiftSoftware.ShiftGrid.Core.Grid``) can be initialized by calling the ``ToShiftGridAsync`` or ``ToShiftGrid`` extension methods on an ``IQueryable``.  
+The ``Grid`` (``ShiftSoftware.ShiftGrid.Core.Grid``) can be initialized by calling the [ToShiftGridAsync](/methods/#toshiftgridasync-toshiftgrid) or [ToShiftGrid](/methods/#toshiftgridasync-toshiftgrid) extension methods on an ``IQueryable``.  
      
 The ``Grid`` contains below properties.
 
@@ -12,7 +12,7 @@ The ``Grid`` contains below properties.
 | `DataPageSize`             | `int` <br/> The Number of Items (Or number of rows) per Page. |
 | `DataCount`                | `int` <br/> The total count of the data (The Unpaginated Count). |
 | `Data`                     | `List<T>` <br/> This is the actual data that's fetched from Database.<br/>  |
-| `Aggregate`                | `T2` <br/> Aggregated Data. This is available if [SelectAggregate](#SelectAggregate) extension method is used. |
+| `Aggregate`                | `T2` <br/> Aggregated Data. This is available if [SelectAggregate](/methods/#selectaggregate) extension method is used. |
 | `Sort`                     | `List<GridSort>` <br/> The list of Fields that the Data is sorted by.<br/>  |
 | `StableSort`               | `GridSort` <br/> The mandatory Stable Sort that the data is sorted by.<br/> [Learn more about Stable Sorting](/philosophy/#stable-sort) |
 | `Filters`                  | `List<GridFilter>` <br/> The list of filters that the data is filtered by. |
