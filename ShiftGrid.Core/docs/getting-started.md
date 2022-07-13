@@ -2,7 +2,7 @@ This guide will get you started quickly. Then dive into the docs to learn more.
 
 ### Installation
 
-The Core package ```ShiftSoftware.ShiftGrid.Core``` is available on [nuget.org](https://nuget.org).
+The Core package ```ShiftSoftware.ShiftGrid.Core``` is available on [nuget.org](https://www.nuget.org/packages/ShiftSoftware.ShiftGrid.Core).
 
 === "Package Manager Console"
     ```
@@ -19,7 +19,7 @@ The Core package ```ShiftSoftware.ShiftGrid.Core``` is available on [nuget.org](
 
 ### Usage (Import)
 
-**Shift Grid** provides extention methods to ```IQueryable```. You need to import it via the ```using``` statement to access the methods.
+**Shift Grid** provides extension methods to ```IQueryable```. You need to import it via the ```using``` statement to access the extension methods.
 ``` C#
 using ShiftSoftware.ShiftGrid.Core;
 ```
@@ -74,14 +74,14 @@ This example shows the Shift Grid being used in a Web API.
             "dataPageSize": 5,
             "dataCount": 1000,
             "data": [...],
-            "summary": {...},
+            "aggregate": null,
             "sort": [...],
             "stableSort": {...},
             "filters": [],
             "columns": [...],
             "pagination": {...},
-            "beforeLoadingData": "2022-06-03T07:04:03.066889Z",
-            "afterLoadingData": "2022-06-03T07:04:03.0678893Z"
+            "beforeLoadingData": "2022-07-13T07:31:05.8462685Z",
+            "afterLoadingData": "2022-07-13T07:31:05.8474664Z"
         }
         ```
         Objects and Arrays are omitted here so you can see the entire JSON in one preview. See the next tab for the full response.
@@ -133,9 +133,7 @@ This example shows the Shift Grid being used in a Web API.
                     "department": null
                 }
             ],
-            "summary": {
-                "Count": 1000
-            },
+            "aggregate": null,
             "sort": [
                 {
                     "field": "ID",
@@ -197,8 +195,8 @@ This example shows the Shift Grid being used in a Web API.
                 "dataStart": 1,
                 "dataEnd": 5
             },
-            "beforeLoadingData": "2022-06-03T07:04:03.066889Z",
-            "afterLoadingData": "2022-06-03T07:04:03.0678893Z"
+            "beforeLoadingData": "2022-07-13T07:31:05.8462685Z",
+            "afterLoadingData": "2022-07-13T07:31:05.8474664Z"
         }
         ```
         &nbsp;

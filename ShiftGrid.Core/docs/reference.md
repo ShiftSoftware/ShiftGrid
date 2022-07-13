@@ -1,35 +1,37 @@
 ﻿The Shift Grid fetches data and prepares it in a format that can be easily integrated into a Data Table.
 
-### ShiftGrid
+### Grid
 
-The ``ShiftGrid`` can be initialized by calling the ``ToShiftGridAsync`` or ``ToShiftGrid`` extention methods on an ``IQueryable`` and contains below properties.
+The ``Grid`` (``ShiftSoftware.ShiftGrid.Core.Grid``) can be initialized by calling the ``ToShiftGridAsync`` or ``ToShiftGrid`` extension methods on an ``IQueryable``.  
+     
+The ``Grid`` contains below properties.
 
 | Property                   | Description                                                                                          |
 | ----------------------     | ---------------------------------------------------------------------------------------------------- |
 | `DataPageIndex`            | `int` <br/> The current page index of the paginated data. |
-| `DataPageSize`             | `int` <br/> The current the Page Size (Or number of rows per page). |
+| `DataPageSize`             | `int` <br/> The Number of Items (Or number of rows) per Page. |
 | `DataCount`                | `int` <br/> The total count of the data (The Unpaginated Count). |
 | `Data`                     | `List<T>` <br/> This is the actual data that's fetched from Database.<br/>  |
-| `Summary`                  | `Dictionary<string, object>` <br/> Aggregated Data if any. It contains "Count" by default. Which is same as `DataCount` <br/> [Learn more about summary](/summary)  |
+| `Aggregate`                | `T2` <br/> Aggregated Data. This is available if [SelectAggregate](#SelectAggregate) extension method is used. |
 | `Sort`                     | `List<GridSort>` <br/> The list of Fields that the Data is sorted by.<br/>  |
 | `StableSort`               | `GridSort` <br/> The mandatory Stable Sort that the data is sorted by.<br/> [Learn more about Stable Sorting](/philosophy/#stable-sort) |
 | `Filters`                  | `List<GridFilter>` <br/> The list of filters that the data is filtered by. |
 | `Columns`                  | `List<GridColumn>` <br/> The column defnition of the Dataset that contains below:<br/> `HeaderText`, `Field`, `Visible`, and `Order`.  |
 | `Pagination`               | `GridPagination` <br/> Information about the pagination area.  |
-| `BeforeLoadingData`        | `DateTime` <br/> The timestamp just before making the database call(s)  |
-| `AfterLoadingData`        | `DateTime` <br/> The timestamp just after the data is finished loading from database  |
+| `BeforeLoadingData`        | `DateTime` (UTC) <br/> The timestamp just before making the database call(s)  |
+| `AfterLoadingData`        | `DateTime` (UTC) <br/> The timestamp just after the data is finished loading from database  |
 
 ### GridConfig
-The ``ToShiftGridAsync`` and ``ToShiftGrid`` extention methods accept a `GridConfig`.
-This is used to control the Grid. Like setting the page size, index, sorting, filter ...etc. Below are the properties.<br/>
+The ``ToShiftGridAsync`` and ``ToShiftGrid`` extension methods accept a `GridConfig`.
+This is used to control the Grid. Like setting the page size, index, sorting, filters ...etc. Below are the properties.<br/>
 
 | Property                   | Description                                                                                          |
 | ----------------------     | ---------------------------------------------------------------------------------------------------- |
 | `DataPageIndex`            | `int` <br/> Sets the page index of the paginated data.  |
-| `DataPageSize`             | `int` <br/> Sets the Page Size (Or number of rows per page) that's fetched from the Database. <br/> Defaults to `20` |
+| `DataPageSize`             | `int` <br/> Sets the Page Size (Or number of items/rows per page) that's fetched from the Database. <br/> Defaults to `20` |
 | `Sort`                     | `List<GridSort>` <br/> A list of Fields to sort the Data by. The order of the items in the list is important. It'll be passed to the database in the same order.<br/>  |
 | `Filters`                  | `List<GridFilter>` <br/> A list of filters to filter the Data by. |
-| `Columns`                  | `List<GridColumn>` <br/> Mainly used to hide fields (Set Visible to false). <br/> This will also exclude it in the SQL, and if there are table joins the joining will be omitted.  |
+| `Columns`                  | `List<GridColumn>` <br/> Mainly used to hide fields (Set Visible to false). <br/> Hidden fields are also excluded it in the SQL Query. And if there are table joins, the joining will be omitted.  |
 | `Pagination`               | `PaginationConfig` <br/> Adjusts the pagination area.  |
 | `ExportConfig`             | `ExportConfig` <br/> Can be used to set the Export flag and the CSV Delimiter.  |
 
@@ -49,7 +51,7 @@ We use [`System.Linq.Dynamic.Core`](https://dynamic-linq.net/) under the hood fo
 | ----------------------     | ---------------------------------------------------------------------------------------------------- |
 | `Field`                    | `string` <br/> The field that the filter is applied on.  |
 | `Operator`                 | `string` <br/> The filter operator. Can be one of the below:<br/> `=`, `!=`, `>`, `>=`, `<`, `<=`, `Contains`, `In`, `NotIn`, `StartsWith`, `EndsWith` |
-| `Value`                    | `object` <br/> The value or the (search term). |
+| `Value`                    | `object` <br/> The value for filtering (or the search term). |
 | `OR`                       | `List<GridFilter>` <br/> A list of `GridFilter` that will be `OR`ed with the crreunt filter. |
 
 ### GridColumn
@@ -63,7 +65,7 @@ We use [`System.Linq.Dynamic.Core`](https://dynamic-linq.net/) under the hood fo
 
 ### GridPagination
 
-This is purely there to help the client while setting up the pagination area. You might ignore this and rely on `DataPageIndex`, `DataPageSize`, `DataCount` from the [`ShiftGrid`](#shiftgrid).   
+This is purely there to help the client while setting up the pagination area. You might ignore this and rely on `DataPageIndex`, `DataPageSize`, `DataCount` from the [`Grid`](#grid).   
    
 Sometimes, the number of rows might be too large that the pagination area itself should be paginated. See the below as an example:
 
@@ -77,7 +79,7 @@ Sometimes, the number of rows might be too large that the pagination area itself
 
 !!! note "Example"
 
-    In this example, there are `1,000` rows, `20` rows are show per page, and the current active page index is `12`.
+    In this example, there are `1,000` rows, `20` rows are shown per page, and the current active page index is `12`.
     
     <button class="md-button">First Page (1)</button>
     <button class="md-button">< Previous</button>
@@ -91,20 +93,20 @@ Sometimes, the number of rows might be too large that the pagination area itself
 
     Showing [241 to 260] from [1,000]
 
-Below are the properties of `GridPagination`
+Below are the properties of the `GridPagination` according to the example.
 
 | Property                   | Description                                                                                          |
 | ----------------------     | ---------------------------------------------------------------------------------------------------- |
 | `Count`                    | `int` <br/> Number of Pages. In the above example, there are `1,000` rows and the page size is `20`. So the `Count` is `50`. |
 | `PageSize`                 | `int` <br/> How many items (Buttons or Links) are shown per page (In the pagination area). <br/> In the above example, the `PageSize` is `5`. <br/> ==Not to be confused with `DataPageSize`== |
-| `PageStart`                | `int` <br/> The first item (PageIndex) in the page. <br/> In the above example, `PageStart` is `10` |
-| `PageEnd`                  | `int` <br/> The last item (PageIndex) in the page. <br/> In the above example, `PageEnd` is `14` |
+| `PageStart`                | `int` <br/> The index of the first page in the current view.. <br/> In the above example, `PageStart` is `10` |
+| `PageEnd`                  | `int` <br/> The index of the last page in the current view. <br/> In the above example, `PageEnd` is `14` |
 | `PageIndex`                | `int` <br/> The active item (PageIndex). <br/> In the above example, `PageIndex` is `12` |
 | `HasPreviousPage`          | `bool` <br/> True when there are more items BEFORE the current page. <br/> In the above example, `HasPreviousPage` is `true` |
 | `HasNextPage`              | `bool` <br/> True when there are more items AFTER the current page. <br/> In the above example, `HasNextPage` is `true` |
 | `LastPageIndex`            | `int` <br/> The last PageIndex. <br/> In the above example, `LastPageIndex` is `49` |
-| `DataStart`                | `int` <br/> The row number (not index) of the first item. <br/> In the above example, `DataStart` is `241` |
-| `DataEnd`                  | `int` <br/> The row number (not index) of the last item. <br/> In the above example, `DataEnd` is `260` |
+| `DataStart`                | `int` <br/> The row number (not index) of the first data item. <br/> In the above example, `DataStart` is `241` |
+| `DataEnd`                  | `int` <br/> The row number (not index) of the last data item. <br/> In the above example, `DataEnd` is `260` |
 
 ### PaginationConfig
 
@@ -118,26 +120,4 @@ Below are the properties of `GridPagination`
 | Property                   | Description                                                                                          |
 | ----------------------     | ---------------------------------------------------------------------------------------------------- |
 | `Export`                   | `bool` <br/> The Export Flag. When set to `true`, the data is prepared for export.<br/> We're using the [`FileHelpers`](https://www.filehelpers.net/) for exporting data to CSV  |
-
-Removed
-The ``ShiftGrid`` can be initialized by calling the ``ToShiftGridAsync`` or ``ToShiftGrid`` extention methods on an ``IQueryable``
-
-``` C#
-var shiftGridAsync = await db.Employees.ToShiftGridAsync("ID");
-```
-or
-``` C#
-var shiftGrid = db.Employees.ToShiftGrid("ID");
-```
-
-#### ToShiftGridAsync() | ToShiftGrid()
-
-Initializes an Instance of the ``ShiftGrid`` class.
-
-##### Parameters
-
-| Parameter                  | Description                                                                                          |
-| ----------------------     | ---------------------------------------------------------------------------------------------------- |
-| `stableSortField`          | `String` <br/> The unique field in the dataset for sorting the result.<br/> [More about Stable Sorting](/philosophy/#stable-sort)   |
-| `stableSortDirection`      | [`SortDirection`](#sortdirection) <br/> The sort direction for the Stable Sorting. <br/> Defaults to `Ascending` |
-| `gridConfig`               | [`GridConfig`](#gridconfig) <br/> This is how the grid is controlled. Page Size, Page Index, Filters, Sorting ...etc |
+| `Delimiter`                | `string` <br/> The Delimiter that's used for seperating data in the exported CSV file/stream. |
