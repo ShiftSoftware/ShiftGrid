@@ -5,7 +5,7 @@
 		<Authors>Shift Software</Authors>
 		<Product>ShiftGrid Core</Product>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-		<Version>1.0.2</Version>
+		<Version>1.0.3</Version>
 		<AssemblyName>ShiftSoftware.ShiftGrid.Core</AssemblyName>
 		
 		<PackageId>ShiftSoftware.ShiftGrid.Core</PackageId>
@@ -19,6 +19,7 @@
 		<PackageTags>linq entity-framework netcore data-grid entity-framework-core datagrid netframework dynamic-linq pagination sorting filtering exporting</PackageTags>
 		<Title>ShiftGrid</Title>
 		<PackageReleaseNotes>
+			-Changed Summary to Aggregate and SelectSummary to SelectAggregate
 			-Renamed ('BeforeDataLoading' and 'AfterDataLoading') to ('BeforeLoadingData', 'AfterLoadingData')
 			-Hid some unnecessary props (Marked them as private).
 		</PackageReleaseNotes>

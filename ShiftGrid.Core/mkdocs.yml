@@ -20,7 +20,6 @@ nav:
         - Getting Started: 'getting-started.md'
         - Reference: 'reference.md'
         - Methods: 'methods.md'
-        - Examples: 'examples.md'
 extra_css:
   - overrides/css/extra.css
 extra:
