@@ -2,6 +2,7 @@ site_name: Shift Grid
 repo_url: https://github.com/ShiftSoftware/ShiftGrid
 repo_name: ShiftSoftware/ShiftGrid
 site_author: Shift Software
+edit_uri: edit/master/ShiftGrid.Core/docs/
 site_description: >-
   Data Grid adapter for Entity Framework and Entity Framework Core with support for Pagination, Sorting, Filtering, and Data Exporting.
 copyright: Copyright &copy; 2022 Shift Software
