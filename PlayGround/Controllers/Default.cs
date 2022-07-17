@@ -86,7 +86,7 @@ namespace PlayGround.Controllers
                     x.FirstName,
                     x.LastName,
                     x.Birthdate,
-                    x.DepartmentId,
+                    x.Department,
                 })
                 .ToShiftGridAsync("ID", SortDirection.Ascending, gridConfig);
 
@@ -155,15 +155,11 @@ namespace PlayGround.Controllers
                         }
                     }
                 });
-
-
-            //Hiding the department will also ommit the Join that's made to the Department table. This should also be shown clearly in the doc
-
             return Ok(shiftGrid);
         }
 
-        [HttpPost("filters")]
-        public async Task<ActionResult> Filters()
+        [HttpPost("filters_equals")]
+        public async Task<ActionResult> Filters_Equals()
         {
             var db = new DB();
 
@@ -196,7 +192,7 @@ namespace PlayGround.Controllers
             return Ok(shiftGrid);
         }
         [HttpPost("filters_or")]
-        public async Task<ActionResult> Filters_Equals()
+        public async Task<ActionResult> Filters_Equa()
         {
             var db = new DB();
 
@@ -223,15 +219,15 @@ namespace PlayGround.Controllers
                        OR = new List<GridFilter> {
                            new GridFilter
                            {
-                               Field = nameof(Employee.ID),
-                               Operator = GridFilterOperator.Equals,
-                               Value = "5"
+                               Field = nameof(Employee.FirstName),
+                               Operator = GridFilterOperator.EndsWith,
+                               Value = "2)"
                            },
                            new GridFilter
                            {
-                               Field = nameof(Employee.ID),
-                               Operator = GridFilterOperator.Equals,
-                               Value = "12"
+                               Field = nameof(Employee.FirstName),
+                               Operator = GridFilterOperator.StartsWith,
+                               Value = "First Name (3"
                            }
                        }
                        }
