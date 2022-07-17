@@ -195,7 +195,7 @@ namespace PlayGround.Controllers
             //It's better to use nameof. When targetting fields in Filters and Columns.
             return Ok(shiftGrid);
         }
-        [HttpPost("filters_equals")]
+        [HttpPost("filters_or")]
         public async Task<ActionResult> Filters_Equals()
         {
             var db = new DB();
@@ -216,13 +216,26 @@ namespace PlayGround.Controllers
                 .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig
                 {
                     Filters = new List<GridFilter> {
-                       new GridFilter
-                       {
-                           Field = nameof(Employee.ID),
-                           Operator = GridFilterOperator.Equals,
-                           Value = 1
+                       new GridFilter{
+                       Field = nameof(Employee.ID),
+                       Operator = GridFilterOperator.Equals,
+                       Value = "1",
+                       OR = new List<GridFilter> {
+                           new GridFilter
+                           {
+                               Field = nameof(Employee.ID),
+                               Operator = GridFilterOperator.Equals,
+                               Value = "5"
+                           },
+                           new GridFilter
+                           {
+                               Field = nameof(Employee.ID),
+                               Operator = GridFilterOperator.Equals,
+                               Value = "12"
+                           }
                        }
-                   }
+                       }
+                    }
                 });
 
             //It's better to use nameof. When targetting fields in Filters and Columns.
