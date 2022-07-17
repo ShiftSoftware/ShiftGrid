@@ -174,6 +174,72 @@ namespace PlayGround.Controllers
             //It's better to use nameof. When targetting fields in Filters and Columns.
             return Ok(shiftGrid);
         }
+        [HttpPost("filters_equals")]
+        public async Task<ActionResult> Filters_Equals()
+        {
+            var db = new DB();
+
+            var DbF = Microsoft.EntityFrameworkCore.EF.Functions;
+
+            var shiftGrid =
+                await db
+                .Employees
+                .Select(x => new
+                {
+                    x.ID,
+                    x.FirstName,
+                    x.LastName,
+                    x.Birthdate,
+                    Department = x.Department.Name
+                })
+                .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig
+                {
+                    Filters = new List<GridFilter> {
+                       new GridFilter
+                       {
+                           Field = nameof(Employee.ID),
+                           Operator = GridFilterOperator.Equals,
+                           Value = 1
+                       }
+                   }
+                });
+
+            //It's better to use nameof. When targetting fields in Filters and Columns.
+            return Ok(shiftGrid);
+        }
+        [HttpPost("filters_in")]
+        public async Task<ActionResult> Filters_In()
+        {
+            var db = new DB();
+
+            var DbF = Microsoft.EntityFrameworkCore.EF.Functions;
+
+            var shiftGrid =
+                await db
+                .Employees
+                .Select(x => new
+                {
+                    x.ID,
+                    x.FirstName,
+                    x.LastName,
+                    x.Birthdate,
+                    Department = x.Department.Name
+                })
+                .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig
+                {
+                    Filters = new List<GridFilter> {
+                       new GridFilter
+                       {
+                           Field = nameof(Employee.ID),
+                           Operator = GridFilterOperator.In,
+                           Value = new List<long> { 1, 4, 10 }
+                       }
+                   }
+                });
+
+            //It's better to use nameof. When targetting fields in Filters and Columns.
+            return Ok(shiftGrid);
+        }
 
         [FileHelpers.DelimitedRecord(",")]
         public class EmployeeCSV
