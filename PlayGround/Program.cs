@@ -1,6 +1,15 @@
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers().AddNewtonsoftJson();
+var useNewtonsoftJson = false;
+
+if (useNewtonsoftJson)
+{
+    builder.Services.AddControllers().AddNewtonsoftJson();
+}
+else
+{
+    builder.Services.AddControllers();
+}
 
 var app = builder.Build();
 

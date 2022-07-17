@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -216,37 +215,49 @@ namespace ShiftSoftware.ShiftGrid.Core
                     var value = $"@{index}";
                     var field = theFilter.Field;
 
-                    if (theFilter.Operator == GridFilterOperator.In || theFilter.Operator == GridFilterOperator.NotIn)
+                    
+                    if (theFilter.Value?.GetType() == typeof(Newtonsoft.Json.Linq.JArray) || theFilter.Value?.GetType() == typeof(System.Text.Json.JsonElement))
                     {
-                        value = $"{theFilter.Field}";
-                        field = $"@{index}";
-
                         Type elementType = select.ElementType;
-
                         var dataType = elementType.GetProperties().First(x => x.Name == theFilter.Field).PropertyType;
                         Type listType = typeof(List<>).MakeGenericType(dataType);
+                        var valueList = (IList)Activator.CreateInstance(listType);
 
-                        //Provided by Client from a Jobject
-                        if (theFilter.Value.GetType() == typeof(JArray))
+                        if (theFilter.Value.GetType() == typeof(Newtonsoft.Json.Linq.JArray))
                         {
-                            var valueList = (IList)Activator.CreateInstance(listType);
-
-                            foreach (var item in (theFilter.Value as JArray).Select(x => x.ToObject(dataType)))
+                            foreach (var item in (theFilter.Value as Newtonsoft.Json.Linq.JArray).Select(x => x.ToObject(dataType)))
                                 valueList.Add(item);
 
                             theFilter.Value = valueList;
                         }
-                        else
+                        else if (theFilter.Value.GetType() == typeof(System.Text.Json.JsonElement))
                         {
-                            if (listType != theFilter.Value.GetType())
-                                throw new Exception($"The provided collection for filtering '{theFilter.Field}' does not match the data type of the Field. The Field Type is ({dataType.ToString()}). And the Collection Type is ({theFilter.Value.GetType().ToString()})");
+                            var jsonElement = (System.Text.Json.JsonElement)theFilter.Value;
+
+                            if (jsonElement.ValueKind == System.Text.Json.JsonValueKind.Array)
+                            {
+                                foreach (var item in jsonElement.EnumerateArray())
+                                {
+                                    valueList.Add(parseJsonElement(item, dataType));
+                                }
+
+                                theFilter.Value = valueList;
+                            }
+                            else
+                            {
+                                theFilter.Value = parseJsonElement(jsonElement, dataType);
+                            }
                         }
                     }
+                    
 
-                    if (theFilter.Value == null)
-                        value = "null";
-                    else
-                        values.Add(theFilter.Value);
+                    values.Add(theFilter.Value);
+
+                    if (theFilter.Operator == GridFilterOperator.In || theFilter.Operator == GridFilterOperator.NotIn)
+                    {
+                        value = $"{theFilter.Field}";
+                        field = $"@{index}";
+                    }
 
                     var theOperator = Mappings.OperatorMapping[theFilter.Operator];
 
@@ -298,6 +309,42 @@ namespace ShiftSoftware.ShiftGrid.Core
 
             this.ProccessedSelect = select;
         }
+
+        private object parseJsonElement(System.Text.Json.JsonElement item, Type dataType)
+        {
+            object parsedValue = null;
+
+            try
+            {
+                if (dataType == typeof(DateTime) || dataType == typeof(DateTime?))
+                    parsedValue = item.GetDateTime();
+                else if (dataType == typeof(bool) || dataType == typeof(bool?))
+                    parsedValue = item.GetBoolean();
+                else if (dataType == typeof(decimal) || dataType == typeof(decimal?))
+                    parsedValue = item.GetDecimal();
+                else if (dataType == typeof(DateTimeOffset) || dataType == typeof(DateTimeOffset?))
+                    parsedValue = item.GetDateTimeOffset();
+                else if (dataType == typeof(double) || dataType == typeof(double?))
+                    parsedValue = item.GetDouble();
+                else if (dataType == typeof(Guid) || dataType == typeof(Guid?))
+                    parsedValue = item.GetGuid();
+                else if (dataType == typeof(short) || dataType == typeof(short?))
+                    parsedValue = item.GetInt16();
+                else if (dataType == typeof(int) || dataType == typeof(int?))
+                    parsedValue = item.GetInt32();
+                else if (dataType == typeof(long) || dataType == typeof(long?))
+                    parsedValue = item.GetInt64();
+                else if (dataType == typeof(string))
+                    parsedValue = item.GetString();
+            }
+            catch
+            {
+
+            }
+
+            return parsedValue;
+        }
+
         private IQueryable GetPaginatedQuery()
         {
             IQueryable sort = this.ProccessedSelect
