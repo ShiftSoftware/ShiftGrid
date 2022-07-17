@@ -72,6 +72,27 @@ namespace PlayGround.Controllers
             return Ok(shiftGrid);
         }
 
+        [HttpPost("basic-with-select")]
+        public async Task<ActionResult> BasicWithSelect([FromBody] GridConfig gridConfig)
+        {
+            var db = new DB();
+
+            var shiftGrid =
+                await db
+                .Employees
+                .Select(x => new
+                {
+                    x.ID,
+                    x.FirstName,
+                    x.LastName,
+                    x.Birthdate,
+                    x.DepartmentId,
+                })
+                .ToShiftGridAsync("ID", SortDirection.Ascending, gridConfig);
+
+            return Ok(shiftGrid);
+        }
+
         [HttpPost("aggregate")]
         public async Task<ActionResult> Aggregate([FromBody] GridConfig gridConfig)
         {

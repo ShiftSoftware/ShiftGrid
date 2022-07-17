@@ -5,7 +5,7 @@
 		<Authors>Shift Software</Authors>
 		<Product>ShiftGrid Core</Product>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-		<Version>1.0.3</Version>
+		<Version>1.0.4</Version>
 		<AssemblyName>ShiftSoftware.ShiftGrid.Core</AssemblyName>
 		
 		<PackageId>ShiftSoftware.ShiftGrid.Core</PackageId>
@@ -19,6 +19,7 @@
 		<PackageTags>linq entity-framework netcore data-grid entity-framework-core datagrid netframework dynamic-linq pagination sorting filtering exporting</PackageTags>
 		<Title>ShiftGrid</Title>
 		<PackageReleaseNotes>
+			-Support for System.Text.Json while parsing Filters from Grid Config
 			-Changed Summary to Aggregate and SelectSummary to SelectAggregate
 			-Renamed ('BeforeDataLoading' and 'AfterDataLoading') to ('BeforeLoadingData', 'AfterLoadingData')
 			-Hid some unnecessary props (Marked them as private).
@@ -36,6 +37,7 @@
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 		<PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.15" />
+		<PackageReference Include="System.Text.Json" Version="6.0.5" />
 		<None Include="images\icon.png" Pack="true" PackagePath="\" />
 	</ItemGroup>
 	
