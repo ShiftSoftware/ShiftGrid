@@ -86,7 +86,7 @@ namespace PlayGround.Controllers
                     x.FirstName,
                     x.LastName,
                     x.Birthdate,
-                    x.Department,
+                    Department = x.Department.Name
                 })
                 .ToShiftGridAsync("ID", SortDirection.Ascending, gridConfig);
 
@@ -153,6 +153,134 @@ namespace PlayGround.Controllers
                             Field = "LastName",
                             Visible = false
                         }
+                    }
+                });
+            return Ok(shiftGrid);
+        }
+        [HttpPost("columns-exclude-collections")]
+        public async Task<ActionResult> Columns_Exclude_Collections()
+        {
+            var db = new DB();
+
+            var shiftGrid =
+                await db
+                .Departments
+                .Select(x => new
+                {
+                    x.ID,
+                    x.Name, 
+                    Employee = x.Employees,
+                })
+                .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig
+                {
+                    Columns = new List<GridColumn>
+                    {
+                        new GridColumn
+                        {
+                            Field = "Employee",
+                            Visible = false
+                        },
+                    }
+                });
+
+            return Ok(shiftGrid);
+        }
+        [HttpPost("columns-exclude-identical")]
+        public async Task<ActionResult> Columns_Exclude_Identical()
+        {
+            var db = new DB();
+
+            var shiftGrid =
+                await db
+                .Departments
+                .Select(x => new
+                {
+                    x.ID,
+                    x.Name,
+                    Employee = x.Employees.Select(y => new
+                    {
+                       Department =  y.Department.Name
+                    }),
+                })
+                .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig
+                {
+                    Columns = new List<GridColumn>
+                    {
+                        new GridColumn
+                        {
+                            Field = "Name",
+                            Visible = false 
+                        },
+                    }
+                });
+
+            return Ok(shiftGrid);
+        }
+        [HttpPost("columns-exclude-annynomous-object")]
+        public async Task<ActionResult> Columns_Exclude_AnnonymousObject()
+        {
+            var db = new DB();
+
+            var DbF = Microsoft.EntityFrameworkCore.EF.Functions;
+
+            var shiftGrid =
+                await db
+                .Employees
+                .Select(x => new
+                {
+                    x.ID,
+                    x.FirstName,
+                    x.LastName,
+                    FullName = x.FirstName + x.LastName,
+                    x.Birthdate,
+                    x.DepartmentId
+                })
+                .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig
+                {
+                    Columns = new List<GridColumn>
+                    {
+                        new GridColumn
+                        {
+                            Field = "FullName",
+                            Visible = false
+                        },
+                    }
+                });
+            return Ok(shiftGrid);
+        }
+        [HttpPost("columns-exclude-field-in-summary")]
+        public async Task<ActionResult> Columns_Exclude_AFieldThatsInSummary()
+        {
+            var db = new DB();
+
+            var DbF = Microsoft.EntityFrameworkCore.EF.Functions;
+
+            var shiftGrid =
+                await db
+                .Employees
+                .Select(x => new
+                {
+                    x.ID,
+                    x.FirstName,
+                    x.LastName,
+                    x.Birthdate,
+                    x.DepartmentId
+                })
+                .SelectAggregate(x => new
+                {
+                    Count = x.Count(),
+                    TotalDepartmentId = x.Sum(y => y.DepartmentId),
+                    MaxDepartmentId = x.Max(y => y.DepartmentId)
+                })
+                .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig
+                {
+                    Columns = new List<GridColumn>
+                    {
+                        new GridColumn
+                        {
+                            Field = "DepartmentId",
+                            Visible = false
+                        },
                     }
                 });
             return Ok(shiftGrid);
