@@ -142,16 +142,6 @@ namespace ShiftSoftware.ShiftGrid.Core
                     this.ExportConfig = payload.ExportConfig;
                 }
             }
-
-            if (this.Sort.Count == 0)
-            {
-                //this.Sort.Add(new GridSort
-                //{
-                //    Field = typeof(T).GetProperties().Where(x => x.MemberType == System.Reflection.MemberTypes.Property).First().Name,
-                //    SortDirection = SortDirection.Ascending
-                //});
-                this.Sort.Add(StableSort);
-            }
         }
         private void GenerateQuery()
         {
@@ -347,8 +337,15 @@ namespace ShiftSoftware.ShiftGrid.Core
 
         private IQueryable GetPaginatedQuery()
         {
+            var sorts = new List<GridSort>();
+
+            sorts.AddRange(this.Sort);
+
+            if (sorts.Count == 0)
+                sorts.Add(this.StableSort);
+
             IQueryable sort = this.ProccessedSelect
-                .OrderBy(string.Join(", ", this.Sort.Select(x => $"{x.Field} {(x.SortDirection == SortDirection.Descending ? "desc" : "")}")))
+                .OrderBy(string.Join(", ", sorts.Select(x => $"{x.Field} {(x.SortDirection == SortDirection.Descending ? "desc" : "")}")))
                 .ThenBy($"{this.StableSort.Field} {(this.StableSort.SortDirection == SortDirection.Descending ? "desc" : "")}");
 
             IQueryable dataToIterate;
