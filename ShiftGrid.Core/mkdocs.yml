@@ -22,6 +22,7 @@ nav:
         - Reference: 'reference.md'
         - Methods: 'methods.md'
         - Philosophy: 'philosophy.md'
+        - Examples: "examples.md"
 extra_css:
   - overrides/css/extra.css
 extra:

@@ -273,7 +273,7 @@ namespace ShiftGrid.Test.Shared.Tests
                            }
                        }
                    }
-               }
+                }
             });
 
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid, Newtonsoft.Json.Formatting.Indented));

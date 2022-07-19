@@ -83,10 +83,10 @@ namespace PlayGround.Controllers
                 .Select(x => new
                 {
                     x.ID,
-                    x.FirstName,
+                    x.FirstName,    
                     x.LastName,
                     x.Birthdate,
-                    x.DepartmentId,
+                    x.Department
                 })
                 .ToShiftGridAsync("ID", SortDirection.Ascending, gridConfig);
 
@@ -155,15 +155,252 @@ namespace PlayGround.Controllers
                         }
                     }
                 });
+            return Ok(shiftGrid);
+        }
+        [HttpPost("columns-exclude-collections")]
+        public async Task<ActionResult> Columns_Exclude_Collections()
+        {
+            var db = new DB();
 
-
-            //Hiding the department will also ommit the Join that's made to the Department table. This should also be shown clearly in the doc
+            var shiftGrid =
+                await db
+                .Departments
+                .Select(x => new
+                {
+                    x.ID,
+                    x.Name, 
+                    Employee = x.Employees,
+                })
+                .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig
+                {
+                    Columns = new List<GridColumn>
+                    {
+                        new GridColumn
+                        {
+                            Field = "Employee",
+                            Visible = false
+                        },
+                    }
+                });
 
             return Ok(shiftGrid);
         }
+        [HttpPost("columns-exclude-identical")]
+        public async Task<ActionResult> Columns_Exclude_Identical()
+        {
+            var db = new DB();
 
-        [HttpPost("filters")]
-        public async Task<ActionResult> Filters()
+            var shiftGrid =
+                await db
+                .Departments
+                .Select(x => new
+                {
+                    x.ID,
+                    x.Name,
+                    Employee = x.Employees.Select(y => new
+                    {
+                       Department =  y.Department.Name
+                    }),
+                })
+                .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig
+                {
+                    Columns = new List<GridColumn>
+                    {
+                        new GridColumn
+                        {
+                            Field = "Name",
+                            Visible = false 
+                        },
+                    }
+                });
+
+            return Ok(shiftGrid);
+        }
+        [HttpPost("columns-exclude-annynomous-object")]
+        public async Task<ActionResult> Columns_Exclude_AnnonymousObject()
+        {
+            var db = new DB();
+
+            var DbF = Microsoft.EntityFrameworkCore.EF.Functions;
+
+            var shiftGrid =
+                await db
+                .Employees
+                .Select(x => new
+                {
+                    x.ID,
+                    x.FirstName,
+                    x.LastName,
+                    FullName = x.FirstName + x.LastName,
+                    x.Birthdate,
+                    x.DepartmentId
+                })
+                .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig
+                {
+                    Columns = new List<GridColumn>
+                    {
+                        new GridColumn
+                        {
+                            Field = "FullName",
+                            Visible = false
+                        },
+                    }
+                });
+            return Ok(shiftGrid);
+        }
+        [HttpPost("columns-exclude-field-in-summary")]
+        public async Task<ActionResult> Columns_Exclude_AFieldThatsInSummary()
+        {
+            var db = new DB();
+
+            var DbF = Microsoft.EntityFrameworkCore.EF.Functions;
+
+            var shiftGrid =
+                await db
+                .Employees
+                .Select(x => new
+                {
+                    x.ID,
+                    x.FirstName,
+                    x.LastName,
+                    x.Birthdate,
+                    x.DepartmentId
+                })
+                .SelectAggregate(x => new
+                {
+                    Count = x.Count(),
+                    TotalDepartmentId = x.Sum(y => y.DepartmentId),
+                    MaxDepartmentId = x.Max(y => y.DepartmentId)
+                })
+                .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig
+                {
+                    Columns = new List<GridColumn>
+                    {
+                        new GridColumn
+                        {
+                            Field = "DepartmentId",
+                            Visible = false
+                        },
+                    }
+                });
+            return Ok(shiftGrid);
+        }
+        class SummaryModel
+        {
+            public int Count { get; set; }
+            public long? TotalDepartmentId { get; set; }
+            public long? MaxDepartmentId { get; set; }
+        }
+        [HttpPost("columns-exclude-field-in-summary-using-a-model")]
+        public async Task<ActionResult> Columns_Exclude_AFieldThatsInSummary_UsingAModel()
+        {
+            var db = new DB();
+
+            var DbF = Microsoft.EntityFrameworkCore.EF.Functions;
+
+            var shiftGrid =
+                await db
+                .Employees
+                .Select(x => new
+                {
+                    x.ID,
+                    x.FirstName,
+                    x.LastName,
+                    x.Birthdate,
+                    x.DepartmentId
+                })
+                .SelectAggregate(x => new SummaryModel
+                {
+                    Count = x.Count(),
+                    TotalDepartmentId = x.Sum(y => y.DepartmentId),
+                    MaxDepartmentId = x.Max(y => y.DepartmentId)
+                })
+                .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig
+                {
+                    Columns = new List<GridColumn>
+                    {
+                        new GridColumn
+                        {
+                            Field = "DepartmentId",
+                            Visible = false
+                        },
+                    }
+                });
+            return Ok(shiftGrid);
+        }
+        class OrderModel
+        {
+            public long ID { get; set; }
+            public string FirstName { get; set; }
+            [GridColumnAttribute(Order = 1)]
+            public string LastName { get; set; }
+            public DateTime? Birthdate { get; set; }
+            [GridColumnAttribute(Order = 0)]
+            public long? DepartmentId { get; set; }
+            
+            public virtual Department? Department { get; set; }
+          
+        }
+        [HttpPost("order-by-attributes")]
+        public async Task<ActionResult> Order_ByAttributes()
+        {
+            var db = new DB();
+
+            var DbF = Microsoft.EntityFrameworkCore.EF.Functions;
+
+            var shiftGrid =
+                await db
+                .Employees
+                .Select(x => new OrderModel
+                {
+                    ID = x.ID,
+                    FirstName = x.FirstName,
+                    LastName = x.LastName,
+                    Birthdate = x.Birthdate,
+                    DepartmentId = x.DepartmentId
+                })
+                .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig
+                {
+                    
+                });
+            return Ok(shiftGrid);
+        }
+        [HttpPost("order-overwrite-attribute-with-existing-order")]
+        public async Task<ActionResult> Order_OverwriteAttribute_WithExistingOrder()
+        {
+            var db = new DB();
+
+            var DbF = Microsoft.EntityFrameworkCore.EF.Functions;
+
+            var shiftGrid =
+                await db
+                .Employees
+                .Select(x => new OrderModel
+                {
+                    ID = x.ID,
+                    FirstName = x.FirstName,
+                    LastName = x.LastName,
+                    Birthdate = x.Birthdate,
+                    DepartmentId = x.DepartmentId
+                })
+                .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig
+                {
+                    Columns = new List<GridColumn>
+                    {
+                        new GridColumn
+                        {
+                            Field = nameof(OrderModel.ID), // 0 is already assigned to DepartmentId by another attribute
+                            Order = 0
+                        }
+                    }
+
+                });
+            return Ok(shiftGrid);
+        }
+
+
+        [HttpPost("filters-equals")]
+        public async Task<ActionResult> Filters_Equals()
         {
             var db = new DB();
 
@@ -195,6 +432,204 @@ namespace PlayGround.Controllers
             //It's better to use nameof. When targetting fields in Filters and Columns.
             return Ok(shiftGrid);
         }
+        [HttpPost("filters-or")]
+        public async Task<ActionResult> Filters_Or()
+        {
+            var db = new DB();
+
+            var DbF = Microsoft.EntityFrameworkCore.EF.Functions;
+
+            var shiftGrid =
+                await db
+                .Employees
+                .Select(x => new
+                {
+                    x.ID,
+                    x.FirstName,
+                    x.LastName,
+                    x.Birthdate,
+                    Department = x.Department.Name
+                })
+                .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig
+                {
+                    Filters = new List<GridFilter> {
+                       new GridFilter{
+                       Field = nameof(Employee.ID),
+                       Operator = GridFilterOperator.Equals,
+                       Value = "1",
+                       OR = new List<GridFilter> {
+                           new GridFilter
+                           {
+                               Field = nameof(Employee.FirstName),
+                               Operator = GridFilterOperator.EndsWith,
+                               Value = "2)"
+                           },
+                           new GridFilter
+                           {
+                               Field = nameof(Employee.FirstName),
+                               Operator = GridFilterOperator.StartsWith,
+                               Value = "First Name (3"
+                           }
+                       }
+                       }
+                    }
+                });
+
+            //It's better to use nameof. When targetting fields in Filters and Columns.
+            return Ok(shiftGrid);
+        }
+        [HttpPost("filters-in")]
+        public async Task<ActionResult> Filters_In()
+        {
+            var db = new DB();
+
+            var DbF = Microsoft.EntityFrameworkCore.EF.Functions;
+
+            var shiftGrid =
+                await db
+                .Employees
+                .Select(x => new
+                {
+                    x.ID,
+                    x.FirstName,
+                    x.LastName,
+                    x.Birthdate,
+                    Department = x.Department.Name
+                })
+                .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig
+                {
+                    Filters = new List<GridFilter> {
+                       new GridFilter
+                       {
+                           Field = nameof(Employee.ID),
+                           Operator = GridFilterOperator.In,
+                           Value = new List<long> { 1, 4, 10 }
+                       }
+                   }
+                });
+
+            //It's better to use nameof. When targetting fields in Filters and Columns.
+            return Ok(shiftGrid);
+        }
+        [HttpPost("filters-subitems")]
+        public async Task<ActionResult> Filters_SubItems()
+        {
+            var db = new DB();
+
+            var DbF = Microsoft.EntityFrameworkCore.EF.Functions;
+
+            var shiftGrid =
+                await db
+                .Employees
+                .Select(x => new
+                {
+                    x.ID,
+                    x.FirstName,
+                    x.LastName,
+                    x.Birthdate,
+                    x.Department
+                })
+                .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig
+                {
+                    Filters = new List<GridFilter> {
+                       new GridFilter
+                       {
+                           Field = "Department.Name",
+                           Operator = GridFilterOperator.Equals,
+                           Value = "IT"
+                       }
+                   }
+                });
+
+            return Ok(shiftGrid);
+        }
+        [HttpPost("filters-subitems-and-or")]
+        public async Task<ActionResult> Filters_SubItems_AndOr()
+        {
+            var db = new DB();
+
+            var DbF = Microsoft.EntityFrameworkCore.EF.Functions;
+
+            var shiftGrid =
+                await db
+                .Employees
+                .Select(x => new
+                {
+                    x.ID,
+                    x.FirstName,
+                    x.LastName,
+                    x.Birthdate,
+                    x.Department
+                })
+                .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig
+                {
+                    Filters = new List<GridFilter> {
+                       new GridFilter
+                       {
+                           Field = "Department.Name",
+                           Operator = GridFilterOperator.Equals,
+                           Value = "IT",
+                           OR = new List<GridFilter>
+                           {
+                               new GridFilter {
+                                    Field = nameof(Employee.FirstName),
+                                    Operator = GridFilterOperator.EndsWith,
+                                    Value = "7)",
+                               }
+                           }
+                       }
+                   }
+                });
+
+            return Ok(shiftGrid);
+        }
+        [HttpPost("filters-navigated-items-and-subitems-aggregates")]
+        public async Task<ActionResult> Filters_NavigatedItems_AndSubItemsAggregates()
+        {
+            var db = new DB();
+
+            var DbF = Microsoft.EntityFrameworkCore.EF.Functions;
+
+            var shiftGrid =
+                await db
+                .Departments
+                .Select(x => new
+                {
+                    x.ID,
+                    x.Name,
+                    Employees = x.Employees.Select(y => new
+                    {
+                        EmployeeID = y.ID * 10
+                    })
+                })
+                .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig
+                {
+                    Filters = new List<GridFilter> {
+                        new GridFilter
+                       {
+                           Field = "Employees.Min(EmployeeID)",
+                           Operator = GridFilterOperator.Equals,
+                           Value = 10,
+                       },
+                       new GridFilter
+                       {
+                           Field = "Name",
+                           Operator = GridFilterOperator.Equals,
+                           Value = "IT",
+                       },
+                       new GridFilter
+                       {
+                           Field = "Employees.Max(EmployeeID)",
+                           Operator = GridFilterOperator.Equals,
+                           Value = 9970,
+                       },
+
+                   }
+                });
+
+            return Ok(shiftGrid);
+        }
+
 
         [FileHelpers.DelimitedRecord(",")]
         public class EmployeeCSV
