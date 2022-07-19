@@ -1306,7 +1306,7 @@ A column can be excluded in the generated SQL query using the [`GridColumn`](/re
     }
     ```
 ???+ warning
-    the `select` method must exist for the exclusion to be done successfully
+    the `Select` method must exist for the exclusion to be done successfully
 ???+ info
     if the excluded column is the same as the one used for sorting its value will be 0 not null, in our exampe if ID is excluded it will be 0.
 #### Excluding Collections
@@ -2255,5 +2255,420 @@ Two identical column, one is a normal column and the other one is inside the col
     },
     "beforeLoadingData": "2022-07-19T11:07:58.1705378Z",
     "afterLoadingData": "2022-07-19T11:07:58.2177103Z"
+    }
+    ```
+
+### Grid Column Ordering
+#### Ordering by Attribute
+The grid columns can be ordered using `GridColumnAttribute`
+=== "C#"
+    ``` C#
+    [HttpPost("order-by-attributes")]
+    public async Task<ActionResult> Order_ByAttributes()
+    {
+        var db = new DB();
+
+        var DbF = Microsoft.EntityFrameworkCore.EF.Functions;
+
+        var shiftGrid =
+            await db
+            .Employees
+            .Select(x => new OrderModel
+            {
+                ID = x.ID,
+                FirstName = x.FirstName,
+                LastName = x.LastName,
+                Birthdate = x.Birthdate,
+                DepartmentId = x.DepartmentId
+            })
+            .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig
+            {});
+        return Ok(shiftGrid);
+    }
+    ```
+=== "SQL"
+    ``` SQL 
+    SELECT [e].[ID], [e].[FirstName], [e].[LastName], [e].[Birthdate], [e].[DepartmentId]
+    FROM [Employees] AS [e]
+    ORDER BY [e].[ID]
+    ```
+=== "Request"
+    ``` JSON
+    {
+        "dataPageIndex": 0,
+        "dataPageSize": 5,
+        "sort": [
+            {
+                "field": "ID",
+                "sortDirection": 0
+            }
+        ],
+        "columns": [
+            {
+            "field":"DepartmentId",
+            "order":0
+            },
+            {
+            "field":"LastName",
+            "order":1
+            }
+        ],
+        "pagination": {
+            "pageSize": 10
+        },
+        "filters": [
+        ]
+    }
+    ```
+=== "Response (Omitted)"
+    ``` JSON
+    {
+        "dataPageIndex": 0,
+        "dataPageSize": 20,
+        "dataCount": 1000,
+        "data": [...],
+        "aggregate": null,
+        "sort": [...],
+        "stableSort": {...},
+        "filters": [],
+        "columns": [
+        {
+            "headerText": null,
+            "field": "DepartmentId",
+            "visible": true,
+            "order": 0
+        },
+        {
+            "headerText": null,
+            "field": "LastName",
+            "visible": true,
+            "order": 1
+        },
+        {
+            "headerText": "ID",
+            "field": "ID",
+            "visible": true,
+            "order": 2
+        },
+        {
+            "headerText": "FirstName",
+            "field": "FirstName",
+            "visible": true,
+            "order": 3
+        },
+        {
+            "headerText": "Birthdate",
+            "field": "Birthdate",
+            "visible": true,
+            "order": 4
+        },
+        {
+            "headerText": "Department",
+            "field": "Department",
+            "visible": true,
+            "order": 5
+        }
+        ],
+        "pagination": {...},
+        "beforeLoadingData": "2022-07-17T13:35:54.5310457Z",
+        "afterLoadingData": "2022-07-17T13:35:54.5351803Z"
+    }
+    ```
+=== "Response (Full)"
+    ``` JSON
+    {
+        "dataPageIndex": 0,
+        "dataPageSize": 20,
+        "dataCount": 1000,
+        "data": [
+            {
+                "id": 1,
+                "firstName": null,
+                "lastName": "Last Name (1)",
+                "birthdate": "1955-01-01T00:00:00",
+                "department": null
+            },
+            ...
+        ],
+        "aggregate": null,
+        "sort": [
+            {
+                "field": "ID",
+                "sortDirection": 0
+            }
+        ],
+        "stableSort": {
+            "field": "ID",
+            "sortDirection": 0
+        },
+        "filters": [],
+        "columns": [
+        {
+            "headerText": null,
+            "field": "DepartmentId",
+            "visible": true,
+            "order": 0
+        },
+        {
+            "headerText": null,
+            "field": "LastName",
+            "visible": true,
+            "order": 1
+        },
+        {
+            "headerText": "ID",
+            "field": "ID",
+            "visible": true,
+            "order": 2
+        },
+        {
+            "headerText": "FirstName",
+            "field": "FirstName",
+            "visible": true,
+            "order": 3
+        },
+        {
+            "headerText": "Birthdate",
+            "field": "Birthdate",
+            "visible": true,
+            "order": 4
+        },
+        {
+            "headerText": "Department",
+            "field": "Department",
+            "visible": true,
+            "order": 5
+        }
+        ],
+        "pagination": {
+        "count": 50,
+        "pageSize": 10,
+        "pageStart": 0,
+        "pageEnd": 9,
+        "pageIndex": 0,
+        "hasPreviousPage": false,
+        "hasNextPage": true,
+        "lastPageIndex": 49,
+        "dataStart": 1,
+        "dataEnd": 20
+        },
+        "beforeLoadingData": "2022-07-19T19:26:06.6196532Z",
+        "afterLoadingData": "2022-07-19T19:26:06.6226608Z"
+    }
+    ```
+???+ note
+    the follwing mock model is used to appy the `GridColumnAttribute`
+    ``` C#
+    class OrderModel
+        {
+            public long ID { get; set; }
+            public string FirstName { get; set; }
+            [GridColumnAttribute(Order = 1)]
+            public string LastName { get; set; }
+            public DateTime? Birthdate { get; set; }
+            [GridColumnAttribute(Order = 0)]
+            public long? DepartmentId { get; set; }
+            
+            public virtual Department? Department { get; set; }
+          
+        }
+    ```
+#### Overwriting Attribute with existing Order
+The `GridColumnAttribute` can be overwritten using the `GridColumn`'s `Order`
+=== "C#"
+    ``` C#
+    [HttpPost("order-overwrite-attribute-with-existing-order")]
+    public async Task<ActionResult> Order_OverwriteAttribute_WithExistingOrder()
+    {
+        var db = new DB();
+
+        var DbF = Microsoft.EntityFrameworkCore.EF.Functions;
+
+        var shiftGrid =
+            await db
+            .Employees
+            .Select(x => new OrderModel
+            {
+                ID = x.ID,
+                FirstName = x.FirstName,
+                LastName = x.LastName,
+                Birthdate = x.Birthdate,
+                DepartmentId = x.DepartmentId
+            })
+            .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig
+            {
+                Columns = new List<GridColumn>
+                {
+                    new GridColumn
+                    {
+                        Field = nameof(OrderModel.ID), // 0 is already assigned to DepartmentId by another attribute
+                        Order = 0
+                    }
+                }
+
+            });
+        return Ok(shiftGrid);
+    }
+    ```
+=== "SQL"
+    ``` SQL 
+    SELECT [e].[ID], [e].[FirstName], [e].[LastName], [e].[Birthdate], [e].[DepartmentId]
+    FROM [Employees] AS [e]
+    ORDER BY [e].[ID]
+    ```
+=== "Request"
+    ``` JSON
+    {
+        "dataPageIndex": 0,
+        "dataPageSize": 5,
+        "sort": [
+            {
+                "field": "ID",
+                "sortDirection": 0
+            }
+        ],
+        "columns": [
+            {
+            "field": "ID",
+            "sortDirection": 0
+            }
+        ],
+        "pagination": {
+            "pageSize": 10
+        },
+        "filters": [
+        ]
+    }
+    ```
+=== "Response (Omitted)"
+    ``` JSON
+    {
+    "dataPageIndex": 0,
+    "dataPageSize": 20,
+    "dataCount": 1000,
+    "data": [...],
+    "aggregate": null,
+    "sort": [],
+    "stableSort": {...},
+    "filters": [],
+    "columns": [
+        {
+            "headerText": "ID",
+            "field": "ID",
+            "visible": true,
+            "order": 0
+        },
+        {
+            "headerText": null,
+            "field": "LastName",
+            "visible": true,
+            "order": 1
+        },
+        {
+            "headerText": null,
+            "field": "DepartmentId",
+            "visible": true,
+            "order": 1
+        },
+        {
+            "headerText": "FirstName",
+            "field": "FirstName",
+            "visible": true,
+            "order": 2
+        },
+        {
+            "headerText": "Birthdate",
+            "field": "Birthdate",
+            "visible": true,
+            "order": 3
+        },
+        {
+            "headerText": "Department",
+            "field": "Department",
+            "visible": true,
+            "order": 4
+        }
+    ],
+    "pagination": {...},
+    "beforeLoadingData": "2022-07-19T19:48:15.1717737Z",
+    "afterLoadingData": "2022-07-19T19:48:15.1737214Z"
+    }
+    ```
+=== "Response (Full)"
+    ``` JSON
+    {
+    "dataPageIndex": 0,
+    "dataPageSize": 20,
+    "dataCount": 1000,
+    "data": [
+        {
+            "id": 1,
+            "firstName": "First Name (1)",
+            "lastName": "Last Name (1)",
+            "birthdate": "1955-01-01T00:00:00",
+            "departmentId": 1,
+            "department": null
+        },
+        ...
+    ],
+    "aggregate": null,
+    "sort": [],
+    "stableSort": {
+        "field": "ID",
+        "sortDirection": 0
+    },
+    "filters": [],
+    "columns": [
+        {
+            "headerText": "ID",
+            "field": "ID",
+            "visible": true,
+            "order": 0
+        },
+        {
+            "headerText": null,
+            "field": "LastName",
+            "visible": true,
+            "order": 1
+        },
+        {
+            "headerText": null,
+            "field": "DepartmentId",
+            "visible": true,
+            "order": 1
+        },
+        {
+            "headerText": "FirstName",
+            "field": "FirstName",
+            "visible": true,
+            "order": 2
+        },
+        {
+            "headerText": "Birthdate",
+            "field": "Birthdate",
+            "visible": true,
+            "order": 3
+        },
+        {
+            "headerText": "Department",
+            "field": "Department",
+            "visible": true,
+            "order": 4
+        }
+    ],
+    "pagination": {
+        "count": 50,
+        "pageSize": 10,
+        "pageStart": 0,
+        "pageEnd": 9,
+        "pageIndex": 0,
+        "hasPreviousPage": false,
+        "hasNextPage": true,
+        "lastPageIndex": 49,
+        "dataStart": 1,
+        "dataEnd": 20
+    },
+    "beforeLoadingData": "2022-07-19T19:48:15.1717737Z",
+    "afterLoadingData": "2022-07-19T19:48:15.1737214Z"
     }
     ```

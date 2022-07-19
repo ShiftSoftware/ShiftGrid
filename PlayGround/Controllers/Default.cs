@@ -328,7 +328,77 @@ namespace PlayGround.Controllers
                 });
             return Ok(shiftGrid);
         }
-        
+        class OrderModel
+        {
+            public long ID { get; set; }
+            public string FirstName { get; set; }
+            [GridColumnAttribute(Order = 1)]
+            public string LastName { get; set; }
+            public DateTime? Birthdate { get; set; }
+            [GridColumnAttribute(Order = 0)]
+            public long? DepartmentId { get; set; }
+            
+            public virtual Department? Department { get; set; }
+          
+        }
+        [HttpPost("order-by-attributes")]
+        public async Task<ActionResult> Order_ByAttributes()
+        {
+            var db = new DB();
+
+            var DbF = Microsoft.EntityFrameworkCore.EF.Functions;
+
+            var shiftGrid =
+                await db
+                .Employees
+                .Select(x => new OrderModel
+                {
+                    ID = x.ID,
+                    FirstName = x.FirstName,
+                    LastName = x.LastName,
+                    Birthdate = x.Birthdate,
+                    DepartmentId = x.DepartmentId
+                })
+                .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig
+                {
+                    
+                });
+            return Ok(shiftGrid);
+        }
+        [HttpPost("order-overwrite-attribute-with-existing-order")]
+        public async Task<ActionResult> Order_OverwriteAttribute_WithExistingOrder()
+        {
+            var db = new DB();
+
+            var DbF = Microsoft.EntityFrameworkCore.EF.Functions;
+
+            var shiftGrid =
+                await db
+                .Employees
+                .Select(x => new OrderModel
+                {
+                    ID = x.ID,
+                    FirstName = x.FirstName,
+                    LastName = x.LastName,
+                    Birthdate = x.Birthdate,
+                    DepartmentId = x.DepartmentId
+                })
+                .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig
+                {
+                    Columns = new List<GridColumn>
+                    {
+                        new GridColumn
+                        {
+                            Field = nameof(OrderModel.ID), // 0 is already assigned to DepartmentId by another attribute
+                            Order = 0
+                        }
+                    }
+
+                });
+            return Ok(shiftGrid);
+        }
+
+
         [HttpPost("filters-equals")]
         public async Task<ActionResult> Filters_Equals()
         {
@@ -559,6 +629,7 @@ namespace PlayGround.Controllers
 
             return Ok(shiftGrid);
         }
+
 
         [FileHelpers.DelimitedRecord(",")]
         public class EmployeeCSV
