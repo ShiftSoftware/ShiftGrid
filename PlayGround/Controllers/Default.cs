@@ -329,7 +329,7 @@ namespace PlayGround.Controllers
             return Ok(shiftGrid);
         }
         
-        [HttpPost("filters_equals")]
+        [HttpPost("filters-equals")]
         public async Task<ActionResult> Filters_Equals()
         {
             var db = new DB();
@@ -362,7 +362,7 @@ namespace PlayGround.Controllers
             //It's better to use nameof. When targetting fields in Filters and Columns.
             return Ok(shiftGrid);
         }
-        [HttpPost("filters_or")]
+        [HttpPost("filters-or")]
         public async Task<ActionResult> Filters_Or()
         {
             var db = new DB();
@@ -408,7 +408,7 @@ namespace PlayGround.Controllers
             //It's better to use nameof. When targetting fields in Filters and Columns.
             return Ok(shiftGrid);
         }
-        [HttpPost("filters_in")]
+        [HttpPost("filters-in")]
         public async Task<ActionResult> Filters_In()
         {
             var db = new DB();
@@ -441,7 +441,7 @@ namespace PlayGround.Controllers
             //It's better to use nameof. When targetting fields in Filters and Columns.
             return Ok(shiftGrid);
         }
-        [HttpPost("filters_subitems")]
+        [HttpPost("filters-subitems")]
         public async Task<ActionResult> Filters_SubItems()
         {
             var db = new DB();
@@ -468,6 +468,92 @@ namespace PlayGround.Controllers
                            Operator = GridFilterOperator.Equals,
                            Value = "IT"
                        }
+                   }
+                });
+
+            return Ok(shiftGrid);
+        }
+        [HttpPost("filters-subitems-and-or")]
+        public async Task<ActionResult> Filters_SubItems_AndOr()
+        {
+            var db = new DB();
+
+            var DbF = Microsoft.EntityFrameworkCore.EF.Functions;
+
+            var shiftGrid =
+                await db
+                .Employees
+                .Select(x => new
+                {
+                    x.ID,
+                    x.FirstName,
+                    x.LastName,
+                    x.Birthdate,
+                    x.Department
+                })
+                .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig
+                {
+                    Filters = new List<GridFilter> {
+                       new GridFilter
+                       {
+                           Field = "Department.Name",
+                           Operator = GridFilterOperator.Equals,
+                           Value = "IT",
+                           OR = new List<GridFilter>
+                           {
+                               new GridFilter {
+                                    Field = nameof(Employee.FirstName),
+                                    Operator = GridFilterOperator.EndsWith,
+                                    Value = "7)",
+                               }
+                           }
+                       }
+                   }
+                });
+
+            return Ok(shiftGrid);
+        }
+        [HttpPost("filters-navigated-items-and-subitems-aggregates")]
+        public async Task<ActionResult> Filters_NavigatedItems_AndSubItemsAggregates()
+        {
+            var db = new DB();
+
+            var DbF = Microsoft.EntityFrameworkCore.EF.Functions;
+
+            var shiftGrid =
+                await db
+                .Departments
+                .Select(x => new
+                {
+                    x.ID,
+                    x.Name,
+                    Employees = x.Employees.Select(y => new
+                    {
+                        EmployeeID = y.ID * 10
+                    })
+                })
+                .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig
+                {
+                    Filters = new List<GridFilter> {
+                        new GridFilter
+                       {
+                           Field = "Employees.Min(EmployeeID)",
+                           Operator = GridFilterOperator.Equals,
+                           Value = 10,
+                       },
+                       new GridFilter
+                       {
+                           Field = "Name",
+                           Operator = GridFilterOperator.Equals,
+                           Value = "IT",
+                       },
+                       new GridFilter
+                       {
+                           Field = "Employees.Max(EmployeeID)",
+                           Operator = GridFilterOperator.Equals,
+                           Value = 9970,
+                       },
+
                    }
                 });
 

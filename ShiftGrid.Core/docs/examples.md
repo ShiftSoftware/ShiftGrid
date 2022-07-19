@@ -6,38 +6,38 @@ The follwings are some exmaples.
 === "C#"
     ``` C# hl_lines="21 22 23 24 25 26 27 28"
     [HttpPost("filters_equals")]
-            public async Task<ActionResult> Filters()
+    public async Task<ActionResult> Filters()
+    {
+        var db = new DB();
+
+        var DbF = Microsoft.EntityFrameworkCore.EF.Functions;
+
+        var shiftGrid =
+            await db
+            .Employees
+            .Select(x => new
             {
-                var db = new DB();
-
-                var DbF = Microsoft.EntityFrameworkCore.EF.Functions;
-
-                var shiftGrid =
-                    await db
-                    .Employees
-                    .Select(x => new
+                x.ID,
+                x.FirstName,
+                x.LastName,
+                x.Birthdate,
+                Department = x.Department.Name
+            })
+            .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig
+            {
+                Filters = new List<GridFilter> {
+                    new GridFilter
                     {
-                        x.ID,
-                        x.FirstName,
-                        x.LastName,
-                        x.Birthdate,
-                        Department = x.Department.Name
-                    })
-                    .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig
-                    {
-                        Filters = new List<GridFilter> {
-                           new GridFilter
-                           {
-                               Field = nameof(Employee.ID),
-                               Operator = GridFilterOperator.Equals,
-                               Value = 1
-                           }
-                       }
-                    });
+                        Field = nameof(Employee.ID),
+                        Operator = GridFilterOperator.Equals,
+                        Value = 1
+                    }
+                }
+            });
 
-                //It's better to use nameof. When targetting fields in Filters and Columns.
-                return Ok(shiftGrid);
-            }
+        //It's better to use nameof. When targetting fields in Filters and Columns.
+        return Ok(shiftGrid);
+    }
     ```
 === "SQL"
     ``` SQL 
@@ -183,50 +183,50 @@ The follwings are some exmaples.
 === "C#"
     ``` C#
     [HttpPost("filters_or")]
-            public async Task<ActionResult> Filters()
+    public async Task<ActionResult> Filters()
+    {
+        var db = new DB();
+
+        var DbF = Microsoft.EntityFrameworkCore.EF.Functions;
+
+        var shiftGrid =
+            await db
+            .Employees
+            .Select(x => new
             {
-                var db = new DB();
-
-                var DbF = Microsoft.EntityFrameworkCore.EF.Functions;
-
-                var shiftGrid =
-                    await db
-                    .Employees
-                    .Select(x => new
-                    {
-                        x.ID,
-                        x.FirstName,
-                        x.LastName,
-                        x.Birthdate,
-                        Department = x.Department.Name
-                    })
-                     .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig {
-                       Filters = new List<GridFilter> {
-                           new GridFilter{
-                               Field = nameof(Employee.ID),
-                               Operator = GridFilterOperator.Equals,
-                               Value = "1",
-                               OR = new List<GridFilter> {
-                                   new GridFilter
-                                   {
-                                       Field = nameof(Employee.ID),
-                                       Operator = GridFilterOperator.Equals,
-                                       Value = "5"
-                                   },
-                                   new GridFilter
-                                   {
-                                       Field = nameof(Employee.ID),
-                                       Operator = GridFilterOperator.Equals,
-                                       Value = "12"
-                                   }
-                               }
-                           }
+                x.ID,
+                x.FirstName,
+                x.LastName,
+                x.Birthdate,
+                Department = x.Department.Name
+            })
+                .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig {
+                Filters = new List<GridFilter> {
+                    new GridFilter{
+                        Field = nameof(Employee.ID),
+                        Operator = GridFilterOperator.Equals,
+                        Value = "1",
+                        OR = new List<GridFilter> {
+                            new GridFilter
+                            {
+                                Field = nameof(Employee.ID),
+                                Operator = GridFilterOperator.Equals,
+                                Value = "5"
+                            },
+                            new GridFilter
+                            {
+                                Field = nameof(Employee.ID),
+                                Operator = GridFilterOperator.Equals,
+                                Value = "12"
+                            }
+                        }
                     }
-                    });
-
-                //It's better to use nameof. When targetting fields in Filters and Columns.
-                return Ok(shiftGrid);
             }
+            });
+
+        //It's better to use nameof. When targetting fields in Filters and Columns.
+        return Ok(shiftGrid);
+    }
     ```
 === "SQL"
     ``` SQL 
@@ -428,45 +428,45 @@ The follwings are some exmaples.
 
 === "C#"
     ``` C#
-        [HttpPost("filters_subitems")]
-        public async Task<ActionResult> Filters_SubItems()
-        {
-            var db = new DB();
+    [HttpPost("filters_subitems")]
+    public async Task<ActionResult> Filters_SubItems()
+    {
+        var db = new DB();
 
-            var DbF = Microsoft.EntityFrameworkCore.EF.Functions;
+        var DbF = Microsoft.EntityFrameworkCore.EF.Functions;
 
-            var shiftGrid =
-                await db
-                .Employees
-                .Select(x => new
-                {
-                    x.ID,
-                    x.FirstName,
-                    x.LastName,
-                    x.Birthdate,
-                    x.Department
-                })
-                .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig
-                {
-                    Filters = new List<GridFilter> {
-                       new GridFilter
-                       {
-                           Field = "Department.Name",
-                           Operator = GridFilterOperator.Equals,
-                           Value = "IT"
-                       }
-                   }
-                });
+        var shiftGrid =
+            await db
+            .Employees
+            .Select(x => new
+            {
+                x.ID,
+                x.FirstName,
+                x.LastName,
+                x.Birthdate,
+                x.Department
+            })
+            .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig
+            {
+                Filters = new List<GridFilter> {
+                    new GridFilter
+                    {
+                        Field = "Department.Name",
+                        Operator = GridFilterOperator.Equals,
+                        Value = "IT"
+                    }
+                }
+            });
 
-            return Ok(shiftGrid);
-        }
+        return Ok(shiftGrid);
+    }
     ```
 === "SQL"
     ``` SQL 
-    SELECT [e].[ID], [e].[FirstName], [e].[LastName], [e].[Birthdate], [d].[Name] AS [Department]
+    SELECT [e].[ID], [e].[FirstName], [e].[LastName], [e].[Birthdate], [d].[ID], [d].[Name]
     FROM [Employees] AS [e]
     LEFT JOIN [Departments] AS [d] ON [e].[DepartmentId] = [d].[ID]
-    WHERE [e].[ID] IN (CAST(1 AS bigint), CAST(5 AS bigint), CAST(12 AS bigint))
+    WHERE [d].[Name] = N''IT''
     ORDER BY [e].[ID]
     ```
 === "Request"
@@ -482,27 +482,15 @@ The follwings are some exmaples.
     ],
     "filters": [
         {
-        "field": "ID",
+        "field": "Department.Name",
         "operator": "=",
-        "value" : 1,
-        "or": [
-            {
-            "field": "ID",
-            "operator": "=",
-            "value" : 5
-            },
-            {
-            "field": "ID",
-            "operator": "=",
-            "value" : 12
-            }
-        ]
+        "value":"IT"
         }
-        ],
-        "columns": [],
-        "pagination": {
-            "pageSize": 10
-        }
+    ],
+    "columns": [],
+    "pagination": {
+        "pageSize": 10
+    }
     }
     ```
 === "Response (Omitted)"
@@ -510,38 +498,47 @@ The follwings are some exmaples.
     {
     "dataPageIndex": 0,
     "dataPageSize": 20,
-    "dataCount": 3,
+    "dataCount": 167,
     "data": [
         {
             "id": 1,
             "firstName": "First Name (1)",
             "lastName": "Last Name (1)",
             "birthdate": "1955-01-01T00:00:00",
-            "department": "IT"
+            "department": {
+                "id": 1,
+                "name": "IT",
+                "employees": null
+            }
         },
         {
-            "id": 5,
-            "firstName": "First Name (5)",
-            "lastName": "Last Name (5)",
-            "birthdate": "1955-03-02T00:00:00",
-            "department": "Marketing"
+            "id": 7,
+            "firstName": "First Name (7)",
+            "lastName": "Last Name (7)",
+            "birthdate": "1955-04-01T00:00:00",
+            "department": {
+                "id": 1,
+                "name": "IT",
+                "employees": null
+            }
         },
-        {
-            "id": 12,
-            "firstName": "First Name (12)",
-            "lastName": "Last Name (12)",
-            "birthdate": "1955-06-15T00:00:00",
-            "department": "Customer Support"
-        }
+        ...
     ],
     "aggregate": null,
     "sort": [...],
     "stableSort": {...},
-    "filters": [...],
+    "filters": [
+        {
+            "field": "Department.Name",
+            "operator": "=",
+            "value": "IT",
+            "or": null
+        }
+    ],
     "columns": [...],
     "pagination": {...},
-    "beforeLoadingData": "2022-07-17T09:15:15.9393452Z",
-    "afterLoadingData": "2022-07-17T09:15:15.9884659Z"
+    "beforeLoadingData": "2022-07-19T12:19:17.04074Z",
+    "afterLoadingData": "2022-07-19T12:19:17.1363004Z"
     }
     ```
 === "Response (Full)"
@@ -549,29 +546,42 @@ The follwings are some exmaples.
     {
     "dataPageIndex": 0,
     "dataPageSize": 20,
-    "dataCount": 3,
+    "dataCount": 167,
     "data": [
         {
             "id": 1,
             "firstName": "First Name (1)",
             "lastName": "Last Name (1)",
             "birthdate": "1955-01-01T00:00:00",
-            "department": "IT"
+            "department": {
+                "id": 1,
+                "name": "IT",
+                "employees": null
+            }
         },
         {
-            "id": 5,
-            "firstName": "First Name (5)",
-            "lastName": "Last Name (5)",
-            "birthdate": "1955-03-02T00:00:00",
-            "department": "Marketing"
+            "id": 7,
+            "firstName": "First Name (7)",
+            "lastName": "Last Name (7)",
+            "birthdate": "1955-04-01T00:00:00",
+            "department": {
+                "id": 1,
+                "name": "IT",
+                "employees": null
+            }
         },
         {
-            "id": 12,
-            "firstName": "First Name (12)",
-            "lastName": "Last Name (12)",
-            "birthdate": "1955-06-15T00:00:00",
-            "department": "Customer Support"
-        }
+            "id": 13,
+            "firstName": "First Name (13)",
+            "lastName": "Last Name (13)",
+            "birthdate": "1955-06-30T00:00:00",
+            "department": {
+                "id": 1,
+                "name": "IT",
+                "employees": null
+            }
+        },
+        ...
     ],
     "aggregate": null,
     "sort": [
@@ -586,20 +596,238 @@ The follwings are some exmaples.
     },
     "filters": [
         {
-            "field": "ID",
+            "field": "Department.Name",
             "operator": "=",
-            "value": "1",
+            "value": "IT",
+            "or": null
+        }
+    ],
+    "columns": [
+        {
+            "headerText": "ID",
+            "field": "ID",
+            "visible": true,
+            "order": 0
+        },
+        {
+            "headerText": "FirstName",
+            "field": "FirstName",
+            "visible": true,
+            "order": 1
+        },
+        {
+            "headerText": "LastName",
+            "field": "LastName",
+            "visible": true,
+            "order": 2
+        },
+        {
+            "headerText": "Birthdate",
+            "field": "Birthdate",
+            "visible": true,
+            "order": 3
+        },
+        {
+            "headerText": "Department",
+            "field": "Department",
+            "visible": true,
+            "order": 4
+        }
+    ],
+    "pagination": {
+        "count": 9,
+        "pageSize": 10,
+        "pageStart": 0,
+        "pageEnd": 8,
+        "pageIndex": 0,
+        "hasPreviousPage": false,
+        "hasNextPage": false,
+        "lastPageIndex": 8,
+        "dataStart": 1,
+        "dataEnd": 20
+    },
+    "beforeLoadingData": "2022-07-19T12:19:17.04074Z",
+    "afterLoadingData": "2022-07-19T12:19:17.1363004Z"
+    }
+    ```
+#### Filtering subitems and ORing
+=== "C#"
+    ``` C#
+    [HttpPost("filters-subitems-and-or")]
+    public async Task<ActionResult> Filters_SubItems_AndOr()
+    {
+        var db = new DB();
+
+        var DbF = Microsoft.EntityFrameworkCore.EF.Functions;
+
+        var shiftGrid =
+            await db
+            .Employees
+            .Select(x => new
+            {
+                x.ID,
+                x.FirstName,
+                x.LastName,
+                x.Birthdate,
+                x.Department
+            })
+            .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig
+            {
+                Filters = new List<GridFilter> {
+                    new GridFilter
+                    {
+                        Field = "Department.Name",
+                        Operator = GridFilterOperator.Equals,
+                        Value = "IT",
+                        OR = new List<GridFilter>
+                        {
+                            new GridFilter {
+                                Field = nameof(Employee.FirstName),
+                                Operator = GridFilterOperator.EndsWith,
+                                Value = "7)",
+                            }
+                        }
+                    }
+                }
+            });
+
+        return Ok(shiftGrid);
+    }
+    ```
+=== "SQL"
+    ``` SQL 
+    SELECT [e].[ID], [e].[FirstName], [e].[LastName], [e].[Birthdate], [d].[ID], [d].[Name]
+    FROM [Employees] AS [e]
+    LEFT JOIN [Departments] AS [d] ON [e].[DepartmentId] = [d].[ID]
+    WHERE ([d].[Name] = N''IT'') OR ([e].[FirstName] LIKE N''%7)'')
+    ORDER BY [e].[ID]
+    ```
+=== "Request"
+    ``` JSON
+    {
+    "dataPageIndex": 0,
+    "dataPageSize": 5,
+    "sort": [
+        {
+            "field": "ID",
+            "sortDirection": 0
+        }
+    ],
+    "filters": [
+     {
+        "field": "Department.Name",
+        "operator": "=",
+        "value":"IT",
+        "or": [
+            {
+               "field": "FirstName",
+                "operator": "EndsWith",
+                "value":"7)"
+            }
+        ]
+     }
+    ],
+    "columns": [],
+    "pagination": {
+        "pageSize": 10
+    }
+    }
+    ```
+=== "Response (Omitted)"
+    ``` JSON
+        {
+    "dataPageIndex": 0,
+    "dataPageSize": 20,
+    "dataCount": 233,
+    "data": [
+        {
+            "id": 1,
+            "firstName": "First Name (1)",
+            "lastName": "Last Name (1)",
+            "birthdate": "1955-01-01T00:00:00",
+            "department": {
+                "id": 1,
+                "name": "IT",
+                "employees": null
+            }
+        },
+         ...
+        {
+            "id": 17,
+            "firstName": "First Name (17)",
+            "lastName": "Last Name (17)",
+            "birthdate": "1955-08-29T00:00:00",
+            "department": {
+                "id": 5,
+                "name": "Marketing",
+                "employees": null
+            }
+        },
+        ...
+    ],
+    "aggregate": null,
+    "sort": [...],
+    "stableSort": {...},
+    "filters": [...],
+    "columns": [...],
+    "pagination": {...},
+    "beforeLoadingData": "2022-07-19T14:03:42.1161452Z",
+    "afterLoadingData": "2022-07-19T14:03:42.2312512Z"
+    }
+    ```
+=== "Response (Full)"
+    ``` JSON
+    {
+    "dataPageIndex": 0,
+    "dataPageSize": 20,
+    "dataCount": 233,
+    "data": [
+        {
+            "id": 1,
+            "firstName": "First Name (1)",
+            "lastName": "Last Name (1)",
+            "birthdate": "1955-01-01T00:00:00",
+            "department": {
+                "id": 1,
+                "name": "IT",
+                "employees": null
+            }
+        },
+         ...
+        {
+            "id": 17,
+            "firstName": "First Name (17)",
+            "lastName": "Last Name (17)",
+            "birthdate": "1955-08-29T00:00:00",
+            "department": {
+                "id": 5,
+                "name": "Marketing",
+                "employees": null
+            }
+        },
+        ...
+    ],
+    "aggregate": null,
+    "sort": [
+        {
+            "field": "ID",
+            "sortDirection": 0
+        }
+    ],
+    "stableSort": {
+        "field": "ID",
+        "sortDirection": 0
+    },
+    "filters": [
+        {
+            "field": "Department.Name",
+            "operator": "=",
+            "value": "IT",
             "or": [
                 {
-                    "field": "ID",
-                    "operator": "=",
-                    "value": "5",
-                    "or": null
-                },
-                {
-                    "field": "ID",
-                    "operator": "=",
-                    "value": "12",
+                    "field": "FirstName",
+                    "operator": "EndsWith",
+                    "value": "7)",
                     "or": null
                 }
             ]
@@ -638,6 +866,223 @@ The follwings are some exmaples.
         }
     ],
     "pagination": {
+        "count": 12,
+        "pageSize": 10,
+        "pageStart": 0,
+        "pageEnd": 9,
+        "pageIndex": 0,
+        "hasPreviousPage": false,
+        "hasNextPage": true,
+        "lastPageIndex": 11,
+        "dataStart": 1,
+        "dataEnd": 20
+    },
+    "beforeLoadingData": "2022-07-19T14:03:42.1161452Z",
+    "afterLoadingData": "2022-07-19T14:03:42.2312512Z"
+    }
+    ```
+#### Filtering Navigated Items and Subitems Aggregates
+=== "C#"
+    ``` C#
+    [HttpPost("filters-navigated-items-and-subitems-aggregates")]
+    public async Task<ActionResult> Filters_NavigatedItems_AndSubItemsAggregates()
+    {
+        var db = new DB();
+
+        var DbF = Microsoft.EntityFrameworkCore.EF.Functions;
+
+        var shiftGrid =
+            await db
+            .Departments
+            .Select(x => new
+            {
+                x.ID,
+                x.Name,
+                Employees = x.Employees.Select(y => new
+                {
+                    EmployeeID = y.ID * 10
+                })
+            })
+            .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig
+            {
+                Filters = new List<GridFilter> {
+                    new GridFilter
+                    {
+                        Field = "Employees.Min(EmployeeID)",
+                        Operator = GridFilterOperator.Equals,
+                        Value = 10,
+                    },
+                    new GridFilter
+                    {
+                        Field = "Name",
+                        Operator = GridFilterOperator.Equals,
+                        Value = "IT",
+                    },
+                    new GridFilter
+                    {
+                        Field = "Employees.Max(EmployeeID)",
+                        Operator = GridFilterOperator.Equals,
+                        Value = 9970,
+                    }
+
+                }
+            });
+
+        return Ok(shiftGrid);
+    }
+    ```
+=== "SQL"
+    ``` SQL 
+    SELECT [d].[ID], [d].[Name], [e1].[ID] * CAST(10 AS bigint), [e1].[ID]
+    FROM [Departments] AS [d]
+    LEFT JOIN [Employees] AS [e1] ON [d].[ID] = [e1].[DepartmentId]
+    WHERE (((
+        SELECT MIN([e].[ID] * CAST(10 AS bigint))
+        FROM [Employees] AS [e]
+        WHERE [d].[ID] = [e].[DepartmentId]) = CAST(10 AS bigint)) AND ([d].[Name] = N'IT')) AND ((
+        SELECT MAX([e0].[ID] * CAST(10 AS bigint))
+        FROM [Employees] AS [e0]
+        WHERE [d].[ID] = [e0].[DepartmentId]) = CAST(9970 AS bigint))
+    ORDER BY [d].[ID]
+    ```
+=== "Request"
+    ``` JSON
+    {
+    "dataPageIndex": 0,
+    "dataPageSize": 5,
+    "sort": [
+        {
+            "field": "ID",
+            "sortDirection": 0
+        }
+    ],
+    "filters": [
+     {
+        "field": "Employees.Min(EmployeeID)",
+        "operator": "=",
+        "value":10
+     },
+     {
+        "field": "Name",
+        "operator": "=",
+        "value":"IT"
+     },
+     {
+        "field": "Employees.Max(EmployeeID)",
+        "operator": "=",
+        "value":9970
+     }
+    ],
+    "columns": [],
+    "pagination": {
+        "pageSize": 10
+    }
+    }
+    ```
+=== "Response (Omitted)"
+    ``` JSON
+    {
+    "dataPageIndex": 0,
+    "dataPageSize": 20,
+    "dataCount": 1,
+    "data": [
+        {
+            "id": 1,
+            "name": "IT",
+            "employees": [
+                {
+                    "employeeID": 10
+                },
+                ...
+                {
+                    "employeeID": 9970
+                }
+            ]
+        }
+    ],
+    "aggregate": null,
+    "sort": [...],
+    "stableSort": {...},
+    "filters": [...],
+    "columns": [...],
+    "pagination": {...},
+    "beforeLoadingData": "2022-07-19T15:24:52.7590163Z",
+    "afterLoadingData": "2022-07-19T15:24:52.779971Z"
+    }
+    ```
+=== "Response (Full)"
+    ``` JSON
+    {
+    "dataPageIndex": 0,
+    "dataPageSize": 20,
+    "dataCount": 1,
+    "data": [
+        {
+            "id": 1,
+            "name": "IT",
+            "employees": [
+                {
+                    "employeeID": 10
+                },
+                ...
+                {
+                    "employeeID": 9970
+                }
+            ]
+        }
+    ],
+    "aggregate": null,
+    "sort": [
+        {
+            "field": "ID",
+            "sortDirection": 0
+        }
+    ],
+    "stableSort": {
+        "field": "ID",
+        "sortDirection": 0
+    },
+    "filters": [
+        {
+            "field": "Employees.Min(EmployeeID)",
+            "operator": "=",
+            "value": 10,
+            "or": null
+        },
+        {
+            "field": "Name",
+            "operator": "=",
+            "value": "IT",
+            "or": null
+        },
+        {
+            "field": "Employees.Max(EmployeeID)",
+            "operator": "=",
+            "value": 9970,
+            "or": null
+        }
+    ],
+    "columns": [
+        {
+            "headerText": "ID",
+            "field": "ID",
+            "visible": true,
+            "order": 0
+        },
+        {
+            "headerText": "Name",
+            "field": "Name",
+            "visible": true,
+            "order": 1
+        },
+        {
+            "headerText": "Employees",
+            "field": "Employees",
+            "visible": true,
+            "order": 2
+        }
+    ],
+    "pagination": {
         "count": 1,
         "pageSize": 10,
         "pageStart": 0,
@@ -647,54 +1092,54 @@ The follwings are some exmaples.
         "hasNextPage": false,
         "lastPageIndex": 0,
         "dataStart": 1,
-        "dataEnd": 3
+        "dataEnd": 1
     },
-    "beforeLoadingData": "2022-07-17T09:15:15.9393452Z",
-    "afterLoadingData": "2022-07-17T09:15:15.9884659Z"
+    "beforeLoadingData": "2022-07-19T15:24:52.7590163Z",
+    "afterLoadingData": "2022-07-19T15:24:52.779971Z"
     }
     ```
 
-### Grid Column exclusion
+### Grid Column Exclusion
 A column can be excluded in the generated SQL query using the [`GridColumn`](/reference/#gridcolumn) object when visible is set to false, if the column comes from a table join, the join will be omitted
 
 === "C#"
     ``` C#
     [HttpPost("columns")]
-        public async Task<ActionResult> Columns()
-        {
-            var db = new DB();
+    public async Task<ActionResult> Columns()
+    {
+        var db = new DB();
 
-            var DbF = Microsoft.EntityFrameworkCore.EF.Functions;
+        var DbF = Microsoft.EntityFrameworkCore.EF.Functions;
 
-            var shiftGrid =
-                await db
-                .Employees
-                .Select(x => new
+        var shiftGrid =
+            await db
+            .Employees
+            .Select(x => new
+            {
+                x.ID,
+                x.FirstName,
+                x.LastName,
+                x.Birthdate,
+                Department = x.Department.Name
+            })
+            .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig
+            {
+                Columns = new List<GridColumn>
                 {
-                    x.ID,
-                    x.FirstName,
-                    x.LastName,
-                    x.Birthdate,
-                    Department = x.Department.Name
-                })
-                .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig
-                {
-                    Columns = new List<GridColumn>
+                    new GridColumn
                     {
-                        new GridColumn
-                        {
-                            Field = "FirstName",
-                            Visible = false
-                        },
-                        new GridColumn
-                        {
-                            Field = "Department",
-                            Visible = false
-                        }
+                        Field = "FirstName",
+                        Visible = false
+                    },
+                    new GridColumn
+                    {
+                        Field = "Department",
+                        Visible = false
                     }
-                });
-            return Ok(shiftGrid);
-        }
+                }
+            });
+        return Ok(shiftGrid);
+    }
     ```
 === "SQL"
     ``` SQL 
