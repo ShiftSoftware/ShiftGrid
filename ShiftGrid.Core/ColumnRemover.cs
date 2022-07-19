@@ -30,7 +30,7 @@ namespace ShiftSoftware.ShiftGrid.Core
 
             foreach (var binding in node.Bindings)
             {
-                if (this.ColumnsToRemove != null && this.ColumnsToRemove.Contains(binding.Member.Name))
+                if (this.ColumnsToRemove != null && this.ColumnsToRemove.Any(x => x.Equals(binding.Member.Name, StringComparison.InvariantCultureIgnoreCase)))
                     continue;
 
                 bindings.Add(binding);

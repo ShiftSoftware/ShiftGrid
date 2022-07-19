@@ -29,7 +29,7 @@ namespace ShiftSoftware.ShiftGrid.Core
 
         protected override Expression VisitMember(MemberExpression node)
         {
-            if (this.ColumnsToRemove.Contains(node.Member.Name))
+            if (this.ColumnsToRemove.Any(x => x.Equals(node.Member.Name, StringComparison.InvariantCultureIgnoreCase)))
             {
                 return AnonymousColumnRemover<T>.GetDefaultExpressionFor(node.Member);
             }
@@ -65,7 +65,7 @@ namespace ShiftSoftware.ShiftGrid.Core
 
         protected override Expression VisitMember(MemberExpression node)
         {
-            if (this.ColumnsToRemove.Contains(node.Member.Name))
+            if (this.ColumnsToRemove.Any(x => x.Equals(node.Member.Name, StringComparison.InvariantCultureIgnoreCase)))
             {
                 this.containsHiddenMember = true;
             }
