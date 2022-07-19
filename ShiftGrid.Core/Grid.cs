@@ -142,16 +142,6 @@ namespace ShiftSoftware.ShiftGrid.Core
                     this.ExportConfig = payload.ExportConfig;
                 }
             }
-
-            if (this.Sort.Count == 0)
-            {
-                //this.Sort.Add(new GridSort
-                //{
-                //    Field = typeof(T).GetProperties().Where(x => x.MemberType == System.Reflection.MemberTypes.Property).First().Name,
-                //    SortDirection = SortDirection.Ascending
-                //});
-                this.Sort.Add(StableSort);
-            }
         }
         private void GenerateQuery()
         {
@@ -219,7 +209,7 @@ namespace ShiftSoftware.ShiftGrid.Core
                     if (theFilter.Value?.GetType() == typeof(Newtonsoft.Json.Linq.JArray) || theFilter.Value?.GetType() == typeof(System.Text.Json.JsonElement))
                     {
                         Type elementType = select.ElementType;
-                        var dataType = elementType.GetProperties().First(x => x.Name == theFilter.Field).PropertyType;
+                        var dataType = elementType.GetProperties().First(x => x.Name.Equals(theFilter.Field, StringComparison.InvariantCultureIgnoreCase)).PropertyType;
                         Type listType = typeof(List<>).MakeGenericType(dataType);
                         var valueList = (IList)Activator.CreateInstance(listType);
 
@@ -347,8 +337,15 @@ namespace ShiftSoftware.ShiftGrid.Core
 
         private IQueryable GetPaginatedQuery()
         {
+            var sorts = new List<GridSort>();
+
+            sorts.AddRange(this.Sort);
+
+            if (sorts.Count == 0)
+                sorts.Add(this.StableSort);
+
             IQueryable sort = this.ProccessedSelect
-                .OrderBy(string.Join(", ", this.Sort.Select(x => $"{x.Field} {(x.SortDirection == SortDirection.Descending ? "desc" : "")}")))
+                .OrderBy(string.Join(", ", sorts.Select(x => $"{x.Field} {(x.SortDirection == SortDirection.Descending ? "desc" : "")}")))
                 .ThenBy($"{this.StableSort.Field} {(this.StableSort.SortDirection == SortDirection.Descending ? "desc" : "")}");
 
             IQueryable dataToIterate;
@@ -391,7 +388,7 @@ namespace ShiftSoftware.ShiftGrid.Core
 
             dataTypeColumns.ForEach((dataTypeColumn) =>
             {
-                var payloadColumn = this.Columns.FirstOrDefault(y => y.Field == dataTypeColumn.Field);
+                var payloadColumn = this.Columns.FirstOrDefault(y => y.Field.Equals(dataTypeColumn.Field, StringComparison.InvariantCultureIgnoreCase));
 
                 if (payloadColumn != null)
                 {
@@ -455,14 +452,12 @@ namespace ShiftSoftware.ShiftGrid.Core
             if (this.ExportMode)
                 return;
 
-            if (!this.ExportMode)
-            {
-                if (this.Aggregate == null || !this.Aggregate.GetType().GetProperties().Any(x => x.Name == "Count"))
-                    this.DataCount = this.ProccessedSelect.Count();
-            }
+            
+            if (this.Aggregate == null || !this.Aggregate.GetType().GetProperties().Any(x => x.Name.Equals("Count", StringComparison.InvariantCultureIgnoreCase)))
+                this.DataCount = this.ProccessedSelect.Count();
 
             if (this.DataCount < 0)
-                this.DataCount = (int)this.Aggregate.GetType().GetProperties().FirstOrDefault(x => x.Name == "Count")?.GetValue(this.Aggregate);
+                this.DataCount = (int)this.Aggregate.GetType().GetProperties().FirstOrDefault(x => x.Name.Equals("Count", StringComparison.InvariantCultureIgnoreCase))?.GetValue(this.Aggregate);
 
             //Show All
             if (this.DataPageSize == -1)

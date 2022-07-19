@@ -38,7 +38,7 @@ namespace ShiftSoftware.ShiftGrid.Core
 
             foreach (var member in node.Members)
             {
-                if (this.ColumnsToRemove.Contains(member.Name))
+                if (this.ColumnsToRemove.Any(x => x.Equals(member.Name, StringComparison.InvariantCultureIgnoreCase)))
                 {
                     args.Add(GetDefaultExpressionFor(member));
                 }
