@@ -239,7 +239,7 @@ namespace ShiftSoftware.ShiftGrid.Core
                             }
                         }
                     }
-                    
+
 
                     values.Add(theFilter.Value);
 
@@ -368,6 +368,10 @@ namespace ShiftSoftware.ShiftGrid.Core
             //if (props.Count == 0 && this.Data.Count > 0)
             //    props = this.Data.FirstOrDefault().GetType().GetProperties().Where(x => x.MemberType == System.Reflection.MemberTypes.Property).ToList();
 
+            var naturalOrder = 0;
+            var attributeOrders = new Dictionary<string, int>();
+            var configOrders = new Dictionary<string, int>();
+
             foreach (var col in props)
             {
                 var customAttribute = (GridColumnAttribute)col.GetCustomAttributes(true).FirstOrDefault(x => x.GetType() == typeof(GridColumnAttribute));
@@ -375,15 +379,16 @@ namespace ShiftSoftware.ShiftGrid.Core
                 var gridColumn = new GridColumn
                 {
                     Field = col.Name,
-                    Order = customAttribute == null || customAttribute.Order == int.MinValue ? new Nullable<int>() : customAttribute.Order,
+                    Order = naturalOrder,
                     HeaderText = customAttribute == null ? col.Name : customAttribute.HeaderText,
                     Visible = true,
                 };
 
-                while (gridColumn.Order != null && this.Columns.Any(x => x.Order == gridColumn.Order))
-                    gridColumn.Order++;
-
+                if (!(customAttribute == null || customAttribute.Order == int.MinValue))
+                    attributeOrders[col.Name] = customAttribute.Order;
                 dataTypeColumns.Add(gridColumn);
+
+                naturalOrder++;
             }
 
             dataTypeColumns.ForEach((dataTypeColumn) =>
@@ -394,29 +399,91 @@ namespace ShiftSoftware.ShiftGrid.Core
                 {
                     //This will overwrite the Attribute Order if confilicts
                     if (payloadColumn.Order != null)
-                        dataTypeColumn.Order = payloadColumn.Order;
+                        configOrders[payloadColumn.Field] = payloadColumn.Order.Value;
 
                     dataTypeColumn.Visible = payloadColumn.Visible;
                 }
             });
 
-            var autoOrder = 0;
+            var attributeResorting = attributeOrders.Where(x => x.Value > -1).OrderBy(x => x.Value);
 
-            dataTypeColumns.ForEach((dataTypeColumn) =>
+            for (int i = 0; i < attributeResorting.Count(); i++)
             {
-                if (dataTypeColumn.Order == null)
+                foreach (var attributeItem in attributeResorting)
                 {
-                    while (dataTypeColumns.Any(x => x.Order == autoOrder))
-                        autoOrder++;
+                    var item = dataTypeColumns.First(x => x.Field == attributeItem.Key);
+                    var attributeOrder = attributeItem.Value;
+                    //if (item.AttributeOrder > item.Order)
+                    //{
+                    //    foreach (var subItem in dataTypeColumns.Where(x => x != item && x.Order <= item.AttributeOrder && x.Order > item.Order))
+                    //        subItem.Order--;
+                    //}
 
-                    dataTypeColumn.Order = autoOrder;
+                    //else if (item.AttributeOrder < item.Order)
+                    //{
+                    //    foreach (var subItem in dataTypeColumns.Where(x => x != item && x.Order < item.Order && x.Order >= item.AttributeOrder))
+                    //        subItem.Order++;
+                    //}
 
-                    autoOrder++;
+                    //item.Order = item.AttributeOrder;
+
+                    if (attributeOrder != item.Order)
+                    {
+                        dataTypeColumns.Remove(item);
+                        item.Order = attributeOrder;
+                        var newIndex = attributeOrder > dataTypeColumns.Count ? dataTypeColumns.Count : attributeOrder;
+                        dataTypeColumns.Insert(newIndex, item);
+
+                        ReIndexGridColumn(dataTypeColumns);
+                    }
                 }
-            });
+            }
 
-            this.Columns = dataTypeColumns.OrderBy(x => x.Order).ToList();
+            var configResorting = configOrders.Where(x => x.Value > -1).OrderBy(x => x.Value);
+            for (int i = 0; i < configResorting.Count(); i++)
+            {
+                foreach (var configItem in configResorting)
+                {
+                    var item = dataTypeColumns.First(x => x.Field == configItem.Key);
+                    var configOrder = configItem.Value;
+                    //if (item.ConfigOrder > item.Order)
+                    //{
+                    //    foreach (var subItem in dataTypeColumns.Where(x => x != item && x.Order <= item.ConfigOrder && x.Order > item.Order))
+                    //        subItem.Order--;
+                    //}
+
+                    //else if (item.ConfigOrder < item.Order)
+                    //{
+                    //    foreach (var subItem in dataTypeColumns.Where(x => x != item && x.Order < item.Order && x.Order >= item.ConfigOrder))
+                    //        subItem.Order++;
+                    //}
+
+                    //item.Order = item.ConfigOrder;
+
+                    if (configOrder != item.Order)
+                    {
+                        dataTypeColumns.Remove(item);
+                        item.Order = configOrder;
+                        var newIndex = configOrder > dataTypeColumns.Count ? dataTypeColumns.Count : configOrder;
+                        dataTypeColumns.Insert(newIndex, item);
+
+                        ReIndexGridColumn(dataTypeColumns);
+                    }
+                }
+            }
+
+            this.Columns = dataTypeColumns;
         }
+
+        void ReIndexGridColumn(List<GridColumn> columns)
+        {
+            var order = 0;
+            foreach (var subItem in columns)
+            {
+                subItem.Order = order++;
+            }
+        }
+
         private void LoadAggregate()
         {
             if (this.ExportMode)
