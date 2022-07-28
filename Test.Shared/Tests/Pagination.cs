@@ -61,8 +61,8 @@ namespace ShiftGrid.Test.Shared.Tests
                 shiftGrid.DataPageIndex == 11 &&
                 shiftGrid.DataPageSize == 5 &&
 
-                shiftGrid.Sort.First().Field == "ID" &&
-                shiftGrid.Sort.First().SortDirection == SortDirection.Ascending &&
+                shiftGrid.StableSort.Field == "ID" &&
+                shiftGrid.StableSort.SortDirection == SortDirection.Ascending &&
 
                 shiftGrid.Data.First().Title == "Title - 56" &&
                 shiftGrid.Data.Last().Title == "Title - 60"
@@ -111,8 +111,8 @@ namespace ShiftGrid.Test.Shared.Tests
                 shiftGrid.DataPageIndex == 22 &&
                 shiftGrid.DataPageSize == 3 &&
 
-                shiftGrid.Sort.First().Field == "ID" &&
-                shiftGrid.Sort.First().SortDirection == SortDirection.Ascending &&
+                shiftGrid.StableSort.Field == "ID" &&
+                shiftGrid.StableSort.SortDirection == SortDirection.Ascending &&
 
                 shiftGrid.Data.First().Title == "Title - 67" &&
                 shiftGrid.Data.Last().Title == "Title - 69"
@@ -161,8 +161,8 @@ namespace ShiftGrid.Test.Shared.Tests
                 shiftGrid.DataPageIndex == 0 &&
                 shiftGrid.DataPageSize == 15 &&
 
-                shiftGrid.Sort.First().Field == "ID" &&
-                shiftGrid.Sort.First().SortDirection == SortDirection.Ascending &&
+                shiftGrid.StableSort.Field == "ID" &&
+                shiftGrid.StableSort.SortDirection == SortDirection.Ascending &&
 
                 shiftGrid.Data.First().Title == "Title - 1" &&
                 shiftGrid.Data.Last().Title == "Title - 15"
