@@ -20,6 +20,7 @@
 		<Title>ShiftGrid</Title>
 		<PackageReleaseNotes>
 			Changes from 1.0.1
+			-Column Ordering Bug Fix
 			-"Field" in Sort, Filters, and Columns are now case insensitive.
 			-Bug Fix: when Sort in GridConfig was empty. The Stable Sort was automatically pushed into it.
 			-Support for System.Text.Json while parsing Filters from Grid Config
