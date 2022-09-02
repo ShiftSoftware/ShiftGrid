@@ -389,6 +389,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#columnhidingexception" class="md-nav__link">
+    ColumnHidingException
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -508,6 +515,13 @@
         <li class="md-nav__item">
   <a href="#exportconfig" class="md-nav__link">
     ExportConfig
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#columnhidingexception" class="md-nav__link">
+    ColumnHidingException
   </a>
   
 </li>
@@ -701,7 +715,7 @@ This is used to control the Grid. Like setting the page size, index, sorting, fi
 </tr>
 <tr>
 <td><code>Visible</code></td>
-<td><code>bool</code> <br/> When set to <code>false</code>, the field will be excluded in the generated SQL. If the field comes from a table join. The join is also omitted</td>
+<td><code>bool</code> <br/> When set to <code>false</code>, the field will be excluded in the generated SQL. If the field comes from a table join. The join is also omitted.<br/><br/> <mark>Hidng columns only work when <code>.Select</code> is used on the data.</mark> <br/>If <code>.Select</code> is not used, a <a href="#columnhidingexception">ColumnHidingException</a> will be thrown.</td>
 </tr>
 <tr>
 <td><code>Order</code></td>
@@ -819,6 +833,58 @@ This is used to control the Grid. Like setting the page size, index, sorting, fi
 </tr>
 </tbody>
 </table>
+<h3 id="columnhidingexception">ColumnHidingException<a class="headerlink" href="#columnhidingexception" title="Permanent link">&para;</a></h3>
+<p>When configuring the Grid using <a href="#gridconfig">GridConfig</a>, You can exclude (Hide) certain columns. But this is only possible if <code>Select</code> method is used on the data. Otherwise a <code>ColumnHidingException</code> is thrown</p>
+<div class="admonition success">
+<p class="admonition-title">Safe</p>
+<p><code>Select</code> is used on this example. Hiding works as expected.
+<div class="highlight"><pre><span></span><code><span class="kt">var</span><span class="w"> </span><span class="n">shiftGrid</span><span class="w"> </span><span class="p">=</span><span class="w"></span>
+<span class="k">await</span><span class="w"> </span><span class="n">db</span><span class="w"></span>
+<span class="p">.</span><span class="n">Employees</span><span class="w"></span>
+<span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">x</span><span class="p">.</span><span class="n">ID</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="n">x</span><span class="p">.</span><span class="n">FirstName</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="n">x</span><span class="p">.</span><span class="n">LastName</span><span class="p">,</span><span class="w"></span>
+<span class="p">})</span><span class="w"></span>
+<span class="p">.</span><span class="n">ToShiftGridAsync</span><span class="p">(</span><span class="s">&quot;ID&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">SortDirection</span><span class="p">.</span><span class="n">Ascending</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">GridConfig</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">Columns</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="p">&lt;</span><span class="n">GridColumn</span><span class="p">&gt;</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="n">GridColumn</span><span class="w"></span>
+<span class="w">        </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="n">Field</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;FirstName&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="n">Visible</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="k">false</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">});</span><span class="w"></span>
+</code></pre></div></p>
+</div>
+<div class="admonition danger">
+<p class="admonition-title">Unsafe</p>
+<p><code>Select</code> is not used here and attempting to hide <code>Firstname</code> causes a <code>ColumnHidingException</code> to be thrown.
+<div class="highlight"><pre><span></span><code><span class="kt">var</span><span class="w"> </span><span class="n">shiftGrid</span><span class="w"> </span><span class="p">=</span><span class="w"></span>
+<span class="k">await</span><span class="w"> </span><span class="n">db</span><span class="w"></span>
+<span class="p">.</span><span class="n">Employees</span><span class="w"></span>
+<span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="k">new</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">x</span><span class="p">.</span><span class="n">ID</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="n">x</span><span class="p">.</span><span class="n">FirstName</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="n">x</span><span class="p">.</span><span class="n">LastName</span><span class="p">,</span><span class="w"></span>
+<span class="p">})</span><span class="w"></span>
+<span class="p">.</span><span class="n">ToShiftGridAsync</span><span class="p">(</span><span class="s">&quot;ID&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">SortDirection</span><span class="p">.</span><span class="n">Ascending</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">GridConfig</span><span class="w"></span>
+<span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">Columns</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="p">&lt;</span><span class="n">GridColumn</span><span class="p">&gt;</span><span class="w"></span>
+<span class="w">    </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="n">GridColumn</span><span class="w"></span>
+<span class="w">        </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="n">Field</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;FirstName&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="n">Visible</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="k">false</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">});</span><span class="w"></span>
+</code></pre></div></p>
+</div>
 
               
             </article>
