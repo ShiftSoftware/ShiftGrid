@@ -5,7 +5,7 @@
 		<Authors>Shift Software</Authors>
 		<Product>ShiftGrid Core</Product>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-		<Version>1.0.6</Version>
+		<Version>1.0.7</Version>
 		<AssemblyName>ShiftSoftware.ShiftGrid.Core</AssemblyName>
 		
 		<PackageId>ShiftSoftware.ShiftGrid.Core</PackageId>
@@ -20,6 +20,7 @@
 		<Title>ShiftGrid</Title>
 		<PackageReleaseNotes>
 			Changes from 1.0.1
+			-More reliable ColumnHidingException
 			-Column Ordering Bug Fix
 			-"Field" in Sort, Filters, and Columns are now case insensitive.
 			-Bug Fix: when Sort in GridConfig was empty. The Stable Sort was automatically pushed into it.

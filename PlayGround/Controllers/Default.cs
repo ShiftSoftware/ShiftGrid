@@ -305,5 +305,57 @@ namespace PlayGround.Controllers
 
             return Ok(db.Logs);
         }
+
+        [HttpPost("safe-hide")]
+        public async Task<ActionResult> SafeHide()
+        {
+            var db = new DB();
+
+            var shiftGrid =
+                await db
+                .Employees
+                .Select(x => new
+                {
+                    x.ID,
+                    x.FirstName,
+                    x.LastName,
+                })
+                .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig
+                {
+                    Columns = new List<GridColumn>
+                    {
+                        new GridColumn
+                        {
+                            Field = "FirstName",
+                            Visible = false
+                        }
+                    }
+                });
+
+            return Ok(shiftGrid);
+        }
+
+        [HttpPost("unsafe-hide")]
+        public async Task<ActionResult> UnsafeHide()
+        {
+            var db = new DB();
+
+            var shiftGrid =
+                await db
+                .Employees
+                .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig
+                {
+                    Columns = new List<GridColumn>
+                    {
+                        new GridColumn
+                        {
+                            Field = "FirstName",
+                            Visible = false
+                        }
+                    }
+                });
+
+            return Ok(shiftGrid);
+        }
     }
 }

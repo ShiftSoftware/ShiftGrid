@@ -59,7 +59,7 @@ We use [`System.Linq.Dynamic.Core`](https://dynamic-linq.net/) under the hood fo
 | ----------------------     | ---------------------------------------------------------------------------------------------------- |
 | `HeaderText`               | `string` <br/> The optional Header Text (or Display Text) for the Column. Useful to pass it down to the client from the Server. <br/> |
 | `Field`                    | `string` <br/> The Field Name as specified on the LINQ `Select` statement. |
-| `Visible`                  | `bool` <br/> When set to `false`, the field will be excluded in the generated SQL. If the field comes from a table join. The join is also omitted |
+| `Visible`                  | `bool` <br/> When set to `false`, the field will be excluded in the generated SQL. If the field comes from a table join. The join is also omitted.<br/><br/> ==Hidng columns only work when `.Select` is used on the data.== <br/>If `.Select` is not used, a [ColumnHidingException](#columnhidingexception) will be thrown. |
 | `Order`                    | `int` <br/> The order of the Column on the Data Grid. |
 
 
@@ -121,3 +121,58 @@ Below are the properties of the `GridPagination` according to the example.
 | ----------------------     | ---------------------------------------------------------------------------------------------------- |
 | `Export`                   | `bool` <br/> The Export Flag. When set to `true`, the data is prepared for export.<br/> We're using the [`FileHelpers`](https://www.filehelpers.net/) for exporting data to CSV  |
 | `Delimiter`                | `string` <br/> The Delimiter that's used for seperating data in the exported CSV file/stream. |
+
+
+### ColumnHidingException
+
+When configuring the Grid using [GridConfig](#gridconfig), You can exclude (Hide) certain columns. But this is only possible if `Select` method is used on the data. Otherwise a `ColumnHidingException` is thrown
+
+!!! success "Safe"
+    `Select` is used on this example. Hiding works as expected.
+    ``` C#
+    var shiftGrid =
+    await db
+    .Employees
+    .Select(x => new
+    {
+        x.ID,
+        x.FirstName,
+        x.LastName,
+    })
+    .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig
+    {
+        Columns = new List<GridColumn>
+        {
+            new GridColumn
+            {
+                Field = "FirstName",
+                Visible = false
+            }
+        }
+    });
+    ```
+
+!!! danger "Unsafe"
+    `Select` is not used here and attempting to hide `Firstname` causes a `ColumnHidingException` to be thrown.
+    ``` C#
+    var shiftGrid =
+    await db
+    .Employees
+    .Select(x => new
+    {
+        x.ID,
+        x.FirstName,
+        x.LastName,
+    })
+    .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig
+    {
+        Columns = new List<GridColumn>
+        {
+            new GridColumn
+            {
+                Field = "FirstName",
+                Visible = false
+            }
+        }
+    });
+    ```
