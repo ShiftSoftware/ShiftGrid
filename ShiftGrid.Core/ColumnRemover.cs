@@ -12,6 +12,7 @@ namespace ShiftSoftware.ShiftGrid.Core
     {
         private IQueryable Query;
         private List<string> ColumnsToRemove;
+        public bool SelectMethodIsUsed { get; set; }
 
         public ColumnRemover(IQueryable<T> query)
         {
@@ -54,6 +55,17 @@ namespace ShiftSoftware.ShiftGrid.Core
         public override Expression Visit(Expression node)
         {
             //System.Diagnostics.Debug.WriteLine(node + "\t\t" + node?.NodeType);
+
+            if (node?.NodeType == ExpressionType.Call)
+            {
+                var expression = node as MethodCallExpression;
+
+                if (expression?.Method != null && expression.Method.Name.Equals("Select", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    this.SelectMethodIsUsed = true;
+                }
+            }
+
             return base.Visit(node);
         }
     }

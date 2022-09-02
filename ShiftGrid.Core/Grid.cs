@@ -163,20 +163,28 @@ namespace ShiftSoftware.ShiftGrid.Core
 
             if (hiddenColumns != null && hiddenColumns.Count > 0)
             {
-                var selectType = this.Select.GetType().ToString();
+                //var selectType = this.Select.GetType().ToString();
 
-                if (selectType.StartsWith("System.Data.Entity.DbSet") || selectType.StartsWith("Microsoft.EntityFrameworkCore.Internal.InternalDbSet"))
-                {
-                    throw new ColumnHidingException("Hiding Columns on DBSet is not allowed on this version. It might become available in future versions.");
-                }
+                //if (selectType.StartsWith("System.Data.Entity.DbSet") || selectType.StartsWith("Microsoft.EntityFrameworkCore.Internal.InternalDbSet"))
+                //{
+                //    throw new ColumnHidingException("Hiding Columns on DBSet is not allowed on this version. It might become available in future versions.");
+                //}
             }
 
             if (hiddenColumns != null && hiddenColumns.Count > 0)
             {
-                if (tType.Contains("<>") && tType.Contains("AnonymousType"))
-                    this.Select = new AnonymousColumnRemover<T>(this.Select).RemoveColumns(hiddenColumns);
-                else
-                    this.Select = new ColumnRemover<T>(this.Select).RemoveColumns(hiddenColumns);
+                    if (tType.Contains("<>") && tType.Contains("AnonymousType"))
+                        this.Select = new AnonymousColumnRemover<T>(this.Select).RemoveColumns(hiddenColumns);
+                    else
+                    {
+                        var columnRemover = new ColumnRemover<T>(this.Select);
+                        this.Select = columnRemover.RemoveColumns(hiddenColumns);
+
+                        if (!columnRemover.SelectMethodIsUsed)
+                        {
+                            throw new ColumnHidingException("Hiding Columns is only possible when (Select Method) is used.");
+                        }
+                    }
 
                 if (this.AggregateSelect != null)    
                     this.AggregateSelect = new AggregateColumnRemover<T, T2>(this.AggregateSelect).RemoveColumns(hiddenColumns);

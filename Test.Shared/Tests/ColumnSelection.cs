@@ -43,6 +43,29 @@ namespace ShiftGrid.Test.Shared.Tests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ColumnHidingException))]
+        public async Task ExcludeFieldFromDBSet_ThatsTurnedToIQueryable()
+        {
+            await this.Utils.PopulateTestData(10);
+
+            var testItems = this.Utils.GetTestItems();
+
+            var shiftGrid = testItems
+                .Where(x => x.TypeId == 1)
+                .ToShiftGrid(nameof(TestItem.ID), SortDirection.Ascending,
+                new GridConfig
+                {
+                    Columns = new List<GridColumn>
+                    {
+                        new GridColumn {
+                            Field = "TypeId",
+                            Visible = false
+                        }
+                    }
+                });
+        }
+
+        [TestMethod]
         public async Task ExcludeField()
         {
             await this.Utils.PopulateTestData(10);
@@ -178,9 +201,9 @@ namespace ShiftGrid.Test.Shared.Tests
                     }
                 });
 
-            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid, Newtonsoft.Json.Formatting.Indented));
+            //Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(shiftGrid, Newtonsoft.Json.Formatting.Indented));
 
-            Console.WriteLine(string.Join(Environment.NewLine + Environment.NewLine + Environment.NewLine, this.Utils.Logs));
+            //Console.WriteLine(string.Join(Environment.NewLine + Environment.NewLine + Environment.NewLine, this.Utils.Logs));
 
             var cols = shiftGrid.Columns.ToDictionary(x => x.Field, x => x);
 
