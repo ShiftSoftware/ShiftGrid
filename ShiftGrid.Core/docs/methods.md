@@ -17,6 +17,44 @@ Parameters:
 | `stableSortDirection`      | [`SortDirection`](/reference/#gridsort) <br/> The sort direction for the Stable Sorting. <br/> Defaults to `Ascending` |
 | `gridConfig`               | [`GridConfig`](/reference/#gridconfig) <br/> This is how the grid is controlled. Page Size, Page Index, Filters, Sorting ...etc |
 
+#### GridConfig | GridFilter
+GridConfig accepts a list of [`GridFilter`](/reference/#gridfilter) where you can specify 4 paramters for each [`GridFilter`](/reference/#gridfilter) item which are `Field`, `Operator`, `Value` and `Or`.
+``` C#
+[HttpPost("filters")]
+        public async Task<ActionResult> Filters()
+        {
+            var db = new DB();
+
+            var DbF = Microsoft.EntityFrameworkCore.EF.Functions;
+
+            var shiftGrid =
+                await db
+                .Employees
+                .Select(x => new
+                {
+                    x.ID,
+                    x.FirstName,
+                    x.LastName,
+                    x.Birthdate,
+                    Department = x.Department.Name
+                })
+                .ToShiftGridAsync("ID", SortDirection.Ascending, new GridConfig
+                {
+                    Filters = new List<GridFilter> {
+                       new GridFilter
+                       {
+                           Field = nameof(Employee.FirstName),
+                           Operator = GridFilterOperator.StartsWith,
+                           Value = "First Name (1"
+                       }
+                   }
+                });
+
+            //It's better to use nameof. When targetting fields in Filters and Columns.
+            return Ok(shiftGrid);
+        }
+```
+
 
 ### SelectAggregate
 Used for Aggregating data.  
